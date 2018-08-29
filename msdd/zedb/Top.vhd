@@ -1,8 +1,8 @@
 -- file Top.vhd
 -- Top top_v1_0 top implementation
 -- author Alexander Wirthmueller
--- date created: 12 Aug 2018
--- date modified: 12 Aug 2018
+-- date created: 26 Aug 2018
+-- date modified: 26 Aug 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -167,11 +167,6 @@ architecture Top of Top is
 
 			ledSetTon60Ton60: out std_logic_vector(7 downto 0);
 
-			reqInvLwirifSetRng: out std_logic;
-			ackInvLwirifSetRng: in std_logic;
-
-			lwirifSetRngRng: out std_logic_vector(7 downto 0);
-
 			reqInvLwiracqSetRng: out std_logic;
 			ackInvLwiracqSetRng: in std_logic;
 
@@ -181,6 +176,11 @@ architecture Top of Top is
 			lwiracqGetInfoTkst: in std_logic_vector(31 downto 0);
 			lwiracqGetInfoMin: in std_logic_vector(15 downto 0);
 			lwiracqGetInfoMax: in std_logic_vector(15 downto 0);
+
+			reqInvLwirifSetRng: out std_logic;
+			ackInvLwirifSetRng: in std_logic;
+
+			lwirifSetRngRng: out std_logic_vector(7 downto 0);
 
 			reqInvServoSetTheta: out std_logic;
 			ackInvServoSetTheta: in std_logic;
@@ -230,50 +230,50 @@ architecture Top of Top is
 			vgaacqGetInfoTixVBufstate: in std_logic_vector(7 downto 0);
 			vgaacqGetInfoTkst: in std_logic_vector(31 downto 0);
 
-			reqAbufFromLwiracq: out std_logic;
-			ackAbufFromLwiracq: in std_logic;
-			dneAbufFromLwiracq: out std_logic;
-
-			avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
-
 			reqBbufFromLwiracq: out std_logic;
-
-			dAbufFromLwiracq: in std_logic_vector(7 downto 0);
-
 			ackBbufFromLwiracq: in std_logic;
-
-			strbDAbufFromLwiracq: out std_logic;
-
 			dneBbufFromLwiracq: out std_logic;
 
 			avllenBbufFromLwiracq: in std_logic_vector(15 downto 0);
-
-			reqBbufFromVgaacq: out std_logic;
 
 			reqAbufFromVgaacq: out std_logic;
 
 			dBbufFromLwiracq: in std_logic_vector(7 downto 0);
 
-			ackBbufFromVgaacq: in std_logic;
-
 			ackAbufFromVgaacq: in std_logic;
+
+			reqBbufFromVgaacq: out std_logic;
 
 			strbDBbufFromLwiracq: out std_logic;
 
-			dneBbufFromVgaacq: out std_logic;
+			reqAbufFromLwiracq: out std_logic;
 
 			dneAbufFromVgaacq: out std_logic;
 
-			avllenBbufFromVgaacq: in std_logic_vector(15 downto 0);
+			ackBbufFromVgaacq: in std_logic;
+
+			ackAbufFromLwiracq: in std_logic;
+
 			avllenAbufFromVgaacq: in std_logic_vector(15 downto 0);
 
-			dBbufFromVgaacq: in std_logic_vector(7 downto 0);
+			dneBbufFromVgaacq: out std_logic;
+
+			dneAbufFromLwiracq: out std_logic;
 
 			dAbufFromVgaacq: in std_logic_vector(7 downto 0);
 
-			strbDBbufFromVgaacq: out std_logic;
+			avllenBbufFromVgaacq: in std_logic_vector(15 downto 0);
+			avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
 
 			strbDAbufFromVgaacq: out std_logic;
+
+			dBbufFromVgaacq: in std_logic_vector(7 downto 0);
+
+			dAbufFromLwiracq: in std_logic_vector(7 downto 0);
+
+			strbDBbufFromVgaacq: out std_logic;
+
+			strbDAbufFromLwiracq: out std_logic;
 
 			enRx: in std_logic;
 			rx: in std_logic_vector(31 downto 0);
@@ -327,28 +327,26 @@ architecture Top of Top is
 			getInfoMin: out std_logic_vector(15 downto 0);
 			getInfoMax: out std_logic_vector(15 downto 0);
 
-			reqAbufToHostif: in std_logic;
-
 			reqBbufToHostif: in std_logic;
 
+			reqAbufToHostif: in std_logic;
 			ackAbufToHostif: out std_logic;
 
 			ackBbufToHostif: out std_logic;
+			dneBbufToHostif: in std_logic;
 
 			dneAbufToHostif: in std_logic;
 
-			dneBbufToHostif: in std_logic;
-
-			avllenAbufToHostif: out std_logic_vector(15 downto 0);
 			avllenBbufToHostif: out std_logic_vector(15 downto 0);
-
-			dAbufToHostif: out std_logic_vector(7 downto 0);
+			avllenAbufToHostif: out std_logic_vector(15 downto 0);
 
 			dBbufToHostif: out std_logic_vector(7 downto 0);
 
-			strbDAbufToHostif: in std_logic;
+			dAbufToHostif: out std_logic_vector(7 downto 0);
 
 			strbDBbufToHostif: in std_logic;
+
+			strbDAbufToHostif: in std_logic;
 
 			nss: out std_logic;
 			sclk: out std_logic;
@@ -531,26 +529,28 @@ architecture Top of Top is
 			getInfoTixVBufstate: out std_logic_vector(7 downto 0);
 			getInfoTkst: out std_logic_vector(31 downto 0);
 
+			reqAbufToHostif: in std_logic;
+
 			reqBbufToHostif: in std_logic;
 
-			reqAbufToHostif: in std_logic;
 			ackAbufToHostif: out std_logic;
 
 			ackBbufToHostif: out std_logic;
-			dneBbufToHostif: in std_logic;
 
 			dneAbufToHostif: in std_logic;
 
-			avllenBbufToHostif: out std_logic_vector(15 downto 0);
-			avllenAbufToHostif: out std_logic_vector(15 downto 0);
+			dneBbufToHostif: in std_logic;
 
-			dBbufToHostif: out std_logic_vector(7 downto 0);
+			avllenAbufToHostif: out std_logic_vector(15 downto 0);
+			avllenBbufToHostif: out std_logic_vector(15 downto 0);
 
 			dAbufToHostif: out std_logic_vector(7 downto 0);
 
-			strbDBbufToHostif: in std_logic;
+			dBbufToHostif: out std_logic_vector(7 downto 0);
 
 			strbDAbufToHostif: in std_logic;
+
+			strbDBbufToHostif: in std_logic;
 
 			rxd: in std_logic;
 			txd: out std_logic
@@ -596,9 +596,9 @@ architecture Top of Top is
 
 	signal ledSetTon60Ton60: std_logic_vector(7 downto 0);
 
-	signal lwirifSetRngRng: std_logic_vector(7 downto 0);
-
 	signal lwiracqSetRngRng: std_logic_vector(7 downto 0);
+
+	signal lwirifSetRngRng: std_logic_vector(7 downto 0);
 
 	signal servoSetThetaTheta: std_logic_vector(15 downto 0);
 
@@ -617,13 +617,13 @@ architecture Top of Top is
 
 	signal vgaacqSetRngRng: std_logic_vector(7 downto 0);
 
-	signal strbDAbufLwiracqToHostif: std_logic;
-
 	signal strbDBbufLwiracqToHostif: std_logic;
 
 	signal strbDAbufVgaacqToHostif: std_logic;
 
 	signal strbDBbufVgaacqToHostif: std_logic;
+
+	signal strbDAbufLwiracqToHostif: std_logic;
 
 	---- myLwiracq
 	signal lwiracqGetInfoTixVBufstate: std_logic_vector(7 downto 0);
@@ -631,13 +631,13 @@ architecture Top of Top is
 	signal lwiracqGetInfoMin: std_logic_vector(15 downto 0);
 	signal lwiracqGetInfoMax: std_logic_vector(15 downto 0);
 
-	signal avllenAbufLwiracqToHostif: std_logic_vector(15 downto 0);
-
-	signal dAbufLwiracqToHostif: std_logic_vector(7 downto 0);
-
 	signal avllenBbufLwiracqToHostif: std_logic_vector(15 downto 0);
 
 	signal dBbufLwiracqToHostif: std_logic_vector(7 downto 0);
+
+	signal avllenAbufLwiracqToHostif: std_logic_vector(15 downto 0);
+
+	signal dAbufLwiracqToHostif: std_logic_vector(7 downto 0);
 
 	---- myLwirif
 	signal lwirrng: std_logic;
@@ -682,13 +682,13 @@ architecture Top of Top is
 	signal reqInvLedSetTon60: std_logic;
 	signal ackInvLedSetTon60: std_logic;
 
-	-- myHostif to myLwirif
-	signal reqInvLwirifSetRng: std_logic;
-	signal ackInvLwirifSetRng: std_logic;
-
 	-- myHostif to myLwiracq
 	signal reqInvLwiracqSetRng: std_logic;
 	signal ackInvLwiracqSetRng: std_logic;
+
+	-- myHostif to myLwirif
+	signal reqInvLwirifSetRng: std_logic;
+	signal ackInvLwirifSetRng: std_logic;
 
 	-- myHostif to myServo
 	signal reqInvServoSetTheta: std_logic;
@@ -723,11 +723,6 @@ architecture Top of Top is
 	signal ackInvVgaacqSetRng: std_logic;
 
 	-- myHostif to myLwiracq
-	signal reqAbufLwiracqToHostif: std_logic;
-	signal ackAbufLwiracqToHostif: std_logic;
-	signal dneAbufLwiracqToHostif: std_logic;
-
-	-- myHostif to myLwiracq
 	signal reqBbufLwiracqToHostif: std_logic;
 	signal ackBbufLwiracqToHostif: std_logic;
 	signal dneBbufLwiracqToHostif: std_logic;
@@ -741,6 +736,11 @@ architecture Top of Top is
 	signal reqBbufVgaacqToHostif: std_logic;
 	signal ackBbufVgaacqToHostif: std_logic;
 	signal dneBbufVgaacqToHostif: std_logic;
+
+	-- myHostif to myLwiracq
+	signal reqAbufLwiracqToHostif: std_logic;
+	signal ackAbufLwiracqToHostif: std_logic;
+	signal dneAbufLwiracqToHostif: std_logic;
 
 	---- other
 	signal reqReset: std_logic := '0';
@@ -873,11 +873,6 @@ begin
 
 			ledSetTon60Ton60 => ledSetTon60Ton60,
 
-			reqInvLwirifSetRng => reqInvLwirifSetRng,
-			ackInvLwirifSetRng => ackInvLwirifSetRng,
-
-			lwirifSetRngRng => lwirifSetRngRng,
-
 			reqInvLwiracqSetRng => reqInvLwiracqSetRng,
 			ackInvLwiracqSetRng => ackInvLwiracqSetRng,
 
@@ -887,6 +882,11 @@ begin
 			lwiracqGetInfoTkst => lwiracqGetInfoTkst,
 			lwiracqGetInfoMin => lwiracqGetInfoMin,
 			lwiracqGetInfoMax => lwiracqGetInfoMax,
+
+			reqInvLwirifSetRng => reqInvLwirifSetRng,
+			ackInvLwirifSetRng => ackInvLwirifSetRng,
+
+			lwirifSetRngRng => lwirifSetRngRng,
 
 			reqInvServoSetTheta => reqInvServoSetTheta,
 			ackInvServoSetTheta => ackInvServoSetTheta,
@@ -936,50 +936,50 @@ begin
 			vgaacqGetInfoTixVBufstate => vgaacqGetInfoTixVBufstate,
 			vgaacqGetInfoTkst => vgaacqGetInfoTkst,
 
-			reqAbufFromLwiracq => reqAbufLwiracqToHostif,
-			ackAbufFromLwiracq => ackAbufLwiracqToHostif,
-			dneAbufFromLwiracq => dneAbufLwiracqToHostif,
-
-			avllenAbufFromLwiracq => avllenAbufLwiracqToHostif,
-
 			reqBbufFromLwiracq => reqBbufLwiracqToHostif,
-
-			dAbufFromLwiracq => dAbufLwiracqToHostif,
-
 			ackBbufFromLwiracq => ackBbufLwiracqToHostif,
-
-			strbDAbufFromLwiracq => strbDAbufLwiracqToHostif,
-
 			dneBbufFromLwiracq => dneBbufLwiracqToHostif,
 
 			avllenBbufFromLwiracq => avllenBbufLwiracqToHostif,
-
-			reqBbufFromVgaacq => reqBbufVgaacqToHostif,
 
 			reqAbufFromVgaacq => reqAbufVgaacqToHostif,
 
 			dBbufFromLwiracq => dBbufLwiracqToHostif,
 
-			ackBbufFromVgaacq => ackBbufVgaacqToHostif,
-
 			ackAbufFromVgaacq => ackAbufVgaacqToHostif,
+
+			reqBbufFromVgaacq => reqBbufVgaacqToHostif,
 
 			strbDBbufFromLwiracq => strbDBbufLwiracqToHostif,
 
-			dneBbufFromVgaacq => dneBbufVgaacqToHostif,
+			reqAbufFromLwiracq => reqAbufLwiracqToHostif,
 
 			dneAbufFromVgaacq => dneAbufVgaacqToHostif,
 
-			avllenBbufFromVgaacq => avllenBbufVgaacqToHostif,
+			ackBbufFromVgaacq => ackBbufVgaacqToHostif,
+
+			ackAbufFromLwiracq => ackAbufLwiracqToHostif,
+
 			avllenAbufFromVgaacq => avllenAbufVgaacqToHostif,
 
-			dBbufFromVgaacq => dBbufVgaacqToHostif,
+			dneBbufFromVgaacq => dneBbufVgaacqToHostif,
+
+			dneAbufFromLwiracq => dneAbufLwiracqToHostif,
 
 			dAbufFromVgaacq => dAbufVgaacqToHostif,
 
-			strbDBbufFromVgaacq => strbDBbufVgaacqToHostif,
+			avllenBbufFromVgaacq => avllenBbufVgaacqToHostif,
+			avllenAbufFromLwiracq => avllenAbufLwiracqToHostif,
 
 			strbDAbufFromVgaacq => strbDAbufVgaacqToHostif,
+
+			dBbufFromVgaacq => dBbufVgaacqToHostif,
+
+			dAbufFromLwiracq => dAbufLwiracqToHostif,
+
+			strbDBbufFromVgaacq => strbDBbufVgaacqToHostif,
+
+			strbDAbufFromLwiracq => strbDAbufLwiracqToHostif,
 
 			enRx => enRx,
 			rx => rx,
@@ -1031,28 +1031,26 @@ begin
 			getInfoMin => lwiracqGetInfoMin,
 			getInfoMax => lwiracqGetInfoMax,
 
-			reqAbufToHostif => reqAbufLwiracqToHostif,
-
 			reqBbufToHostif => reqBbufLwiracqToHostif,
 
+			reqAbufToHostif => reqAbufLwiracqToHostif,
 			ackAbufToHostif => ackAbufLwiracqToHostif,
 
 			ackBbufToHostif => ackBbufLwiracqToHostif,
+			dneBbufToHostif => dneBbufLwiracqToHostif,
 
 			dneAbufToHostif => dneAbufLwiracqToHostif,
 
-			dneBbufToHostif => dneBbufLwiracqToHostif,
-
-			avllenAbufToHostif => avllenAbufLwiracqToHostif,
 			avllenBbufToHostif => avllenBbufLwiracqToHostif,
-
-			dAbufToHostif => dAbufLwiracqToHostif,
+			avllenAbufToHostif => avllenAbufLwiracqToHostif,
 
 			dBbufToHostif => dBbufLwiracqToHostif,
 
-			strbDAbufToHostif => strbDAbufLwiracqToHostif,
+			dAbufToHostif => dAbufLwiracqToHostif,
 
 			strbDBbufToHostif => strbDBbufLwiracqToHostif,
+
+			strbDAbufToHostif => strbDAbufLwiracqToHostif,
 
 			nss => niss,
 			sclk => isck,
@@ -1227,26 +1225,28 @@ begin
 			getInfoTixVBufstate => vgaacqGetInfoTixVBufstate,
 			getInfoTkst => vgaacqGetInfoTkst,
 
+			reqAbufToHostif => reqAbufVgaacqToHostif,
+
 			reqBbufToHostif => reqBbufVgaacqToHostif,
 
-			reqAbufToHostif => reqAbufVgaacqToHostif,
 			ackAbufToHostif => ackAbufVgaacqToHostif,
 
 			ackBbufToHostif => ackBbufVgaacqToHostif,
-			dneBbufToHostif => dneBbufVgaacqToHostif,
 
 			dneAbufToHostif => dneAbufVgaacqToHostif,
 
-			avllenBbufToHostif => avllenBbufVgaacqToHostif,
-			avllenAbufToHostif => avllenAbufVgaacqToHostif,
+			dneBbufToHostif => dneBbufVgaacqToHostif,
 
-			dBbufToHostif => dBbufVgaacqToHostif,
+			avllenAbufToHostif => avllenAbufVgaacqToHostif,
+			avllenBbufToHostif => avllenBbufVgaacqToHostif,
 
 			dAbufToHostif => dAbufVgaacqToHostif,
 
-			strbDBbufToHostif => strbDBbufVgaacqToHostif,
+			dBbufToHostif => dBbufVgaacqToHostif,
 
 			strbDAbufToHostif => strbDAbufVgaacqToHostif,
+
+			strbDBbufToHostif => strbDBbufVgaacqToHostif,
 
 			rxd => irxd,
 			txd => itxd

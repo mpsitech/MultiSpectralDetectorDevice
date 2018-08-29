@@ -1,8 +1,8 @@
 -- file Zedb.vhd
 -- ZedBoard global constants and types
 -- author Alexander Wirthmueller
--- date created: 12 Aug 2018
--- date modified: 12 Aug 2018
+-- date created: 26 Aug 2018
+-- date modified: 26 Aug 2018
 
 library ieee;
 use ieee.std_logic_1164.all;

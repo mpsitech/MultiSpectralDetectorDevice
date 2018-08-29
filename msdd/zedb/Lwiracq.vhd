@@ -1,8 +1,8 @@
 -- file Lwiracq.vhd
 -- Lwiracq easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 12 Aug 2018
--- date modified: 12 Aug 2018
+-- date created: 26 Aug 2018
+-- date modified: 26 Aug 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -32,28 +32,26 @@ entity Lwiracq is
 		getInfoMin: out std_logic_vector(15 downto 0);
 		getInfoMax: out std_logic_vector(15 downto 0);
 
-		reqAbufToHostif: in std_logic;
-
 		reqBbufToHostif: in std_logic;
 
+		reqAbufToHostif: in std_logic;
 		ackAbufToHostif: out std_logic;
 
 		ackBbufToHostif: out std_logic;
+		dneBbufToHostif: in std_logic;
 
 		dneAbufToHostif: in std_logic;
 
-		dneBbufToHostif: in std_logic;
-
-		avllenAbufToHostif: out std_logic_vector(15 downto 0);
 		avllenBbufToHostif: out std_logic_vector(15 downto 0);
-
-		dAbufToHostif: out std_logic_vector(7 downto 0);
+		avllenAbufToHostif: out std_logic_vector(15 downto 0);
 
 		dBbufToHostif: out std_logic_vector(7 downto 0);
 
-		strbDAbufToHostif: in std_logic;
+		dAbufToHostif: out std_logic_vector(7 downto 0);
 
 		strbDBbufToHostif: in std_logic;
+
+		strbDAbufToHostif: in std_logic;
 
 		nss: out std_logic;
 		sclk: out std_logic;
@@ -163,7 +161,7 @@ architecture Lwiracq of Lwiracq is
 	signal enAbufB: std_logic;
 	signal enBbufB: std_logic;
 
-	signal infoTixVBufstate, infoTixVBufstate_next: std_logic_vector(7 downto 0);
+	signal infoTixVBufstate: std_logic_vector(7 downto 0);
 	signal getInfoTkst_sig: std_logic_vector(31 downto 0);
 	signal getInfoMin_sig: std_logic_vector(15 downto 0);
 	signal getInfoMax_sig: std_logic_vector(15 downto 0);
@@ -330,7 +328,7 @@ begin
 			mclk => mclk,
 
 			req => reqSpi,
-			ack => open,
+			ack => ackSpi,
 			dne => dneSpi,
 
 			len => spilen,
@@ -540,7 +538,7 @@ begin
 
 					stateBuf_next <= stateBufReady;
 
-				elsif (ackOpToBufAbufSetFull='1' and reqOpToBufAbufSetFull='0') then
+				elsif (ackOpToBufBbufSetFull='1' and reqOpToBufBbufSetFull='0') then
 					ackOpToBufBbufSetFull_next <= '0'; -- IP impl.buf.rising.ack.bbufFull --- ILINE
 
 					stateBuf_next <= stateBufReady;
@@ -644,7 +642,6 @@ begin
 		if reset='1' then
 			-- IP impl.bufB.rising.asyncrst --- BEGIN
 			stateBufB_next <= stateBufBInit;
-			infoTixVBufstate_next <= x"00";
 			aBufB_next <= 0;
 			ackBufToHostif_next <= '0';
 			reqBufBToBufAbufLock_next <= '0';
@@ -656,7 +653,6 @@ begin
 		elsif rising_edge(mclk) then
 			if (stateBufB=stateBufBInit or bufrun='0') then
 				-- IP impl.bufB.rising.syncrst --- BEGIN
-				infoTixVBufstate_next <= x"00";
 				aBufB_next <= 0;
 				ackBufToHostif_next <= '0';
 				reqBufBToBufAbufLock_next <= '0';
@@ -769,7 +765,6 @@ begin
 	begin
 		if falling_edge(mclk) then
 			stateBufB <= stateBufB_next;
-			infoTixVBufstate <= infoTixVBufstate_next;
 			aBufB <= aBufB_next;
 			ackBufToHostif <= ackBufToHostif_next;
 			reqBufBToBufAbufLock <= reqBufBToBufAbufLock_next;
@@ -793,8 +788,8 @@ begin
 	ackInvSetRng_sig <= '1' when stateOp=stateOpInv else '0';
 	ackInvSetRng <= ackInvSetRng_sig;
 
-	reqSpi <=  when (stateOp=stateOpHdrA or stateOp=stateOpHdrB or stateOp=stateOpTrylockA or stateOp=stateOpTrylockB
-				 or stateOp=stateOpDataA or stateOp=stateOpDataB or stateOp=stateOpDataC or stateOp=stateOpSkip) else ;
+	reqSpi <= '1' when (stateOp=stateOpHdrA or stateOp=stateOpHdrB or stateOp=stateOpTrylockA or stateOp=stateOpTrylockB
+				 or stateOp=stateOpDataA or stateOp=stateOpDataB or stateOp=stateOpDataC or stateOp=stateOpSkip) else '0';
 	-- IP impl.op.wiring --- END
 
 	-- IP impl.op.rising --- BEGIN

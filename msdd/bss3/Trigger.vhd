@@ -1,8 +1,8 @@
 -- file Trigger.vhd
 -- Trigger easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 12 Aug 2018
--- date modified: 12 Aug 2018
+-- date created: 26 Aug 2018
+-- date modified: 26 Aug 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -187,7 +187,7 @@ begin
 				end if;
 
 			elsif stateLwir=stateLwirDelayA then
-				if tkclk='1' then
+				if tkclk='0' then
 					i := i + 1; -- IP impl.lwir.rising.delayA.inc --- ILINE
 
 					stateLwir_next <= stateLwirDelayB;
@@ -399,7 +399,7 @@ begin
 			elsif stateVisl=stateVislOn then
 				j := j + 1; -- IP impl.visl.rising.on.ext --- ILINE
 
-				if j=fMclk/1000 then
+				if j=fMclk/10 then
 					stateVisl_next <= stateVislReady;
 				end if;
 			end if;
@@ -492,7 +492,7 @@ begin
 				end if;
 
 			elsif stateVisr=stateVisrDelayB then
-				if tkclk='0' then
+				if tkclk='1' then
 					if i=to_integer(unsigned(setTdlyVisrTdlyVisr)) then
 						stateVisr_next <= stateVisrOn;
 
@@ -504,7 +504,7 @@ begin
 			elsif stateVisr=stateVisrOn then
 				j := j + 1; -- IP impl.visr.rising.on.ext --- ILINE
 
-				if j=fMclk/1000 then
+				if j=fMclk/10 then
 					if to_integer(unsigned(setTdlyVisrTdlyVisr))=0 then
 						stateVisr_next <= stateVisrReadyA;
 

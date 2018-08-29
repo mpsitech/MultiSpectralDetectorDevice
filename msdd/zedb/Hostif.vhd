@@ -1,8 +1,8 @@
 -- file Hostif.vhd
 -- Hostif axihostif_Easy_v1_0 easy model host interface implementation
 -- author Alexander Wirthmueller
--- date created: 12 Aug 2018
--- date modified: 12 Aug 2018
+-- date created: 26 Aug 2018
+-- date modified: 26 Aug 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -43,11 +43,6 @@ entity Hostif is
 
 		ledSetTon60Ton60: out std_logic_vector(7 downto 0);
 
-		reqInvLwirifSetRng: out std_logic;
-		ackInvLwirifSetRng: in std_logic;
-
-		lwirifSetRngRng: out std_logic_vector(7 downto 0);
-
 		reqInvLwiracqSetRng: out std_logic;
 		ackInvLwiracqSetRng: in std_logic;
 
@@ -57,6 +52,11 @@ entity Hostif is
 		lwiracqGetInfoTkst: in std_logic_vector(31 downto 0);
 		lwiracqGetInfoMin: in std_logic_vector(15 downto 0);
 		lwiracqGetInfoMax: in std_logic_vector(15 downto 0);
+
+		reqInvLwirifSetRng: out std_logic;
+		ackInvLwirifSetRng: in std_logic;
+
+		lwirifSetRngRng: out std_logic_vector(7 downto 0);
 
 		reqInvServoSetTheta: out std_logic;
 		ackInvServoSetTheta: in std_logic;
@@ -106,50 +106,50 @@ entity Hostif is
 		vgaacqGetInfoTixVBufstate: in std_logic_vector(7 downto 0);
 		vgaacqGetInfoTkst: in std_logic_vector(31 downto 0);
 
-		reqAbufFromLwiracq: out std_logic;
-		ackAbufFromLwiracq: in std_logic;
-		dneAbufFromLwiracq: out std_logic;
-
-		avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
-
 		reqBbufFromLwiracq: out std_logic;
-
-		dAbufFromLwiracq: in std_logic_vector(7 downto 0);
-
 		ackBbufFromLwiracq: in std_logic;
-
-		strbDAbufFromLwiracq: out std_logic;
-
 		dneBbufFromLwiracq: out std_logic;
 
 		avllenBbufFromLwiracq: in std_logic_vector(15 downto 0);
-
-		reqBbufFromVgaacq: out std_logic;
 
 		reqAbufFromVgaacq: out std_logic;
 
 		dBbufFromLwiracq: in std_logic_vector(7 downto 0);
 
-		ackBbufFromVgaacq: in std_logic;
-
 		ackAbufFromVgaacq: in std_logic;
+
+		reqBbufFromVgaacq: out std_logic;
 
 		strbDBbufFromLwiracq: out std_logic;
 
-		dneBbufFromVgaacq: out std_logic;
+		reqAbufFromLwiracq: out std_logic;
 
 		dneAbufFromVgaacq: out std_logic;
 
-		avllenBbufFromVgaacq: in std_logic_vector(15 downto 0);
+		ackBbufFromVgaacq: in std_logic;
+
+		ackAbufFromLwiracq: in std_logic;
+
 		avllenAbufFromVgaacq: in std_logic_vector(15 downto 0);
 
-		dBbufFromVgaacq: in std_logic_vector(7 downto 0);
+		dneBbufFromVgaacq: out std_logic;
+
+		dneAbufFromLwiracq: out std_logic;
 
 		dAbufFromVgaacq: in std_logic_vector(7 downto 0);
 
-		strbDBbufFromVgaacq: out std_logic;
+		avllenBbufFromVgaacq: in std_logic_vector(15 downto 0);
+		avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
 
 		strbDAbufFromVgaacq: out std_logic;
+
+		dBbufFromVgaacq: in std_logic_vector(7 downto 0);
+
+		dAbufFromLwiracq: in std_logic_vector(7 downto 0);
+
+		strbDBbufFromVgaacq: out std_logic;
+
+		strbDAbufFromLwiracq: out std_logic;
 
 		enRx: in std_logic;
 		rx: in std_logic_vector(31 downto 0);
@@ -316,9 +316,9 @@ architecture Hostif of Hostif is
 
 	signal ledSetTon60Ton60_sig: std_logic_vector(7 downto 0);
 
-	signal lwirifSetRngRng_sig: std_logic_vector(7 downto 0);
-
 	signal lwiracqSetRngRng_sig: std_logic_vector(7 downto 0);
+
+	signal lwirifSetRngRng_sig: std_logic_vector(7 downto 0);
 
 	signal servoSetThetaTheta_sig: std_logic_vector(15 downto 0);
 
@@ -469,8 +469,8 @@ begin
 	reqInvAlignSetSeq <= '1' when (stateOp=stateOpCopyRxB and opbuf(ixOpbufController)=tixVControllerAlign and opbuf(ixOpbufCommand)=tixVAlignCommandSetSeq) else '0';
 	reqInvLedSetTon15 <= '1' when (stateOp=stateOpCopyRxB and opbuf(ixOpbufController)=tixVControllerLed and opbuf(ixOpbufCommand)=tixVLedCommandSetTon15) else '0';
 	reqInvLedSetTon60 <= '1' when (stateOp=stateOpCopyRxB and opbuf(ixOpbufController)=tixVControllerLed and opbuf(ixOpbufCommand)=tixVLedCommandSetTon60) else '0';
-	reqInvLwirifSetRng <= '1' when (stateOp=stateOpCopyRxB and opbuf(ixOpbufController)=tixVControllerLwirif and opbuf(ixOpbufCommand)=tixVLwirifCommandSetRng) else '0';
 	reqInvLwiracqSetRng <= '1' when (stateOp=stateOpCopyRxB and opbuf(ixOpbufController)=tixVControllerLwiracq and opbuf(ixOpbufCommand)=tixVLwiracqCommandSetRng) else '0';
+	reqInvLwirifSetRng <= '1' when (stateOp=stateOpCopyRxB and opbuf(ixOpbufController)=tixVControllerLwirif and opbuf(ixOpbufCommand)=tixVLwirifCommandSetRng) else '0';
 	reqInvServoSetTheta <= '1' when (stateOp=stateOpCopyRxB and opbuf(ixOpbufController)=tixVControllerServo and opbuf(ixOpbufCommand)=tixVServoCommandSetTheta) else '0';
 	reqInvServoSetPhi <= '1' when (stateOp=stateOpCopyRxB and opbuf(ixOpbufController)=tixVControllerServo and opbuf(ixOpbufCommand)=tixVServoCommandSetPhi) else '0';
 	reqInvTkclksrcSetTkst <= '1' when (stateOp=stateOpCopyRxB and opbuf(ixOpbufController)=tixVControllerTkclksrc and opbuf(ixOpbufCommand)=tixVTkclksrcCommandSetTkst) else '0';
@@ -483,8 +483,8 @@ begin
 	ackInv <= ackInvAlignSetSeq when (opbuf(ixOpbufController)=tixVControllerAlign and opbuf(ixOpbufCommand)=tixVAlignCommandSetSeq)
 				else ackInvLedSetTon15 when (opbuf(ixOpbufController)=tixVControllerLed and opbuf(ixOpbufCommand)=tixVLedCommandSetTon15)
 				else ackInvLedSetTon60 when (opbuf(ixOpbufController)=tixVControllerLed and opbuf(ixOpbufCommand)=tixVLedCommandSetTon60)
-				else ackInvLwirifSetRng when (opbuf(ixOpbufController)=tixVControllerLwirif and opbuf(ixOpbufCommand)=tixVLwirifCommandSetRng)
 				else ackInvLwiracqSetRng when (opbuf(ixOpbufController)=tixVControllerLwiracq and opbuf(ixOpbufCommand)=tixVLwiracqCommandSetRng)
+				else ackInvLwirifSetRng when (opbuf(ixOpbufController)=tixVControllerLwirif and opbuf(ixOpbufCommand)=tixVLwirifCommandSetRng)
 				else ackInvServoSetTheta when (opbuf(ixOpbufController)=tixVControllerServo and opbuf(ixOpbufCommand)=tixVServoCommandSetTheta)
 				else ackInvServoSetPhi when (opbuf(ixOpbufController)=tixVControllerServo and opbuf(ixOpbufCommand)=tixVServoCommandSetPhi)
 				else ackInvTkclksrcSetTkst when (opbuf(ixOpbufController)=tixVControllerTkclksrc and opbuf(ixOpbufCommand)=tixVTkclksrcCommandSetTkst)
@@ -543,9 +543,9 @@ begin
 
 	ledSetTon60Ton60 <= ledSetTon60Ton60_sig;
 
-	lwirifSetRngRng <= lwirifSetRngRng_sig;
-
 	lwiracqSetRngRng <= lwiracqSetRngRng_sig;
+
+	lwirifSetRngRng <= lwirifSetRngRng_sig;
 
 	servoSetThetaTheta <= servoSetThetaTheta_sig;
 
@@ -697,8 +697,8 @@ begin
 				elsif opbuf(ixOpbufBuffer)=tixWBufferHostifToCmdinv then
 					if ( (opbuf(ixOpbufController)=tixVControllerAlign and (opbuf(ixOpbufCommand)=tixVAlignCommandSetSeq))
 								or (opbuf(ixOpbufController)=tixVControllerLed and (opbuf(ixOpbufCommand)=tixVLedCommandSetTon15 or opbuf(ixOpbufCommand)=tixVLedCommandSetTon60))
-								or (opbuf(ixOpbufController)=tixVControllerLwirif and (opbuf(ixOpbufCommand)=tixVLwirifCommandSetRng))
 								or (opbuf(ixOpbufController)=tixVControllerLwiracq and (opbuf(ixOpbufCommand)=tixVLwiracqCommandSetRng))
+								or (opbuf(ixOpbufController)=tixVControllerLwirif and (opbuf(ixOpbufCommand)=tixVLwirifCommandSetRng))
 								or (opbuf(ixOpbufController)=tixVControllerServo and (opbuf(ixOpbufCommand)=tixVServoCommandSetTheta or opbuf(ixOpbufCommand)=tixVServoCommandSetPhi))
 								or (opbuf(ixOpbufController)=tixVControllerTkclksrc and (opbuf(ixOpbufCommand)=tixVTkclksrcCommandSetTkst))
 								or (opbuf(ixOpbufController)=tixVControllerTrigger and (opbuf(ixOpbufCommand)=tixVTriggerCommandSetRng or opbuf(ixOpbufCommand)=tixVTriggerCommandSetTdlyLwir or opbuf(ixOpbufCommand)=tixVTriggerCommandSetTdlyVisr or opbuf(ixOpbufCommand)=tixVTriggerCommandSetTfrm))
@@ -1159,13 +1159,14 @@ begin
 
 	process (reset, mclk, stateOp)
 	begin
-		if reset='1' then
+		if falling_edge(mclk) then
+			if reset='1' then
 			alignSetSeqLenSeq_sig <= x"20";
 			alignSetSeqSeq_sig <= x"00102030405060708090A0B0C0D0E0F0F0E0D0C0B0A090807060504030201000";
 			ledSetTon15Ton15_sig <= x"14";
 			ledSetTon60Ton60_sig <= x"14";
-			lwirifSetRngRng_sig <= tru8;
 			lwiracqSetRngRng_sig <= fls8;
+			lwirifSetRngRng_sig <= tru8;
 			servoSetThetaTheta_sig <= x"0000";
 			servoSetPhiPhi_sig <= x"0000";
 			tkclksrcSetTkstTkst_sig <= x"00000000";
@@ -1175,24 +1176,22 @@ begin
 			triggerSetTdlyVisrTdlyVisr_sig <= x"0000";
 			triggerSetTfrmTfrm_sig <= x"000A";
 			vgaacqSetRngRng_sig <= fls8;
-		end if;
+			else
+				stateOp <= stateOp_next;
+				torestart <= torestart_next;
+				crcd <= crcd_next;
+				atxd <= atxd_next;
+				commok_sig <= commok_sig_next;
+				reqReset_sig <= reqReset_sig_next;
+				reqTxbuf <= reqTxbuf_next;
+				dneTxbuf <= dneTxbuf_next;
+				strbDTxbuf <= strbDTxbuf_next;
+				reqRxbuf <= reqRxbuf_next;
+				dneRxbuf <= dneRxbuf_next;
+				dRxbuf <= dRxbuf_next;
+				strbDRxbuf <= strbDRxbuf_next;
 
-		if falling_edge(mclk) then
-			stateOp <= stateOp_next;
-			torestart <= torestart_next;
-			crcd <= crcd_next;
-			atxd <= atxd_next;
-			commok_sig <= commok_sig_next;
-			reqReset_sig <= reqReset_sig_next;
-			reqTxbuf <= reqTxbuf_next;
-			dneTxbuf <= dneTxbuf_next;
-			strbDTxbuf <= strbDTxbuf_next;
-			reqRxbuf <= reqRxbuf_next;
-			dneRxbuf <= dneRxbuf_next;
-			dRxbuf <= dRxbuf_next;
-			strbDRxbuf <= strbDRxbuf_next;
-
-			if stateOp_next=stateOpCopyRxB then
+				if stateOp_next=stateOpCopyRxB then
 				if opbuf(ixOpbufController)=tixVControllerAlign then
 					if opbuf(ixOpbufCommand)=tixVAlignCommandSetSeq then
 						alignSetSeqLenSeq_sig <= rxbuf(0);
@@ -1237,14 +1236,14 @@ begin
 						ledSetTon60Ton60_sig <= rxbuf(0);
 					end if;
 
-				elsif opbuf(ixOpbufController)=tixVControllerLwirif then
-					if opbuf(ixOpbufCommand)=tixVLwirifCommandSetRng then
-						lwirifSetRngRng_sig <= rxbuf(0);
-					end if;
-
 				elsif opbuf(ixOpbufController)=tixVControllerLwiracq then
 					if opbuf(ixOpbufCommand)=tixVLwiracqCommandSetRng then
 						lwiracqSetRngRng_sig <= rxbuf(0);
+					end if;
+
+				elsif opbuf(ixOpbufController)=tixVControllerLwirif then
+					if opbuf(ixOpbufCommand)=tixVLwirifCommandSetRng then
+						lwirifSetRngRng_sig <= rxbuf(0);
 					end if;
 
 				elsif opbuf(ixOpbufController)=tixVControllerServo then
@@ -1286,6 +1285,7 @@ begin
 
 				end if;
 
+				end if;
 			end if;
 		end if;
 	end process;

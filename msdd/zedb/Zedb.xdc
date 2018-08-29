@@ -1,8 +1,8 @@
 # file Zedb.xdc
 # ZedBoard pin mapping and constraints
 # author Alexander Wirthmueller
-# date created: 12 Aug 2018
-# modified: 12 Aug 2018
+# date created: 26 Aug 2018
+# modified: 26 Aug 2018
 
 # bank13 3.3V
 set_property PACKAGE_PIN Y9 [get_ports extclk];

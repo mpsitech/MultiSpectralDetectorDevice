@@ -1,8 +1,8 @@
 -- file Lwiracq.vhd
 -- Lwiracq easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 12 Aug 2018
--- date modified: 12 Aug 2018
+-- date created: 26 Aug 2018
+-- date modified: 26 Aug 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -31,8 +31,6 @@ entity Lwiracq is
 		getInfoTkst: out std_logic_vector(31 downto 0);
 		getInfoMin: out std_logic_vector(15 downto 0);
 		getInfoMax: out std_logic_vector(15 downto 0);
-
-		tkclksrcGetTkstTkst: in std_logic_vector(31 downto 0);
 
 		reqBbufToHostif: in std_logic;
 
@@ -163,7 +161,7 @@ architecture Lwiracq of Lwiracq is
 	signal enAbufB: std_logic;
 	signal enBbufB: std_logic;
 
-	signal infoTixVBufstate, infoTixVBufstate_next: std_logic_vector(7 downto 0);
+	signal infoTixVBufstate: std_logic_vector(7 downto 0);
 	signal getInfoTkst_sig: std_logic_vector(31 downto 0);
 	signal getInfoMin_sig: std_logic_vector(15 downto 0);
 	signal getInfoMax_sig: std_logic_vector(15 downto 0);
@@ -330,7 +328,7 @@ begin
 			mclk => mclk,
 
 			req => reqSpi,
-			ack => open,
+			ack => ackSpi,
 			dne => dneSpi,
 
 			len => spilen,
@@ -540,7 +538,7 @@ begin
 
 					stateBuf_next <= stateBufReady;
 
-				elsif (ackOpToBufAbufSetFull='1' and reqOpToBufAbufSetFull='0') then
+				elsif (ackOpToBufBbufSetFull='1' and reqOpToBufBbufSetFull='0') then
 					ackOpToBufBbufSetFull_next <= '0'; -- IP impl.buf.rising.ack.bbufFull --- ILINE
 
 					stateBuf_next <= stateBufReady;

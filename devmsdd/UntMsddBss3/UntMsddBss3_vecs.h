@@ -2,8 +2,8 @@
   * \file UntMsddBss3_vecs.h
   * Digilent Basys3 unit vectors (declarations)
   * \author Alexander Wirthmueller
-  * \date created: 12 Aug 2018
-  * \date modified: 12 Aug 2018
+  * \date created: 26 Aug 2018
+  * \date modified: 26 Aug 2018
   */
 
 #ifndef UNTMSDDBSS3_VECS_H

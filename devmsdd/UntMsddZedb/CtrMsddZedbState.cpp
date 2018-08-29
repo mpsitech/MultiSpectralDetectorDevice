@@ -2,8 +2,8 @@
   * \file CtrMsddZedbState.cpp
   * state controller (implementation)
   * \author Alexander Wirthmueller
-  * \date created: 12 Aug 2018
-  * \date modified: 12 Aug 2018
+  * \date created: 26 Aug 2018
+  * \date modified: 26 Aug 2018
   */
 
 #include "CtrMsddZedbState.h"

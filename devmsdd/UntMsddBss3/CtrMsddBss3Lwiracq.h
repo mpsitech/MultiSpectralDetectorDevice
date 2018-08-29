@@ -2,8 +2,8 @@
   * \file CtrMsddBss3Lwiracq.h
   * lwiracq controller (declarations)
   * \author Alexander Wirthmueller
-  * \date created: 12 Aug 2018
-  * \date modified: 12 Aug 2018
+  * \date created: 26 Aug 2018
+  * \date modified: 26 Aug 2018
   */
 
 #ifndef CTRMSDDBSS3LWIRACQ_H

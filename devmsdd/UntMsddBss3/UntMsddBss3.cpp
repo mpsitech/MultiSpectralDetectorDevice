@@ -2,8 +2,8 @@
   * \file UntMsddBss3.cpp
   * Digilent Basys3 unit (implementation)
   * \author Alexander Wirthmueller
-  * \date created: 12 Aug 2018
-  * \date modified: 12 Aug 2018
+  * \date created: 26 Aug 2018
+  * \date modified: 26 Aug 2018
   */
 
 #include "UntMsddBss3.h"
@@ -325,13 +325,14 @@ void UntMsddBss3::fillFeedFCommand(
 Bufxf* UntMsddBss3::getNewBufxf(
 			const utinyint tixWBuffer
 			, const size_t reqlen
+			, unsigned char* buf
 		) {
 	Bufxf* bufxf = NULL;
 
-	if (tixWBuffer == VecWMsddBss3Buffer::ABUFLWIRACQTOHOSTIF) bufxf = getNewBufxfAbufFromLwiracq(reqlen);
-	else if (tixWBuffer == VecWMsddBss3Buffer::ABUFVGAACQTOHOSTIF) bufxf = getNewBufxfAbufFromVgaacq(reqlen);
-	else if (tixWBuffer == VecWMsddBss3Buffer::BBUFLWIRACQTOHOSTIF) bufxf = getNewBufxfBbufFromLwiracq(reqlen);
-	else if (tixWBuffer == VecWMsddBss3Buffer::BBUFVGAACQTOHOSTIF) bufxf = getNewBufxfBbufFromVgaacq(reqlen);
+	if (tixWBuffer == VecWMsddBss3Buffer::ABUFLWIRACQTOHOSTIF) bufxf = getNewBufxfAbufFromLwiracq(reqlen, buf);
+	else if (tixWBuffer == VecWMsddBss3Buffer::ABUFVGAACQTOHOSTIF) bufxf = getNewBufxfAbufFromVgaacq(reqlen, buf);
+	else if (tixWBuffer == VecWMsddBss3Buffer::BBUFLWIRACQTOHOSTIF) bufxf = getNewBufxfBbufFromLwiracq(reqlen, buf);
+	else if (tixWBuffer == VecWMsddBss3Buffer::BBUFVGAACQTOHOSTIF) bufxf = getNewBufxfBbufFromVgaacq(reqlen, buf);
 
 	return bufxf;
 };
@@ -358,8 +359,9 @@ Cmd* UntMsddBss3::getNewCmd(
 
 Bufxf* UntMsddBss3::getNewBufxfAbufFromLwiracq(
 			const size_t reqlen
+			, unsigned char* buf
 		) {
-	return(new Bufxf(VecWMsddBss3Buffer::ABUFLWIRACQTOHOSTIF, false, reqlen, 0, 2));
+	return(new Bufxf(VecWMsddBss3Buffer::ABUFLWIRACQTOHOSTIF, false, reqlen, 0, 2, buf));
 };
 
 void UntMsddBss3::readAbufFromLwiracq(
@@ -367,14 +369,13 @@ void UntMsddBss3::readAbufFromLwiracq(
 			, unsigned char*& data
 			, size_t& datalen
 		) {
-	Bufxf* bufxf = getNewBufxfAbufFromLwiracq(reqlen);
+	Bufxf* bufxf = getNewBufxfAbufFromLwiracq(reqlen, data);
 
 	if (runBufxf(bufxf)) {
-		data = bufxf->getReadData();
+		if (!data) data = bufxf->getReadData();
 		datalen = bufxf->getReadDatalen();
 
 	} else {
-		data = NULL;
 		datalen = 0;
 
 		delete bufxf;
@@ -386,8 +387,9 @@ void UntMsddBss3::readAbufFromLwiracq(
 
 Bufxf* UntMsddBss3::getNewBufxfAbufFromVgaacq(
 			const size_t reqlen
+			, unsigned char* buf
 		) {
-	return(new Bufxf(VecWMsddBss3Buffer::ABUFVGAACQTOHOSTIF, false, reqlen, 0, 2));
+	return(new Bufxf(VecWMsddBss3Buffer::ABUFVGAACQTOHOSTIF, false, reqlen, 0, 2, buf));
 };
 
 void UntMsddBss3::readAbufFromVgaacq(
@@ -395,14 +397,13 @@ void UntMsddBss3::readAbufFromVgaacq(
 			, unsigned char*& data
 			, size_t& datalen
 		) {
-	Bufxf* bufxf = getNewBufxfAbufFromVgaacq(reqlen);
+	Bufxf* bufxf = getNewBufxfAbufFromVgaacq(reqlen, data);
 
 	if (runBufxf(bufxf)) {
-		data = bufxf->getReadData();
+		if (!data) data = bufxf->getReadData();
 		datalen = bufxf->getReadDatalen();
 
 	} else {
-		data = NULL;
 		datalen = 0;
 
 		delete bufxf;
@@ -414,8 +415,9 @@ void UntMsddBss3::readAbufFromVgaacq(
 
 Bufxf* UntMsddBss3::getNewBufxfBbufFromLwiracq(
 			const size_t reqlen
+			, unsigned char* buf
 		) {
-	return(new Bufxf(VecWMsddBss3Buffer::BBUFLWIRACQTOHOSTIF, false, reqlen, 0, 2));
+	return(new Bufxf(VecWMsddBss3Buffer::BBUFLWIRACQTOHOSTIF, false, reqlen, 0, 2, buf));
 };
 
 void UntMsddBss3::readBbufFromLwiracq(
@@ -423,14 +425,13 @@ void UntMsddBss3::readBbufFromLwiracq(
 			, unsigned char*& data
 			, size_t& datalen
 		) {
-	Bufxf* bufxf = getNewBufxfBbufFromLwiracq(reqlen);
+	Bufxf* bufxf = getNewBufxfBbufFromLwiracq(reqlen, data);
 
 	if (runBufxf(bufxf)) {
-		data = bufxf->getReadData();
+		if (!data) data = bufxf->getReadData();
 		datalen = bufxf->getReadDatalen();
 
 	} else {
-		data = NULL;
 		datalen = 0;
 
 		delete bufxf;
@@ -442,8 +443,9 @@ void UntMsddBss3::readBbufFromLwiracq(
 
 Bufxf* UntMsddBss3::getNewBufxfBbufFromVgaacq(
 			const size_t reqlen
+			, unsigned char* buf
 		) {
-	return(new Bufxf(VecWMsddBss3Buffer::BBUFVGAACQTOHOSTIF, false, reqlen, 0, 2));
+	return(new Bufxf(VecWMsddBss3Buffer::BBUFVGAACQTOHOSTIF, false, reqlen, 0, 2, buf));
 };
 
 void UntMsddBss3::readBbufFromVgaacq(
@@ -451,14 +453,13 @@ void UntMsddBss3::readBbufFromVgaacq(
 			, unsigned char*& data
 			, size_t& datalen
 		) {
-	Bufxf* bufxf = getNewBufxfBbufFromVgaacq(reqlen);
+	Bufxf* bufxf = getNewBufxfBbufFromVgaacq(reqlen, data);
 
 	if (runBufxf(bufxf)) {
-		data = bufxf->getReadData();
+		if (!data) data = bufxf->getReadData();
 		datalen = bufxf->getReadDatalen();
 
 	} else {
-		data = NULL;
 		datalen = 0;
 
 		delete bufxf;
@@ -467,4 +468,6 @@ void UntMsddBss3::readBbufFromVgaacq(
 
 	delete bufxf;
 };
+
+
 

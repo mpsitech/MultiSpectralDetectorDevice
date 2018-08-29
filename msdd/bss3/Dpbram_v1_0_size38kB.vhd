@@ -1,8 +1,8 @@
 -- file Dpbram_v1_0_size38kB.vhd
 -- Dpbram_v1_0_size38kB dpbram_v1_0 implementation
 -- author Alexander Wirthmueller
--- date created: 12 Aug 2018
--- date modified: 12 Aug 2018
+-- date created: 26 Aug 2018
+-- date modified: 26 Aug 2018
 
 library ieee;
 use ieee.std_logic_1164.all;

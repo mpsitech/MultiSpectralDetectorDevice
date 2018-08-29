@@ -2,8 +2,8 @@
 # file checkout.sh
 # checkout script for Msdd embedded system code, release msdd_ungenio
 # author Alexander Wirthmueller
-# date created: 12 Aug 2018
-# modified: 12 Aug 2018
+# date created: 26 Aug 2018
+# modified: 26 Aug 2018
 
 export set FPGAROOT=
 

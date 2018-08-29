@@ -1,8 +1,8 @@
 -- file Hostif.vhd
 -- Hostif uarthostif_Easy_v1_0 easy model host interface implementation
 -- author Alexander Wirthmueller
--- date created: 12 Aug 2018
--- date modified: 12 Aug 2018
+-- date created: 26 Aug 2018
+-- date modified: 26 Aug 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -112,48 +112,47 @@ entity Hostif is
 
 		reqBbufFromLwiracq: out std_logic;
 
-		reqBbufFromVgaacq: out std_logic;
+		reqAbufFromLwiracq: out std_logic;
 
 		ackBbufFromLwiracq: in std_logic;
 
-		ackBbufFromVgaacq: in std_logic;
+		ackAbufFromLwiracq: in std_logic;
 
 		dneBbufFromLwiracq: out std_logic;
 
-		dneBbufFromVgaacq: out std_logic;
+		dneAbufFromLwiracq: out std_logic;
 
 		avllenBbufFromLwiracq: in std_logic_vector(15 downto 0);
-		avllenBbufFromVgaacq: in std_logic_vector(15 downto 0);
+		avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
 
 		dBbufFromLwiracq: in std_logic_vector(7 downto 0);
 
-		dBbufFromVgaacq: in std_logic_vector(7 downto 0);
+		dAbufFromLwiracq: in std_logic_vector(7 downto 0);
 
 		strbDBbufFromLwiracq: out std_logic;
 
-		strbDBbufFromVgaacq: out std_logic;
+		strbDAbufFromLwiracq: out std_logic;
 
 		reqAbufFromVgaacq: out std_logic;
 		ackAbufFromVgaacq: in std_logic;
-
-		reqAbufFromLwiracq: out std_logic;
-
 		dneAbufFromVgaacq: out std_logic;
-
-		ackAbufFromLwiracq: in std_logic;
 
 		avllenAbufFromVgaacq: in std_logic_vector(15 downto 0);
 
-		dneAbufFromLwiracq: out std_logic;
+		reqBbufFromVgaacq: out std_logic;
 
 		dAbufFromVgaacq: in std_logic_vector(7 downto 0);
 
-		avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
+		ackBbufFromVgaacq: in std_logic;
 
 		strbDAbufFromVgaacq: out std_logic;
 
-		dAbufFromLwiracq: in std_logic_vector(7 downto 0);
-		strbDAbufFromLwiracq: out std_logic;
+		dneBbufFromVgaacq: out std_logic;
+
+		avllenBbufFromVgaacq: in std_logic_vector(15 downto 0);
+
+		dBbufFromVgaacq: in std_logic_vector(7 downto 0);
+		strbDBbufFromVgaacq: out std_logic;
 
 		rxd: in std_logic;
 		txd: out std_logic
@@ -1145,15 +1144,16 @@ begin
 
 	process (reset, mclk, stateOp)
 	begin
-		if reset='1' then
+		if falling_edge(mclk) then
+			if reset='1' then
 			alignSetSeqLenSeq_sig <= x"20";
 			alignSetSeqSeq_sig <= x"00102030405060708090A0B0C0D0E0F0F0E0D0C0B0A090807060504030201000";
-			ledSetTon15Ton15_sig <= x"01"; -- was x"14"
-			ledSetTon60Ton60_sig <= x"01"; -- was x"14"
+			ledSetTon15Ton15_sig <= x"14";
+			ledSetTon60Ton60_sig <= x"14";
 			lwiracqSetRngRng_sig <= fls8;
 			lwirifSetRngRng_sig <= tru8;
-			servoSetThetaTheta_sig <= x"FE9C"; -- was x"0000", now -40deg
-			servoSetPhiPhi_sig <= x"010B"; -- was x"0000", now 30deg
+			servoSetThetaTheta_sig <= x"0000";
+			servoSetPhiPhi_sig <= x"0000";
 			tkclksrcSetTkstTkst_sig <= x"00000000";
 			triggerSetRngRng_sig <= fls8;
 			triggerSetRngBtnNotTfrm_sig <= fls8;
@@ -1161,24 +1161,22 @@ begin
 			triggerSetTdlyVisrTdlyVisr_sig <= x"0000";
 			triggerSetTfrmTfrm_sig <= x"000A";
 			vgaacqSetRngRng_sig <= fls8;
-		end if;
+			else
+				stateOp <= stateOp_next;
+				torestart <= torestart_next;
+				crcd <= crcd_next;
+				utxd <= utxd_next;
+				commok_sig <= commok_sig_next;
+				reqReset_sig <= reqReset_sig_next;
+				reqTxbuf <= reqTxbuf_next;
+				dneTxbuf <= dneTxbuf_next;
+				strbDTxbuf <= strbDTxbuf_next;
+				reqRxbuf <= reqRxbuf_next;
+				dneRxbuf <= dneRxbuf_next;
+				dRxbuf <= dRxbuf_next;
+				strbDRxbuf <= strbDRxbuf_next;
 
-		if falling_edge(mclk) then
-			stateOp <= stateOp_next;
-			torestart <= torestart_next;
-			crcd <= crcd_next;
-			utxd <= utxd_next;
-			commok_sig <= commok_sig_next;
-			reqReset_sig <= reqReset_sig_next;
-			reqTxbuf <= reqTxbuf_next;
-			dneTxbuf <= dneTxbuf_next;
-			strbDTxbuf <= strbDTxbuf_next;
-			reqRxbuf <= reqRxbuf_next;
-			dneRxbuf <= dneRxbuf_next;
-			dRxbuf <= dRxbuf_next;
-			strbDRxbuf <= strbDRxbuf_next;
-
-			if stateOp_next=stateOpCopyRxB then
+				if stateOp_next=stateOpCopyRxB then
 				if opbuf(ixOpbufController)=tixVControllerAlign then
 					if opbuf(ixOpbufCommand)=tixVAlignCommandSetSeq then
 						alignSetSeqLenSeq_sig <= rxbuf(0);
@@ -1272,6 +1270,7 @@ begin
 
 				end if;
 
+				end if;
 			end if;
 		end if;
 	end process;

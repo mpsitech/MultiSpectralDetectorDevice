@@ -1,8 +1,8 @@
 # file Makefile
 # make file for Msdd device access library, release devmsdd_zedboard
 # author Alexander Wirthmueller
-# date created: 12 Aug 2018
-# modified: 12 Aug 2018
+# date created: 26 Aug 2018
+# modified: 26 Aug 2018
 
 SRCROOT = /home/root/src
 LIBROOT = /home/mpsitech/emb/zedboard/avnet-digilent-zedboard-2017.2/build/tmp/sysroots/plnx_arm/home/root/lib

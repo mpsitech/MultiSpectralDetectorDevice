@@ -1,8 +1,8 @@
 # file Bss3.xdc
 # Digilent Basys3 pin mapping and constraints
 # author Alexander Wirthmueller
-# date created: 12 Aug 2018
-# modified: 12 Aug 2018
+# date created: 26 Aug 2018
+# modified: 26 Aug 2018
 
 # bank14 3.3V
 set_property PACKAGE_PIN U18 [get_ports btnC];
@@ -26,18 +26,16 @@ set_property PACKAGE_PIN W14 [get_ports {sw[6]}];
 set_property PACKAGE_PIN W13 [get_ports {sw[7]}];
 
 # bank16 3.3V
-set_property PACKAGE_PIN B18 [get_ports RsRx]
-set_property PACKAGE_PIN A18 [get_ports RsTx]
-
-# bank16 3.3V
 set_property PACKAGE_PIN B15 [get_ports amosi];
 set_property PACKAGE_PIN A16 [get_ports asck];
 set_property PACKAGE_PIN A15 [get_ports d15pwm];
 set_property PACKAGE_PIN A17 [get_ports d60pwm];
+set_property PACKAGE_PIN C15 [get_ports {lmio[0]}];
 set_property PACKAGE_PIN A14 [get_ports nass];
 set_property PACKAGE_PIN B16 [get_ports ppwm];
-set_property PACKAGE_PIN C15 [get_ports lmio[0]];
-set_property PACKAGE_PIN C16 [get_ports rmio[0]];
+set_property PACKAGE_PIN C16 [get_ports {rmio[0]}];
+set_property PACKAGE_PIN B18 [get_ports RsRx];
+set_property PACKAGE_PIN A18 [get_ports RsTx];
 
 # bank34 3.3V
 set_property PACKAGE_PIN U2 [get_ports {an[0]}];

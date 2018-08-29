@@ -2,8 +2,8 @@
   * \file Msdd.h
   * Msdd global functionality and unit/controller exchange (declarations)
   * \author Alexander Wirthmueller
-  * \date created: 12 Aug 2018
-  * \date modified: 12 Aug 2018
+  * \date created: 26 Aug 2018
+  * \date modified: 26 Aug 2018
   */
 
 #ifndef MSDD_H
@@ -29,8 +29,8 @@ public:
 	virtual ~UntMsdd();
 
 public:
-	bool lockAccess(const string& who);
-	bool unlockAccess(const string& who);
+	void lockAccess(const string& who);
+	void unlockAccess(const string& who);
 
 	void reset();
 
@@ -83,7 +83,7 @@ public:
 	unsigned char* rxbuf;
 	unsigned char* txbuf;
 
-	pthread_mutex_t mAccess;
+	Mutex mAccess;
 };
 
 /**

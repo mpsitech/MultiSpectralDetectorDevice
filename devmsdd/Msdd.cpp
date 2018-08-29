@@ -2,8 +2,8 @@
   * \file Msdd.cpp
   * Msdd global functionality and unit/controller exchange (implementation)
   * \author Alexander Wirthmueller
-  * \date created: 12 Aug 2018
-  * \date modified: 12 Aug 2018
+  * \date created: 26 Aug 2018
+  * \date modified: 26 Aug 2018
   */
 
 #include "Msdd.h"
@@ -12,7 +12,10 @@
  class UntMsdd
  ******************************************************************************/
 
-UntMsdd::UntMsdd() {
+UntMsdd::UntMsdd()
+ 	:
+			mAccess("mAccess", "UntMsdd", "UntMsdd")
+ 	{
 	initdone = false;;
 
 	txburst = false;
@@ -23,29 +26,26 @@ UntMsdd::UntMsdd() {
 
 	rxbuf = NULL;
 	txbuf = NULL;
-
-	Mutex::init(&mAccess, true, "mAccess", "UntMsdd", "UntMsdd");
 };
 
 UntMsdd::~UntMsdd() {
 	if (rxbuf) delete[] rxbuf;
 	if (txbuf) delete[] txbuf;
 
-	Mutex::lock(&mAccess, "mAccess", "UntMsdd", "~UntMsdd");
-	Mutex::unlock(&mAccess, "mAccess", "UntMsdd", "~UntMsdd");
-	Mutex::destroy(&mAccess, true, "mAccess", "UntMsdd", "~UntMsdd");
+	mAccess.lock("UntMsdd", "~UntMsdd");
+	mAccess.unlock("UntMsdd", "~UntMsdd");
 };
 
-bool UntMsdd::lockAccess(
+void UntMsdd::lockAccess(
 			const string& who
 		) {
-	return(Mutex::lock(&mAccess, "mAccess", who) == 0);
+	mAccess.lock(who);
 };
 
-bool UntMsdd::unlockAccess(
+void UntMsdd::unlockAccess(
 			const string& who
 		) {
-	return(Mutex::unlock(&mAccess, "mAccess", who) == 0);
+	mAccess.unlock(who);
 };
 
 void UntMsdd::reset() {
@@ -108,8 +108,7 @@ bool UntMsdd::runBufxfFromBuf(
 		crc.includeBytes(bufxf->data, bufxf->reqlen+2);
 		crc.finalize();
 
-		success = (bufxf->data[bufxf->reqlen-2] == 0x1E);
-//		success = (crc.crc == 0x0000);
+		success = (crc.crc == 0x0000);
 	};
 
 	unlockAccess("runBufxfFromBuf");

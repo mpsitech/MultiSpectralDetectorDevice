@@ -1,8 +1,8 @@
 -- file Zedb_ip_v1_0_S00_AXI.vhd
 -- Zedb_ip_v1_0_S00_AXI zynq_ip_AXI_v1_0 wrapper implementation
 -- author Alexander Wirthmueller
--- date created: 12 Aug 2018
--- date modified: 12 Aug 2018
+-- date created: 26 Aug 2018
+-- date modified: 26 Aug 2018
 
 library ieee;
 use ieee.std_logic_1164.all;

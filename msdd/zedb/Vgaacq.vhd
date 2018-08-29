@@ -1,8 +1,8 @@
 -- file Vgaacq.vhd
 -- Vgaacq easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 12 Aug 2018
--- date modified: 12 Aug 2018
+-- date created: 26 Aug 2018
+-- date modified: 26 Aug 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -27,26 +27,28 @@ entity Vgaacq is
 		getInfoTixVBufstate: out std_logic_vector(7 downto 0);
 		getInfoTkst: out std_logic_vector(31 downto 0);
 
+		reqAbufToHostif: in std_logic;
+
 		reqBbufToHostif: in std_logic;
 
-		reqAbufToHostif: in std_logic;
 		ackAbufToHostif: out std_logic;
 
 		ackBbufToHostif: out std_logic;
-		dneBbufToHostif: in std_logic;
 
 		dneAbufToHostif: in std_logic;
 
-		avllenBbufToHostif: out std_logic_vector(15 downto 0);
-		avllenAbufToHostif: out std_logic_vector(15 downto 0);
+		dneBbufToHostif: in std_logic;
 
-		dBbufToHostif: out std_logic_vector(7 downto 0);
+		avllenAbufToHostif: out std_logic_vector(15 downto 0);
+		avllenBbufToHostif: out std_logic_vector(15 downto 0);
 
 		dAbufToHostif: out std_logic_vector(7 downto 0);
 
-		strbDBbufToHostif: in std_logic;
+		dBbufToHostif: out std_logic_vector(7 downto 0);
 
 		strbDAbufToHostif: in std_logic;
+
+		strbDBbufToHostif: in std_logic;
 
 		rxd: in std_logic;
 		txd: out std_logic
@@ -148,7 +150,7 @@ architecture Vgaacq of Vgaacq is
 	signal abufFull, abufFull_next: std_logic;
 	signal bbufFull, bbufFull_next: std_logic;
 
-	signal infoTixVBufstate: std_logic_vector(7 downto 0);
+	signal infoTixVBufstate, infoTixVBufstate_next: std_logic_vector(7 downto 0);
 
 	-- IP sigs.buf.cust --- INSERT
 
@@ -361,6 +363,7 @@ begin
 			stateBuf_next <= stateBufInit;
 			abufFull_next <= '0';
 			bbufFull_next <= '0';
+			infoTixVBufstate_next <= x"00";
 			ackOpToBufAbufSetFull_next <= '0';
 			ackOpToBufBbufSetFull_next <= '0';
 			ackBufBToBufClear_next <= '0';
@@ -462,6 +465,7 @@ begin
 			stateBuf <= stateBuf_next;
 			abufFull <= abufFull_next;
 			bbufFull <= bbufFull_next;
+			infoTixVBufstate <= infoTixVBufstate_next;
 			ackOpToBufAbufSetFull <= ackOpToBufAbufSetFull_next;
 			ackOpToBufBbufSetFull <= ackOpToBufBbufSetFull_next;
 			ackBufBToBufClear <= ackBufBToBufClear_next;

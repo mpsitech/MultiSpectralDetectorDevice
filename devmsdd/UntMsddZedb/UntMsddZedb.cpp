@@ -2,8 +2,8 @@
   * \file UntMsddZedb.cpp
   * ZedBoard unit (implementation)
   * \author Alexander Wirthmueller
-  * \date created: 12 Aug 2018
-  * \date modified: 12 Aug 2018
+  * \date created: 26 Aug 2018
+  * \date modified: 26 Aug 2018
   */
 
 #include "UntMsddZedb.h"
@@ -274,13 +274,14 @@ void UntMsddZedb::fillFeedFCommand(
 Bufxf* UntMsddZedb::getNewBufxf(
 			const utinyint tixWBuffer
 			, const size_t reqlen
+			, unsigned char* buf
 		) {
 	Bufxf* bufxf = NULL;
 
-	if (tixWBuffer == VecWMsddZedbBuffer::ABUFLWIRACQTOHOSTIF) bufxf = getNewBufxfAbufFromLwiracq(reqlen);
-	else if (tixWBuffer == VecWMsddZedbBuffer::ABUFVGAACQTOHOSTIF) bufxf = getNewBufxfAbufFromVgaacq(reqlen);
-	else if (tixWBuffer == VecWMsddZedbBuffer::BBUFLWIRACQTOHOSTIF) bufxf = getNewBufxfBbufFromLwiracq(reqlen);
-	else if (tixWBuffer == VecWMsddZedbBuffer::BBUFVGAACQTOHOSTIF) bufxf = getNewBufxfBbufFromVgaacq(reqlen);
+	if (tixWBuffer == VecWMsddZedbBuffer::ABUFLWIRACQTOHOSTIF) bufxf = getNewBufxfAbufFromLwiracq(reqlen, buf);
+	else if (tixWBuffer == VecWMsddZedbBuffer::ABUFVGAACQTOHOSTIF) bufxf = getNewBufxfAbufFromVgaacq(reqlen, buf);
+	else if (tixWBuffer == VecWMsddZedbBuffer::BBUFLWIRACQTOHOSTIF) bufxf = getNewBufxfBbufFromLwiracq(reqlen, buf);
+	else if (tixWBuffer == VecWMsddZedbBuffer::BBUFVGAACQTOHOSTIF) bufxf = getNewBufxfBbufFromVgaacq(reqlen, buf);
 
 	return bufxf;
 };
@@ -307,8 +308,9 @@ Cmd* UntMsddZedb::getNewCmd(
 
 Bufxf* UntMsddZedb::getNewBufxfAbufFromLwiracq(
 			const size_t reqlen
+			, unsigned char* buf
 		) {
-	return(new Bufxf(VecWMsddZedbBuffer::ABUFLWIRACQTOHOSTIF, false, reqlen, 0, 2));
+	return(new Bufxf(VecWMsddZedbBuffer::ABUFLWIRACQTOHOSTIF, false, reqlen, 0, 2, buf));
 };
 
 void UntMsddZedb::readAbufFromLwiracq(
@@ -316,14 +318,13 @@ void UntMsddZedb::readAbufFromLwiracq(
 			, unsigned char*& data
 			, size_t& datalen
 		) {
-	Bufxf* bufxf = getNewBufxfAbufFromLwiracq(reqlen);
+	Bufxf* bufxf = getNewBufxfAbufFromLwiracq(reqlen, data);
 
 	if (runBufxf(bufxf)) {
-		data = bufxf->getReadData();
+		if (!data) data = bufxf->getReadData();
 		datalen = bufxf->getReadDatalen();
 
 	} else {
-		data = NULL;
 		datalen = 0;
 
 		delete bufxf;
@@ -335,8 +336,9 @@ void UntMsddZedb::readAbufFromLwiracq(
 
 Bufxf* UntMsddZedb::getNewBufxfAbufFromVgaacq(
 			const size_t reqlen
+			, unsigned char* buf
 		) {
-	return(new Bufxf(VecWMsddZedbBuffer::ABUFVGAACQTOHOSTIF, false, reqlen, 0, 2));
+	return(new Bufxf(VecWMsddZedbBuffer::ABUFVGAACQTOHOSTIF, false, reqlen, 0, 2, buf));
 };
 
 void UntMsddZedb::readAbufFromVgaacq(
@@ -344,14 +346,13 @@ void UntMsddZedb::readAbufFromVgaacq(
 			, unsigned char*& data
 			, size_t& datalen
 		) {
-	Bufxf* bufxf = getNewBufxfAbufFromVgaacq(reqlen);
+	Bufxf* bufxf = getNewBufxfAbufFromVgaacq(reqlen, data);
 
 	if (runBufxf(bufxf)) {
-		data = bufxf->getReadData();
+		if (!data) data = bufxf->getReadData();
 		datalen = bufxf->getReadDatalen();
 
 	} else {
-		data = NULL;
 		datalen = 0;
 
 		delete bufxf;
@@ -363,8 +364,9 @@ void UntMsddZedb::readAbufFromVgaacq(
 
 Bufxf* UntMsddZedb::getNewBufxfBbufFromLwiracq(
 			const size_t reqlen
+			, unsigned char* buf
 		) {
-	return(new Bufxf(VecWMsddZedbBuffer::BBUFLWIRACQTOHOSTIF, false, reqlen, 0, 2));
+	return(new Bufxf(VecWMsddZedbBuffer::BBUFLWIRACQTOHOSTIF, false, reqlen, 0, 2, buf));
 };
 
 void UntMsddZedb::readBbufFromLwiracq(
@@ -372,14 +374,13 @@ void UntMsddZedb::readBbufFromLwiracq(
 			, unsigned char*& data
 			, size_t& datalen
 		) {
-	Bufxf* bufxf = getNewBufxfBbufFromLwiracq(reqlen);
+	Bufxf* bufxf = getNewBufxfBbufFromLwiracq(reqlen, data);
 
 	if (runBufxf(bufxf)) {
-		data = bufxf->getReadData();
+		if (!data) data = bufxf->getReadData();
 		datalen = bufxf->getReadDatalen();
 
 	} else {
-		data = NULL;
 		datalen = 0;
 
 		delete bufxf;
@@ -391,8 +392,9 @@ void UntMsddZedb::readBbufFromLwiracq(
 
 Bufxf* UntMsddZedb::getNewBufxfBbufFromVgaacq(
 			const size_t reqlen
+			, unsigned char* buf
 		) {
-	return(new Bufxf(VecWMsddZedbBuffer::BBUFVGAACQTOHOSTIF, false, reqlen, 0, 2));
+	return(new Bufxf(VecWMsddZedbBuffer::BBUFVGAACQTOHOSTIF, false, reqlen, 0, 2, buf));
 };
 
 void UntMsddZedb::readBbufFromVgaacq(
@@ -400,14 +402,13 @@ void UntMsddZedb::readBbufFromVgaacq(
 			, unsigned char*& data
 			, size_t& datalen
 		) {
-	Bufxf* bufxf = getNewBufxfBbufFromVgaacq(reqlen);
+	Bufxf* bufxf = getNewBufxfBbufFromVgaacq(reqlen, data);
 
 	if (runBufxf(bufxf)) {
-		data = bufxf->getReadData();
+		if (!data) data = bufxf->getReadData();
 		datalen = bufxf->getReadDatalen();
 
 	} else {
-		data = NULL;
 		datalen = 0;
 
 		delete bufxf;
