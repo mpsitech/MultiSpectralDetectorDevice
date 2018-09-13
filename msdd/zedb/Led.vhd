@@ -1,8 +1,8 @@
 -- file Led.vhd
 -- Led easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 9 Aug 2018
+-- date modified: 10 Sep 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -49,10 +49,10 @@ architecture Led of Led is
 		state15Start,
 		state15RunA, state15RunB
 	);
-	signal state15, state15_next: state15_t := state15Init;
+	signal state15: state15_t := state15Init;
 
 	signal ackInvSetTon15_sig: std_logic;
-	signal d15pwm_sig, d15pwm_sig_next: std_logic;
+	signal d15pwm_sig: std_logic;
 
 	-- IP sigs.15.cust --- INSERT
 
@@ -63,10 +63,10 @@ architecture Led of Led is
 		state60Start,
 		state60RunA, state60RunB
 	);
-	signal state60, state60_next: state60_t := state60Init;
+	signal state60: state60_t := state60Init;
 
 	signal ackInvSetTon60_sig: std_logic;
-	signal d60pwm_sig, d60pwm_sig_next: std_logic;
+	signal d60pwm_sig: std_logic;
 
 	-- IP sigs.60.cust --- INSERT
 
@@ -98,27 +98,27 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.15.rising.asyncrst --- BEGIN
-			state15_next <= state15Init;
-			d15pwm_sig_next <= '0';
+			state15 <= state15Init;
+			d15pwm_sig <= '0';
 			-- IP impl.15.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
 			if (state15=state15Init or (state15/=state15Inv and reqInvSetTon15='1')) then
 				-- IP impl.15.rising.syncrst --- BEGIN
-				d15pwm_sig_next <= '0';
+				d15pwm_sig <= '0';
 
 				-- IP impl.15.rising.syncrst --- END
 
 				if reqInvSetTon15='1' then
-					state15_next <= state15Inv;
+					state15 <= state15Inv;
 
 				else
-					state15_next <= state15Start;
+					state15 <= state15Start;
 				end if;
 
 			elsif state15=state15Inv then
 				if reqInvSetTon15='0' then
-					state15_next <= state15Init;
+					state15 <= state15Init;
 				end if;
 
 			elsif state15=state15Start then
@@ -126,32 +126,32 @@ begin
 				i := 0;
 
 				if to_integer(unsigned(setTon15Ton15))=0 then
-					d15pwm_sig_next <= '0';
+					d15pwm_sig <= '0';
 				else
-					d15pwm_sig_next <= '1';
+					d15pwm_sig <= '1';
 				end if;
 				-- IP impl.15.rising.start.ext --- IEND
 
 				if tkclk='0' then
-					state15_next <= state15RunB;
+					state15 <= state15RunB;
 
 				else
-					state15_next <= state15RunA;
+					state15 <= state15RunA;
 				end if;
 
 			elsif state15=state15RunA then
 				if tkclk='0' then
 					if i=100 then
-						state15_next <= state15Start;
+						state15 <= state15Start;
 
 					else
 						-- IP impl.15.rising.runA --- IBEGIN
 						if i=to_integer(unsigned(setTon15Ton15)) then
-							d15pwm_sig_next <= '0';
+							d15pwm_sig <= '0';
 						end if;
 						-- IP impl.15.rising.runA --- IEND
 
-						state15_next <= state15RunB;
+						state15 <= state15RunB;
 					end if;
 				end if;
 
@@ -159,24 +159,12 @@ begin
 				if tkclk='1' then
 					i := i + 1; -- IP impl.15.rising.runB --- ILINE
 
-					state15_next <= state15RunA;
+					state15 <= state15RunA;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.15.rising --- END
-
-	-- IP impl.15.falling --- BEGIN
-	process (mclk)
-		-- IP impl.15.falling.vars --- BEGIN
-		-- IP impl.15.falling.vars --- END
-	begin
-		if falling_edge(mclk) then
-			state15 <= state15_next;
-			d15pwm_sig <= d15pwm_sig_next;
-		end if;
-	end process;
-	-- IP impl.15.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: 60deg LED PWM (60)
@@ -197,27 +185,27 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.60.rising.asyncrst --- BEGIN
-			state60_next <= state60Init;
-			d60pwm_sig_next <= '0';
+			state60 <= state60Init;
+			d60pwm_sig <= '0';
 			-- IP impl.60.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
 			if (state60=state60Init or (state60/=state60Inv and reqInvSetTon60='1')) then
 				-- IP impl.60.rising.syncrst --- BEGIN
-				d60pwm_sig_next <= '0';
+				d60pwm_sig <= '0';
 
 				-- IP impl.60.rising.syncrst --- END
 
 				if reqInvSetTon60='1' then
-					state60_next <= state60Inv;
+					state60 <= state60Inv;
 
 				else
-					state60_next <= state60Start;
+					state60 <= state60Start;
 				end if;
 
 			elsif state60=state60Inv then
 				if reqInvSetTon60='0' then
-					state60_next <= state60Init;
+					state60 <= state60Init;
 				end if;
 
 			elsif state60=state60Start then
@@ -225,32 +213,32 @@ begin
 				i := 0;
 
 				if to_integer(unsigned(setTon60Ton60))=0 then
-					d60pwm_sig_next <= '0';
+					d60pwm_sig <= '0';
 				else
-					d60pwm_sig_next <= '1';
+					d60pwm_sig <= '1';
 				end if;
 				-- IP impl.60.rising.start.ext --- IEND
 
 				if tkclk='0' then
-					state60_next <= state60RunB;
+					state60 <= state60RunB;
 
 				else
-					state60_next <= state60RunA;
+					state60 <= state60RunA;
 				end if;
 
 			elsif state60=state60RunA then
 				if tkclk='0' then
 					if i=100 then
-						state60_next <= state60Start;
+						state60 <= state60Start;
 
 					else
 						-- IP impl.60.rising.runA --- IBEGIN
 						if i=to_integer(unsigned(setTon60Ton60)) then
-							d60pwm_sig_next <= '0';
+							d60pwm_sig <= '0';
 						end if;
 						-- IP impl.60.rising.runA --- IEND
 
-						state60_next <= state60RunB;
+						state60 <= state60RunB;
 					end if;
 				end if;
 
@@ -258,24 +246,12 @@ begin
 				if tkclk='1' then
 					i := i + 1; -- IP impl.60.rising.runB --- ILINE
 
-					state60_next <= state60RunA;
+					state60 <= state60RunA;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.60.rising --- END
-
-	-- IP impl.60.falling --- BEGIN
-	process (mclk)
-		-- IP impl.60.falling.vars --- BEGIN
-		-- IP impl.60.falling.vars --- END
-	begin
-		if falling_edge(mclk) then
-			state60 <= state60_next;
-			d60pwm_sig <= d60pwm_sig_next;
-		end if;
-	end process;
-	-- IP impl.60.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: other 

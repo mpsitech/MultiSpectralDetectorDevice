@@ -2,7 +2,7 @@
 -- Oled128x32_v1_0 module implementation
 -- author Alexander Wirthmueller
 -- date created: 27 Feb 2017
--- date modified: 3 Mar 2017
+-- date modified: 10 Sep 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -102,7 +102,7 @@ architecture Oled128x32_v1_0 of Oled128x32_v1_0 is
 		stateOpTextF, stateOpTextG,
 		stateOpStopA, stateOpStopB, stateOpStopC
 	);
-	signal stateOp, stateOp_next: stateOp_t;
+	signal stateOp: stateOp_t;
 
 	type dm_t is array(0 to 6) of std_logic_vector(0 to 4);
 	signal dm: dm_t;
@@ -170,9 +170,9 @@ architecture Oled128x32_v1_0 of Oled128x32_v1_0 is
 
 	signal Tfrmrun: std_logic;
 
-	signal spilen, spilen_next: std_logic_vector(16 downto 0);
+	signal spilen: std_logic_vector(16 downto 0);
 
-	signal spisend, spisend_next: std_logic_vector(7 downto 0);
+	signal spisend: std_logic_vector(7 downto 0);
 
 	signal dNotC_sig: std_logic;
 
@@ -181,16 +181,16 @@ architecture Oled128x32_v1_0 of Oled128x32_v1_0 is
 		stateTfrmIdle,
 		stateTfrmRunA, stateTfrmRunB
 	);
-	signal stateTfrm, stateTfrm_next: stateTfrm_t := stateTfrmIdle;
+	signal stateTfrm: stateTfrm_t := stateTfrmIdle;
 
-	signal strbTfrm, strbTfrm_next: std_logic;
+	signal strbTfrm: std_logic;
 
 	---- mySpi
 	signal strbSpisend: std_logic;
 
 	---- handshake
 	-- op to mySpi
-	signal reqSpi, reqSpi_next: std_logic;
+	signal reqSpi: std_logic;
 	signal ackSpi: std_logic;
 	signal dneSpi: std_logic;
 
@@ -341,39 +341,39 @@ begin
 
 	begin
 		if reset='1' then
-			stateOp_next <= stateOpInit;
-			reqSpi_next <= '0';
-			spilen_next <= std_logic_vector(to_unsigned(0, 17));
-			spisend_next <= x"00";
+			stateOp <= stateOpInit;
+			reqSpi <= '0';
+			spilen <= std_logic_vector(to_unsigned(0, 17));
+			spisend <= x"00";
 
 		elsif rising_edge(mclk) then
 			if stateOp=stateOpInit then
-				reqSpi_next <= '0';
-				spilen_next <= std_logic_vector(to_unsigned(0, 17));
-				spisend_next <= x"00";
+				reqSpi <= '0';
+				spilen <= std_logic_vector(to_unsigned(0, 17));
+				spisend <= x"00";
 
-				stateOp_next <= stateOpIdle;
+				stateOp <= stateOpIdle;
 
 			elsif stateOp=stateOpIdle then
 				if run='1' then
 					m := 0;
-					stateOp_next <= stateOpStartA;
+					stateOp <= stateOpStartA;
 				end if;
 
 			elsif stateOp=stateOpStartA then
 				if tkclk='1' then
 					if m=100*10 then
 						m := 0;
-						stateOp_next <= stateOpStartC;
+						stateOp <= stateOpStartC;
 					else
-						stateOp_next <= stateOpStartB;
+						stateOp <= stateOpStartB;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpStartB then
 				if tkclk='0' then
 					m := m + 1;
-					stateOp_next <= stateOpStartA;
+					stateOp <= stateOpStartA;
 				end if;
 
 			elsif stateOp=stateOpStartC then -- vdd='0' from here
@@ -381,156 +381,156 @@ begin
 					if m=100*10 then
 						n := 0;
 
-						stateOp_next <= stateOpStartE;
+						stateOp <= stateOpStartE;
 					else
-						stateOp_next <= stateOpStartD;
+						stateOp <= stateOpStartD;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpStartD then
 				if tkclk='0' then
 					m := m + 1;
-					stateOp_next <= stateOpStartC;
+					stateOp <= stateOpStartC;
 				end if;
 
 			elsif stateOp=stateOpStartE then -- nres='0' only here
 				if n=((3*fMclk)/1000) then
 					dNotC_sig <= '0';
-					spilen_next <= std_logic_vector(to_unsigned(lenAuxbuf, 17));
+					spilen <= std_logic_vector(to_unsigned(lenAuxbuf, 17));
 
 					bytecnt := 0;
 
-					stateOp_next <= stateOpStartH;
+					stateOp <= stateOpStartH;
 				else
 					n := n + 1;
 				end if;
 
 			elsif stateOp=stateOpStartF then
 				if dneSpi='1' then
-					reqSpi_next <= '0';
+					reqSpi <= '0';
 
 					m := 0;
 
-					stateOp_next <= stateOpStartJ;
+					stateOp <= stateOpStartJ;
 				elsif strbSpisend='0' then
-					stateOp_next <= stateOpStartG;
+					stateOp <= stateOpStartG;
 				end if;
 			
 			elsif stateOp=stateOpStartG then
 				bytecnt := bytecnt + 1;
-				stateOp_next <= stateOpStartH;
+				stateOp <= stateOpStartH;
 
 			elsif stateOp=stateOpStartH then
-				reqSpi_next <= '1';
+				reqSpi <= '1';
 			
-				spisend_next <= auxbuf(bytecnt);
+				spisend <= auxbuf(bytecnt);
 			
-				stateOp_next <= stateOpStartI;
+				stateOp <= stateOpStartI;
 			
 			elsif stateOp=stateOpStartI then
 				if strbSpisend='1' then
-					stateOp_next <= stateOpStartF;
+					stateOp <= stateOpStartF;
 				end if;
 			
 			elsif stateOp=stateOpStartJ then -- vbat='0' from here
 				if tkclk='1' then
 					if m=100*10 then
-						stateOp_next <= stateOpRunA;
+						stateOp <= stateOpRunA;
 					else
-						stateOp_next <= stateOpStartK;
+						stateOp <= stateOpStartK;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpStartK then
 				if tkclk='0' then
 					m := m + 1;
-					stateOp_next <= stateOpStartJ;
+					stateOp <= stateOpStartJ;
 				end if;
 
 			elsif stateOp=stateOpRunA then -- Tfrmrun='1' from here
 				if run='0' then
 					dNotC_sig <= '0';
-					spilen_next <= std_logic_vector(to_unsigned(1, 17));
-					spisend_next <= x"AE";
+					spilen <= std_logic_vector(to_unsigned(1, 17));
+					spisend <= x"AE";
 
-					stateOp_next <= stateOpStopA;
+					stateOp <= stateOpStopA;
 				elsif strbTfrm='1' then
 					i := 0;
-					stateOp_next <= stateOpRunB;
+					stateOp <= stateOpRunB;
 				end if;
 
 			elsif stateOp=stateOpRunB then
 				if i=4 then
-					stateOp_next <= stateOpRunA;
+					stateOp <= stateOpRunA;
 				else
 					dNotC_sig <= '0';
 
-					reqSpi_next <= '1';
-					spilen_next <= std_logic_vector(to_unsigned(1, 17));
-					spisend_next <= x"B" & std_logic_vector(to_unsigned(i, 4)); -- set page
+					reqSpi <= '1';
+					spilen <= std_logic_vector(to_unsigned(1, 17));
+					spisend <= x"B" & std_logic_vector(to_unsigned(i, 4)); -- set page
 					
-					stateOp_next <= stateOpRunC;
+					stateOp <= stateOpRunC;
 				end if;
 
 			elsif stateOp=stateOpRunC then
 				if dneSpi='1' then
-					reqSpi_next <= '0';
+					reqSpi <= '0';
 
 					dNotC_sig <= '1';
-					spilen_next <= std_logic_vector(to_unsigned(128, 17));
+					spilen <= std_logic_vector(to_unsigned(128, 17));
 
 					j := 0;
 					if textNotBitmap='0' then
-						stateOp_next <= stateOpBitmapC;
+						stateOp <= stateOpBitmapC;
 					else
 						k := 0;
 						l := 0;
-						stateOp_next <= stateOpTextC;
+						stateOp <= stateOpTextC;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpRunD then
 				i := i + 1;
-				stateOp_next <= stateOpRunB;
+				stateOp <= stateOpRunB;
 
 			elsif stateOp=stateOpBitmapA then
 				if dneSpi='1' then
-					reqSpi_next <= '0';
-					stateOp_next <= stateOpRunD;
+					reqSpi <= '0';
+					stateOp <= stateOpRunD;
 				elsif strbSpisend='0' then
-					stateOp_next <= stateOpBitmapB;
+					stateOp <= stateOpBitmapB;
 				end if;
 
 			elsif stateOp=stateOpBitmapB then
 				j := j + 1;
-				stateOp_next <= stateOpBitmapC;
+				stateOp <= stateOpBitmapC;
 			
 			elsif stateOp=stateOpBitmapC then
-				reqSpi_next <= '1';
+				reqSpi <= '1';
 			
 				if i=0 then
-					spisend_next <= bitmap(7)(j) & bitmap(6)(j) & bitmap(5)(j) & bitmap(4)(j) & bitmap(3)(j) & bitmap(2)(j) & bitmap(1)(j) & bitmap(0)(j); -- bitmap(7 downto 0)(j);
+					spisend <= bitmap(7)(j) & bitmap(6)(j) & bitmap(5)(j) & bitmap(4)(j) & bitmap(3)(j) & bitmap(2)(j) & bitmap(1)(j) & bitmap(0)(j); -- bitmap(7 downto 0)(j);
 				elsif i=1 then
-					spisend_next <= bitmap(15)(j) & bitmap(14)(j) & bitmap(13)(j) & bitmap(12)(j) & bitmap(11)(j) & bitmap(10)(j) & bitmap(9)(j) & bitmap(8)(j); -- bitmap(15 downto 8)(j);
+					spisend <= bitmap(15)(j) & bitmap(14)(j) & bitmap(13)(j) & bitmap(12)(j) & bitmap(11)(j) & bitmap(10)(j) & bitmap(9)(j) & bitmap(8)(j); -- bitmap(15 downto 8)(j);
 				elsif i=2 then
-					spisend_next <= bitmap(23)(j) & bitmap(22)(j) & bitmap(21)(j) & bitmap(20)(j) & bitmap(19)(j) & bitmap(18)(j) & bitmap(17)(j) & bitmap(16)(j); -- bitmap(23 downto 16)(j);
+					spisend <= bitmap(23)(j) & bitmap(22)(j) & bitmap(21)(j) & bitmap(20)(j) & bitmap(19)(j) & bitmap(18)(j) & bitmap(17)(j) & bitmap(16)(j); -- bitmap(23 downto 16)(j);
 				elsif i=3 then
-					spisend_next <= bitmap(31)(j) & bitmap(30)(j) & bitmap(29)(j) & bitmap(28)(j) & bitmap(27)(j) & bitmap(26)(j) & bitmap(25)(j) & bitmap(24)(j); -- bitmap(31 downto 24)(j);
+					spisend <= bitmap(31)(j) & bitmap(30)(j) & bitmap(29)(j) & bitmap(28)(j) & bitmap(27)(j) & bitmap(26)(j) & bitmap(25)(j) & bitmap(24)(j); -- bitmap(31 downto 24)(j);
 				end if;
 
-				stateOp_next <= stateOpBitmapD;
+				stateOp <= stateOpBitmapD;
 			
 			elsif stateOp=stateOpBitmapD then
 				if strbSpisend='1' then
-					stateOp_next <= stateOpBitmapA;
+					stateOp <= stateOpBitmapA;
 				end if;
 
 			elsif stateOp=stateOpTextA then
 				if dneSpi='1' then
-					reqSpi_next <= '0';
-					stateOp_next <= stateOpRunD;
+					reqSpi <= '0';
+					stateOp <= stateOpRunD;
 				elsif strbSpisend='0' then
-					stateOp_next <= stateOpTextB;
+					stateOp <= stateOpTextB;
 				end if;
 			
 			elsif stateOp=stateOpTextB then
@@ -545,7 +545,7 @@ begin
 					end if;
 				end if;
 			
-				stateOp_next <= stateOpTextC;
+				stateOp <= stateOpTextC;
 			
 			elsif stateOp=stateOpTextC then
 				if (numNotChar='1' and binNotHex='0' and ((k>=1 and k<=4) or (k>=6 and k<=9) or (k>=11 and k<=14) or (k>=16 and k<=19))) then
@@ -559,7 +559,7 @@ begin
 						hexval <= hex(i)(63-(k-4)*4 downto 63-(k-4)*4-3);
 					end if;
 			
-					stateOp_next <= stateOpTextD;
+					stateOp <= stateOpTextD;
 			
 				elsif (numNotChar='1' and binNotHex='1' and ((k>=1 and k<=4) or (k>=6 and k<=9) or (k>=11 and k<=14) or (k>=16 and k<=19))) then
 					if (k>=1 and k<=4) then
@@ -572,7 +572,7 @@ begin
 						binval <= bin(i)(15-(k-4));
 					end if;
 			
-					stateOp_next <= stateOpTextE;
+					stateOp <= stateOpTextE;
 			
 				else
 					if numNotChar='0' then
@@ -585,72 +585,62 @@ begin
 						charval <= ' ';
 					end if;
 			
-					stateOp_next <= stateOpTextF;
+					stateOp <= stateOpTextF;
 				end if;
 				
 			elsif stateOp=stateOpTextD then
 				charval <= charvalHex;
-				stateOp_next <= stateOpTextF;
+				stateOp <= stateOpTextF;
 			
 			elsif stateOp=stateOpTextE then
 				charval <= charvalBin;
-				stateOp_next <= stateOpTextF;
+				stateOp <= stateOpTextF;
 			
 			elsif stateOp=stateOpTextF then
-				reqSpi_next <= '1';
+				reqSpi <= '1';
 			
 				if k=20 then
-					spisend_next <= x"00";
+					spisend <= x"00";
 				else
 					if l<5 then
-						spisend_next <= '0' & dm(6)(l) & dm(5)(l) & dm(4)(l) & dm(3)(l) & dm(2)(l) & dm(1)(l) & dm(0)(l); -- '0' & dm(6 downto 0)(l);
+						spisend <= '0' & dm(6)(l) & dm(5)(l) & dm(4)(l) & dm(3)(l) & dm(2)(l) & dm(1)(l) & dm(0)(l); -- '0' & dm(6 downto 0)(l);
 					else
-						spisend_next <= x"00";
+						spisend <= x"00";
 					end if;
 				end if;
 
-				stateOp_next <= stateOpTextG;
+				stateOp <= stateOpTextG;
 			
 			elsif stateOp=stateOpTextG then
 				if strbSpisend='1' then
-					stateOp_next <= stateOpTextA;
+					stateOp <= stateOpTextA;
 				end if;
 
 			elsif stateOp=stateOpStopA then
 				if dneSpi='1' then
-					reqSpi_next <= '0';
+					reqSpi <= '0';
 
 					m := 0;
 
-					stateOp_next <= stateOpStopB;
+					stateOp <= stateOpStopB;
 				end if;
 
 			elsif stateOp=stateOpStopB then -- vbat='1' from here
 				if tkclk='1' then
 					if m=100*10 then
-						stateOp_next <= stateOpInit;
+						stateOp <= stateOpInit;
 					else
-						stateOp_next <= stateOpStopC;
+						stateOp <= stateOpStopC;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpStopC then
 				if tkclk='0' then
 					m := m + 1;
-					stateOp_next <= stateOpStopB;
+					stateOp <= stateOpStopB;
 				end if;
 			end if;
 		end if;	
-	end process;
-
-	process (mclk)
-	begin
-		if falling_edge(mclk) then
-			stateOp <= stateOp_next;
-			reqSpi <= reqSpi_next;
-			spilen <= spilen_next;
-			spisend <= spisend_next;
-		end if;
 	end process;
 
 	------------------------------------------------------------------------
@@ -662,31 +652,31 @@ begin
 
 	begin
 		if reset='1' then
-			stateTfrm_next <= stateTfrmIdle;
-			strbTfrm_next <= '0';
+			stateTfrm <= stateTfrmIdle;
+			strbTfrm <= '0';
 
 		elsif rising_edge(mclk) then
 			if Tfrmrun='0' then
-				stateTfrm_next <= stateTfrmIdle;
-				strbTfrm_next <= '0';
+				stateTfrm <= stateTfrmIdle;
+				strbTfrm <= '0';
 
 			elsif stateTfrm=stateTfrmIdle then
 				if Tfrmrun='1' then
 					i := 0;
-					stateTfrm_next <= stateTfrmRunA;
+					stateTfrm <= stateTfrmRunA;
 				end if;
 
 			elsif stateTfrm=stateTfrmRunA then
 				if tkclk='1' then
 					if i=0 then
-						strbTfrm_next <= '1';
+						strbTfrm <= '1';
 					end if;
 
-					stateTfrm_next <= stateTfrmRunB;
+					stateTfrm <= stateTfrmRunB;
 				end if;
 
 			elsif stateTfrm=stateTfrmRunB then
-				strbTfrm_next <= '0';
+				strbTfrm <= '0';
 				
 				if tkclk='0' then
 					i := i + 1;
@@ -694,19 +684,10 @@ begin
 						i := 0;
 					end if;
 
-					stateTfrm_next <= stateTfrmRunA;
+					stateTfrm <= stateTfrmRunA;
 				end if;
 			end if;
 		end if;
 	end process;
 
-	process (mclk)
-	begin
-		if falling_edge(mclk) then
-			stateTfrm <= stateTfrm_next;
-			strbTfrm <= strbTfrm_next;
-		end if;
-	end process;
-
 end Oled128x32_v1_0;
-

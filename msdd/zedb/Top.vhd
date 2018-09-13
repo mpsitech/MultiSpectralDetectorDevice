@@ -1,8 +1,8 @@
 -- file Top.vhd
 -- Top top_v1_0 top implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 9 Aug 2018
+-- date modified: 10 Sep 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -19,8 +19,6 @@ entity Top is
 	);
 	port (
 		sw: in std_logic_vector(7 downto 0);
-		gnd: out std_logic_vector(1 downto 0);
-		JA: out std_logic_vector(7 downto 0);
 		nxss: out std_logic;
 		xsck: out std_logic;
 		xmosi: out std_logic;
@@ -47,8 +45,6 @@ entity Top is
 		irxd: in std_logic;
 		nirst: out std_logic;
 		imclk: out std_logic;
-		iscl: out std_logic;
-		isda: inout std_logic;
 		extclk: in std_logic;
 		oledVdd: out std_logic;
 		oledVbat: out std_logic;
@@ -62,7 +58,12 @@ entity Top is
 		sred: out std_logic;
 		lmio: out std_logic_vector(1 downto 0);
 		rmio: out std_logic_vector(1 downto 0);
-		itxd: out std_logic
+		itxd: out std_logic;
+		isda: inout std_logic;
+		iscl: out std_logic;
+
+		gnd: out std_logic_vector(2 downto 0);
+		JA: out std_logic_vector(7 downto 0)
 	);
 end Top;
 
@@ -230,50 +231,50 @@ architecture Top of Top is
 			vgaacqGetInfoTixVBufstate: in std_logic_vector(7 downto 0);
 			vgaacqGetInfoTkst: in std_logic_vector(31 downto 0);
 
+			reqAbufFromLwiracq: out std_logic;
+
+			reqAbufFromVgaacq: out std_logic;
+
+			reqBbufFromVgaacq: out std_logic;
+
+			ackAbufFromLwiracq: in std_logic;
+
+			ackAbufFromVgaacq: in std_logic;
+
+			ackBbufFromVgaacq: in std_logic;
+
+			dneAbufFromLwiracq: out std_logic;
+
+			dneAbufFromVgaacq: out std_logic;
+
+			dneBbufFromVgaacq: out std_logic;
+
+			avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
+			avllenAbufFromVgaacq: in std_logic_vector(15 downto 0);
+			avllenBbufFromVgaacq: in std_logic_vector(15 downto 0);
+
 			reqBbufFromLwiracq: out std_logic;
+
+			dAbufFromLwiracq: in std_logic_vector(7 downto 0);
+
+			dAbufFromVgaacq: in std_logic_vector(7 downto 0);
+
+			dBbufFromVgaacq: in std_logic_vector(7 downto 0);
+
 			ackBbufFromLwiracq: in std_logic;
+
+			strbDAbufFromLwiracq: out std_logic;
+
+			strbDAbufFromVgaacq: out std_logic;
+
+			strbDBbufFromVgaacq: out std_logic;
+
 			dneBbufFromLwiracq: out std_logic;
 
 			avllenBbufFromLwiracq: in std_logic_vector(15 downto 0);
 
-			reqAbufFromVgaacq: out std_logic;
-
 			dBbufFromLwiracq: in std_logic_vector(7 downto 0);
-
-			ackAbufFromVgaacq: in std_logic;
-
-			reqBbufFromVgaacq: out std_logic;
-
 			strbDBbufFromLwiracq: out std_logic;
-
-			reqAbufFromLwiracq: out std_logic;
-
-			dneAbufFromVgaacq: out std_logic;
-
-			ackBbufFromVgaacq: in std_logic;
-
-			ackAbufFromLwiracq: in std_logic;
-
-			avllenAbufFromVgaacq: in std_logic_vector(15 downto 0);
-
-			dneBbufFromVgaacq: out std_logic;
-
-			dneAbufFromLwiracq: out std_logic;
-
-			dAbufFromVgaacq: in std_logic_vector(7 downto 0);
-
-			avllenBbufFromVgaacq: in std_logic_vector(15 downto 0);
-			avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
-
-			strbDAbufFromVgaacq: out std_logic;
-
-			dBbufFromVgaacq: in std_logic_vector(7 downto 0);
-
-			dAbufFromLwiracq: in std_logic_vector(7 downto 0);
-
-			strbDBbufFromVgaacq: out std_logic;
-
-			strbDAbufFromLwiracq: out std_logic;
 
 			enRx: in std_logic;
 			rx: in std_logic_vector(31 downto 0);
@@ -327,26 +328,30 @@ architecture Top of Top is
 			getInfoMin: out std_logic_vector(15 downto 0);
 			getInfoMax: out std_logic_vector(15 downto 0);
 
-			reqBbufToHostif: in std_logic;
+			tkclksrcGetTkstTkst: in std_logic_vector(31 downto 0);
 
 			reqAbufToHostif: in std_logic;
+
+			reqBbufToHostif: in std_logic;
+
 			ackAbufToHostif: out std_logic;
 
 			ackBbufToHostif: out std_logic;
-			dneBbufToHostif: in std_logic;
 
 			dneAbufToHostif: in std_logic;
 
-			avllenBbufToHostif: out std_logic_vector(15 downto 0);
-			avllenAbufToHostif: out std_logic_vector(15 downto 0);
+			dneBbufToHostif: in std_logic;
 
-			dBbufToHostif: out std_logic_vector(7 downto 0);
+			avllenAbufToHostif: out std_logic_vector(15 downto 0);
+			avllenBbufToHostif: out std_logic_vector(15 downto 0);
 
 			dAbufToHostif: out std_logic_vector(7 downto 0);
 
-			strbDBbufToHostif: in std_logic;
+			dBbufToHostif: out std_logic_vector(7 downto 0);
 
 			strbDAbufToHostif: in std_logic;
+
+			strbDBbufToHostif: in std_logic;
 
 			nss: out std_logic;
 			sclk: out std_logic;
@@ -356,24 +361,24 @@ architecture Top of Top is
 
 	component Lwirif is
 		generic (
-			fMclk: natural range 1 to 1000000 := 50000
+			fMclk: natural range 0 to 1000000 := 50000 -- in kHz
 		);
 		port (
 			reset: in std_logic;
 			mclk: in std_logic;
 			tkclk: in std_logic;
 			rng: out std_logic;
-
+	
 			reqInvSetRng: in std_logic;
 			ackInvSetRng: out std_logic;
-
+	
 			setRngRng: in std_logic_vector(7 downto 0);
-
+	
 			nirst: out std_logic;
 			imclk: out std_logic;
-
-			scl: out std_logic;
-			sda: inout std_logic
+	
+			iscl: out std_logic;
+			isda: inout std_logic
 		);
 	end component;
 
@@ -566,7 +571,7 @@ architecture Top of Top is
 		stateRstReset,
 		stateRstRun
 	);
-	signal stateRst, stateRst_next: stateRst_t := stateRstReset;
+	signal stateRst: stateRst_t := stateRstReset;
 
 	signal reset: std_logic;
 
@@ -617,13 +622,13 @@ architecture Top of Top is
 
 	signal vgaacqSetRngRng: std_logic_vector(7 downto 0);
 
-	signal strbDBbufLwiracqToHostif: std_logic;
+	signal strbDAbufLwiracqToHostif: std_logic;
 
 	signal strbDAbufVgaacqToHostif: std_logic;
 
 	signal strbDBbufVgaacqToHostif: std_logic;
 
-	signal strbDAbufLwiracqToHostif: std_logic;
+	signal strbDBbufLwiracqToHostif: std_logic;
 
 	---- myLwiracq
 	signal lwiracqGetInfoTixVBufstate: std_logic_vector(7 downto 0);
@@ -631,13 +636,12 @@ architecture Top of Top is
 	signal lwiracqGetInfoMin: std_logic_vector(15 downto 0);
 	signal lwiracqGetInfoMax: std_logic_vector(15 downto 0);
 
+	signal avllenAbufLwiracqToHostif: std_logic_vector(15 downto 0);
 	signal avllenBbufLwiracqToHostif: std_logic_vector(15 downto 0);
 
-	signal dBbufLwiracqToHostif: std_logic_vector(7 downto 0);
-
-	signal avllenAbufLwiracqToHostif: std_logic_vector(15 downto 0);
-
 	signal dAbufLwiracqToHostif: std_logic_vector(7 downto 0);
+
+	signal dBbufLwiracqToHostif: std_logic_vector(7 downto 0);
 
 	---- myLwirif
 	signal lwirrng: std_logic;
@@ -723,9 +727,9 @@ architecture Top of Top is
 	signal ackInvVgaacqSetRng: std_logic;
 
 	-- myHostif to myLwiracq
-	signal reqBbufLwiracqToHostif: std_logic;
-	signal ackBbufLwiracqToHostif: std_logic;
-	signal dneBbufLwiracqToHostif: std_logic;
+	signal reqAbufLwiracqToHostif: std_logic;
+	signal ackAbufLwiracqToHostif: std_logic;
+	signal dneAbufLwiracqToHostif: std_logic;
 
 	-- myHostif to myVgaacq
 	signal reqAbufVgaacqToHostif: std_logic;
@@ -738,15 +742,15 @@ architecture Top of Top is
 	signal dneBbufVgaacqToHostif: std_logic;
 
 	-- myHostif to myLwiracq
-	signal reqAbufLwiracqToHostif: std_logic;
-	signal ackAbufLwiracqToHostif: std_logic;
-	signal dneAbufLwiracqToHostif: std_logic;
+	signal reqBbufLwiracqToHostif: std_logic;
+	signal ackBbufLwiracqToHostif: std_logic;
+	signal dneBbufLwiracqToHostif: std_logic;
 
 	---- other
-	signal reqReset: std_logic := '0';
+	signal reqReset: std_logic; --- ! was := '0'
 	signal hex: hex4x16_t;
-	signal lmio_sig: std_logic_vector(1 downto 0) := "00";
-	signal rmio_sig: std_logic_vector(1 downto 0) := "00";
+	signal lmio_sig: std_logic_vector(1 downto 0); --- ! was := "00";
+	signal rmio_sig: std_logic_vector(1 downto 0); --- ! was := "00";
 	-- IP sigs.oth.cust --- INSERT
 
 begin
@@ -936,50 +940,50 @@ begin
 			vgaacqGetInfoTixVBufstate => vgaacqGetInfoTixVBufstate,
 			vgaacqGetInfoTkst => vgaacqGetInfoTkst,
 
+			reqAbufFromLwiracq => reqAbufLwiracqToHostif,
+
+			reqAbufFromVgaacq => reqAbufVgaacqToHostif,
+
+			reqBbufFromVgaacq => reqBbufVgaacqToHostif,
+
+			ackAbufFromLwiracq => ackAbufLwiracqToHostif,
+
+			ackAbufFromVgaacq => ackAbufVgaacqToHostif,
+
+			ackBbufFromVgaacq => ackBbufVgaacqToHostif,
+
+			dneAbufFromLwiracq => dneAbufLwiracqToHostif,
+
+			dneAbufFromVgaacq => dneAbufVgaacqToHostif,
+
+			dneBbufFromVgaacq => dneBbufVgaacqToHostif,
+
+			avllenAbufFromLwiracq => avllenAbufLwiracqToHostif,
+			avllenAbufFromVgaacq => avllenAbufVgaacqToHostif,
+			avllenBbufFromVgaacq => avllenBbufVgaacqToHostif,
+
 			reqBbufFromLwiracq => reqBbufLwiracqToHostif,
+
+			dAbufFromLwiracq => dAbufLwiracqToHostif,
+
+			dAbufFromVgaacq => dAbufVgaacqToHostif,
+
+			dBbufFromVgaacq => dBbufVgaacqToHostif,
+
 			ackBbufFromLwiracq => ackBbufLwiracqToHostif,
+
+			strbDAbufFromLwiracq => strbDAbufLwiracqToHostif,
+
+			strbDAbufFromVgaacq => strbDAbufVgaacqToHostif,
+
+			strbDBbufFromVgaacq => strbDBbufVgaacqToHostif,
+
 			dneBbufFromLwiracq => dneBbufLwiracqToHostif,
 
 			avllenBbufFromLwiracq => avllenBbufLwiracqToHostif,
 
-			reqAbufFromVgaacq => reqAbufVgaacqToHostif,
-
 			dBbufFromLwiracq => dBbufLwiracqToHostif,
-
-			ackAbufFromVgaacq => ackAbufVgaacqToHostif,
-
-			reqBbufFromVgaacq => reqBbufVgaacqToHostif,
-
 			strbDBbufFromLwiracq => strbDBbufLwiracqToHostif,
-
-			reqAbufFromLwiracq => reqAbufLwiracqToHostif,
-
-			dneAbufFromVgaacq => dneAbufVgaacqToHostif,
-
-			ackBbufFromVgaacq => ackBbufVgaacqToHostif,
-
-			ackAbufFromLwiracq => ackAbufLwiracqToHostif,
-
-			avllenAbufFromVgaacq => avllenAbufVgaacqToHostif,
-
-			dneBbufFromVgaacq => dneBbufVgaacqToHostif,
-
-			dneAbufFromLwiracq => dneAbufLwiracqToHostif,
-
-			dAbufFromVgaacq => dAbufVgaacqToHostif,
-
-			avllenBbufFromVgaacq => avllenBbufVgaacqToHostif,
-			avllenAbufFromLwiracq => avllenAbufLwiracqToHostif,
-
-			strbDAbufFromVgaacq => strbDAbufVgaacqToHostif,
-
-			dBbufFromVgaacq => dBbufVgaacqToHostif,
-
-			dAbufFromLwiracq => dAbufLwiracqToHostif,
-
-			strbDBbufFromVgaacq => strbDBbufVgaacqToHostif,
-
-			strbDAbufFromLwiracq => strbDAbufLwiracqToHostif,
 
 			enRx => enRx,
 			rx => rx,
@@ -1031,26 +1035,31 @@ begin
 			getInfoMin => lwiracqGetInfoMin,
 			getInfoMax => lwiracqGetInfoMax,
 
-			reqBbufToHostif => reqBbufLwiracqToHostif,
+			tkclksrcGetTkstTkst => tkclksrcGetTkstTkst,
+
 
 			reqAbufToHostif => reqAbufLwiracqToHostif,
+
+			reqBbufToHostif => reqBbufLwiracqToHostif,
+
 			ackAbufToHostif => ackAbufLwiracqToHostif,
 
 			ackBbufToHostif => ackBbufLwiracqToHostif,
-			dneBbufToHostif => dneBbufLwiracqToHostif,
 
 			dneAbufToHostif => dneAbufLwiracqToHostif,
 
-			avllenBbufToHostif => avllenBbufLwiracqToHostif,
-			avllenAbufToHostif => avllenAbufLwiracqToHostif,
+			dneBbufToHostif => dneBbufLwiracqToHostif,
 
-			dBbufToHostif => dBbufLwiracqToHostif,
+			avllenAbufToHostif => avllenAbufLwiracqToHostif,
+			avllenBbufToHostif => avllenBbufLwiracqToHostif,
 
 			dAbufToHostif => dAbufLwiracqToHostif,
 
-			strbDBbufToHostif => strbDBbufLwiracqToHostif,
+			dBbufToHostif => dBbufLwiracqToHostif,
 
 			strbDAbufToHostif => strbDAbufLwiracqToHostif,
+
+			strbDBbufToHostif => strbDBbufLwiracqToHostif,
 
 			nss => niss,
 			sclk => isck,
@@ -1059,7 +1068,7 @@ begin
 
 	myLwirif : Lwirif
 		generic map (
-			fMclk => fMclk -- in kHz
+			fMclk => fMclk
 		)
 		port map (
 			reset => reset,
@@ -1074,9 +1083,9 @@ begin
 
 			nirst => nirst,
 			imclk => imclk,
-
-			scl => iscl,
-			sda => isda
+			
+			iscl => iscl,
+			isda => isda
 		);
 
 	myMmcmMclk : Mmcm_div2
@@ -1281,7 +1290,10 @@ begin
 	-- implementation: other 
 	------------------------------------------------------------------------
 
+-- !!!
+	lmio_sig(1) <= '0';
 	lmio <= lmio_sig;
+	rmio_sig(1) <= '0';
 	rmio <= rmio_sig;
 	
 	-- IP impl.oth.cust --- IBEGIN
@@ -1296,5 +1308,4 @@ begin
 	-- IP impl.oth.cust --- IEND
 
 end Top;
-
 

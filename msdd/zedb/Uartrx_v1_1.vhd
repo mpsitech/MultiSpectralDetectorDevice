@@ -2,7 +2,7 @@
 -- Uartrx_v1_1 module implementation
 -- author Alexander Wirthmueller
 -- date created: 6 Aug 2016
--- date modified: 6 Apr 2018
+-- date modified: 10 Sep 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -46,7 +46,7 @@ architecture Uartrx_v1_1 of Uartrx_v1_1 is
 		stateMonIdle,
 		stateMonBusyA, stateMonBusyB, stateMonBusyC
 	);
-	signal stateMon, stateMon_next: stateMon_t := stateMonInit;
+	signal stateMon: stateMon_t := stateMonInit;
 
 	signal rng: std_logic;
 
@@ -59,16 +59,16 @@ architecture Uartrx_v1_1 of Uartrx_v1_1 is
 		stateRecvStop,
 		stateRecvDone
 	);
-	signal stateRecv, stateRecv_next: stateRecv_t := stateRecvInit;
+	signal stateRecv: stateRecv_t := stateRecvInit;
 
 	constant tbit: natural := ((1000*fMclk)/fSclk);
 	constant tbithalf: natural := ((500*fMclk)/fSclk);
 
-	signal monrestart, monrestart_next: std_logic;
+	signal monrestart: std_logic;
 
-	signal ack_sig, ack_sig_next: std_logic;
+	signal ack_sig: std_logic;
 
-	signal d_sig, d_sig_next: std_logic_vector(7 downto 0);
+	signal d_sig: std_logic_vector(7 downto 0);
 
 begin
 
@@ -84,7 +84,7 @@ begin
 
 	begin
 		if reset='1' then
-			stateMon_next <= stateMonInit;
+			stateMon <= stateMonInit;
 
 		elsif rising_edge(mclk) then
 			if (stateMon=stateMonInit or monrestart='1') then
@@ -92,14 +92,14 @@ begin
 				j := 0;
 
 				if monrestart='1' then
-					stateMon_next <= stateMonInit;
+					stateMon <= stateMonInit;
 				else
-					stateMon_next <= stateMonIdle;
+					stateMon <= stateMonIdle;
 				end if;
 
 			elsif stateMon=stateMonIdle then
 				if rxd='0' then
-					stateMon_next <= stateMonBusyA;
+					stateMon <= stateMonBusyA;
 				end if;
 
 			elsif stateMon=stateMonBusyA then
@@ -108,7 +108,7 @@ begin
 				if i=tbithalf then
 					i := 0;
 
-					stateMon_next <= stateMonBusyB;
+					stateMon <= stateMonBusyB;
 				end if;
 
 			elsif stateMon=stateMonBusyB then
@@ -119,7 +119,7 @@ begin
 					j := j + 1;
 					if j=9 then
 						j := 0;
-						stateMon_next <= stateMonBusyC;
+						stateMon <= stateMonBusyC;
 					end if;
 				end if;
 
@@ -128,7 +128,7 @@ begin
 					i := 0;
 					j := 0;
 
-					stateMon_next <= stateMonBusyA;
+					stateMon <= stateMonBusyA;
 				else
 					i := i + 1;
 					if i=tbit then
@@ -136,18 +136,11 @@ begin
 
 						j := j + 1;
 						if j=10 then
-							stateMon_next <= stateMonInit;
+							stateMon <= stateMonInit;
 						end if;
 					end if;
 				end if;
 			end if;
-		end if;
-	end process;
-
-	process (mclk)
-	begin
-		if falling_edge(mclk) then
-			stateMon <= stateMon_next;
 		end if;
 	end process;
 
@@ -173,42 +166,42 @@ begin
 
 	begin
 		if reset='1' then
-			stateRecv_next <= stateRecvInit;
-			monrestart_next <= '0';
-			ack_sig_next <= '0';
-			d_sig_next <= (others => '0');
+			stateRecv <= stateRecvInit;
+			monrestart <= '0';
+			ack_sig <= '0';
+			d_sig <= (others => '0');
 
 		elsif rising_edge(mclk) then
 			if (stateRecv=stateRecvInit or req='0') then
-				monrestart_next <= '0';
-				ack_sig_next <= '0';
-				d_sig_next <= (others => '0');
+				monrestart <= '0';
+				ack_sig <= '0';
+				d_sig <= (others => '0');
 
 				draw := x"00";
 
 				bytecnt := 0;
 
 				if req='0' then
-					stateRecv_next <= stateRecvInit;
+					stateRecv <= stateRecvInit;
 
 				else
 					if to_integer(unsigned(len))=0 then
-						ack_sig_next <= '1';
-						stateRecv_next <= stateRecvDone;
+						ack_sig <= '1';
+						stateRecv <= stateRecvDone;
 					elsif (burst='1' or rng='0') then
-						stateRecv_next <= stateRecvWaitStart;
+						stateRecv <= stateRecvWaitStart;
 					end if;
 				end if;
 
 			elsif stateRecv=stateRecvWaitStart then
 				if rxd='0' then
-					ack_sig_next <= '1';
+					ack_sig <= '1';
 
 					bytecnt := bytecnt + 1; -- byte count received
 
 					i := 0;
 
-					stateRecv_next <= stateRecvStart;
+					stateRecv <= stateRecvStart;
 				end if;
 			
 			elsif stateRecv=stateRecvStart then
@@ -218,7 +211,7 @@ begin
 
 					bitcnt := 0;
 
-					stateRecv_next <= stateRecvData;
+					stateRecv <= stateRecvData;
 				end if;
 			
 			elsif stateRecv=stateRecvData then
@@ -229,11 +222,11 @@ begin
 					draw(bitcnt) := rxd;
 
 					if bitcnt=7 then
-						d_sig_next <= draw;
+						d_sig <= draw;
 
 						bitcnt := 0;
 
-						stateRecv_next <= stateRecvStop;
+						stateRecv <= stateRecvStop;
 					else
 						bitcnt := bitcnt + 1;
 					end if;
@@ -246,36 +239,25 @@ begin
 					
 					if rxd='1' then
 						if bytecnt=to_integer(unsigned(len)) then
-							monrestart_next <= '1';
-							stateRecv_next <= stateRecvDone;
+							monrestart <= '1';
+							stateRecv <= stateRecvDone;
 						else
-							stateRecv_next <= stateRecvWaitStart;
+							stateRecv <= stateRecvWaitStart;
 						end if;
 
 					else
-						stateRecv_next <= stateRecvInit; -- should not happen
+						stateRecv <= stateRecvInit; -- should not happen
 					end if;
 				end if;
 
 			elsif stateRecv=stateRecvDone then
-				monrestart_next <= '0';
+				monrestart <= '0';
 
 				-- if req='0' then
-				-- 	stateRecv_next <= stateRecvInit;
+				-- 	stateRecv <= stateRecvInit;
 				-- end if;
 			end if;
 		end if;
 	end process;
 
-	process (mclk)
-	begin
-		if falling_edge(mclk) then
-			stateRecv <= stateRecv_next;
-			monrestart <= monrestart_next;
-			ack_sig <= ack_sig_next;
-			d_sig <= d_sig_next;
-		end if;
-	end process;
-
 end Uartrx_v1_1;
-

@@ -2,7 +2,7 @@
 -- Axirx_v1_0 module implementation
 -- author Alexander Wirthmueller
 -- date created: 6 Mar 2017
--- date modified: 19 Jun 2017
+-- date modified: 10 Sep 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -43,9 +43,9 @@ architecture Axirx_v1_0 of Axirx_v1_0 is
 		stateRecvDoneA, stateRecvDoneB,
 		stateRecvErr
 	);
-	signal stateRecv, stateRecv_next: stateRecv_t := stateRecvInit;
+	signal stateRecv: stateRecv_t := stateRecvInit;
 
-	signal d_sig, d_sig_next: std_logic_vector(7 downto 0);
+	signal d_sig: std_logic_vector(7 downto 0);
 
 begin
 
@@ -69,47 +69,47 @@ begin
 
 	begin
 		if reset='1' then
-			stateRecv_next <= stateRecvInit;
-			d_sig_next <= x"00";
+			stateRecv <= stateRecvInit;
+			d_sig <= x"00";
 
 		elsif rising_edge(mclk) then
 			if (stateRecv=stateRecvInit or req='0') then
-				d_sig_next <= x"00";
+				d_sig <= x"00";
 
 				bytecnt := 0;
 
 				if req='0' then
-					stateRecv_next <= stateRecvInit;
+					stateRecv <= stateRecvInit;
 				else
-					stateRecv_next <= stateRecvWaitStartA;
+					stateRecv <= stateRecvWaitStartA;
 				end if;
 
 			elsif stateRecv=stateRecvWaitStartA then
 				if to_integer(unsigned(len))=0 then
-					stateRecv_next <= stateRecvDoneB;
+					stateRecv <= stateRecvDoneB;
 				elsif enRx='0' then
-					stateRecv_next <= stateRecvWaitStartB;
+					stateRecv <= stateRecvWaitStartB;
 				end if;
 
 			elsif stateRecv=stateRecvWaitStartB then
 				if enRx='1' then
-					stateRecv_next <= stateRecvDataA;
+					stateRecv <= stateRecvDataA;
 				end if;
 
 			elsif stateRecv=stateRecvDataA then
 				if enRx='0' then
-					stateRecv_next <= stateRecvErr;
+					stateRecv <= stateRecvErr;
 
 				elsif strbRx='1' then
-					d_sig_next <= rx(7 downto 0);
+					d_sig <= rx(7 downto 0);
 
 					bytecnt := bytecnt + 1; -- byte count received
 
 					if bytecnt=to_integer(unsigned(len)) then
-						stateRecv_next <= stateRecvDoneA;
+						stateRecv <= stateRecvDoneA;
 					else
 						i := 0;
-						stateRecv_next <= stateRecvDataB;
+						stateRecv <= stateRecvDataB;
 					end if;
 				end if;
 
@@ -120,33 +120,25 @@ begin
 
 				if i=tstrbhigh then
 					if strbRx='0' then
-						stateRecv_next <= stateRecvDataA;
+						stateRecv <= stateRecvDataA;
 					end if;
 				end if;
 
 			elsif stateRecv=stateRecvDoneA then
 				if enRx='0' then
-					stateRecv_next <= stateRecvDoneB;
+					stateRecv <= stateRecvDoneB;
 				end if;
 
 			elsif stateRecv=stateRecvDoneB then
 				-- if req='0' then
-				-- 	stateRecv_next <= stateRecvInit;
+				-- 	stateRecv <= stateRecvInit;
 				-- end if;
 
 			elsif stateRecv=stateRecvErr then
 				-- if req='0' then
-				-- 	stateRecv_next <= stateRecvInit;
+				-- 	stateRecv <= stateRecvInit;
 				-- end if;
 			end if;
-		end if;
-	end process;
-
-	process (mclk)
-	begin
-		if falling_edge(mclk) then
-			stateRecv <= stateRecv_next;
-			d_sig <= d_sig_next;
 		end if;
 	end process;
 

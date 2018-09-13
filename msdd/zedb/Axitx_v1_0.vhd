@@ -2,7 +2,7 @@
 -- Axitx_v1_0 module implementation
 -- author Alexander Wirthmueller
 -- date created: 6 Mar 2017
--- date modified: 19 Jun 2017
+-- date modified: 10 Sep 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -46,7 +46,7 @@ architecture Axitx_v1_0 of Axitx_v1_0 is
 		stateSendDoneA, stateSendDoneB,
 		stateSendErr
 	);
-	signal stateSend, stateSend_next: stateSend_t := stateSendInit;
+	signal stateSend: stateSend_t := stateSendInit;
 
 	signal tx_sig: std_logic_vector(7 downto 0);
 
@@ -83,7 +83,7 @@ begin
 
 	begin
 		if reset='1' then
-			stateSend_next <= stateSendInit;
+			stateSend <= stateSendInit;
 			tx_sig <= x"FF";
 
 		elsif rising_edge(mclk) then
@@ -93,21 +93,21 @@ begin
 				bytecnt := 0;
 
 				if req='0' then
-					stateSend_next <= stateSendInit;
+					stateSend <= stateSendInit;
 				else
-					stateSend_next <= stateSendWaitStartA;
+					stateSend <= stateSendWaitStartA;
 				end if;
 
 			elsif stateSend=stateSendWaitStartA then
 				if to_integer(unsigned(len))=0 then
-					stateSend_next <= stateSendDoneB;
+					stateSend <= stateSendDoneB;
 				elsif enTx='0' then
-					stateSend_next <= stateSendWaitStartB;
+					stateSend <= stateSendWaitStartB;
 				end if;
 
 			elsif stateSend=stateSendWaitStartB then
 				if enTx='1' then
-					stateSend_next <= stateSendLoad;
+					stateSend <= stateSendLoad;
 				end if;
 
 			elsif stateSend=stateSendLoad then
@@ -115,14 +115,14 @@ begin
 
 				bytecnt := bytecnt + 1; -- byte count put out for send
 
-				stateSend_next <= stateSendDataA;
+				stateSend <= stateSendDataA;
 
 			elsif stateSend=stateSendDataA then
 				if bytecnt=to_integer(unsigned(len)) then
-					stateSend_next <= stateSendDoneA;
+					stateSend <= stateSendDoneA;
 				elsif strbTx='1' then
 					i := 0;
-					stateSend_next <= stateSendDataB;
+					stateSend <= stateSendDataB;
 				end if;
 
 			elsif stateSend=stateSendDataB then
@@ -132,34 +132,27 @@ begin
 
 				if i=tstrblow then
 					if enTx='0' then
-						stateSend_next <= stateSendErr;
+						stateSend <= stateSendErr;
 					elsif strbTx='0' then
-						stateSend_next <= stateSendLoad;
+						stateSend <= stateSendLoad;
 					end if;
 				end if;
 
 			elsif stateSend=stateSendDoneA then
 				if enTx='0' then
-					stateSend_next <= stateSendDoneB;
+					stateSend <= stateSendDoneB;
 				end if;
 
 			elsif stateSend=stateSendDoneB then
 				-- if req='0' then
-				-- 	stateSend_next <= stateSendInit;
+				-- 	stateSend <= stateSendInit;
 				-- end if;
 
 			elsif stateSend=stateSendErr then
 				-- if req='0' then
-				-- 	stateSend_next <= stateSendInit;
+				-- 	stateSend <= stateSendInit;
 				-- end if;
 			end if;
-		end if;
-	end process;
-
-	process (mclk)
-	begin
-		if falling_edge(mclk) then
-			stateSend <= stateSend_next;
 		end if;
 	end process;
 

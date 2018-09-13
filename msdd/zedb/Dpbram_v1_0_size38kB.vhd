@@ -1,8 +1,8 @@
 -- file Dpbram_v1_0_size38kB.vhd
 -- Dpbram_v1_0_size38kB dpbram_v1_0 implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 9 Aug 2018
+-- date modified: 9 Aug 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -43,6 +43,7 @@ architecture Dpbram_v1_0_size38kB of Dpbram_v1_0_size38kB is
 	-- signal declarations
 	------------------------------------------------------------------------
 
+	signal enA0: std_logic := '0';
 	signal enA1: std_logic := '0';
 	signal enA2: std_logic := '0';
 	signal enA3: std_logic := '0';
@@ -61,8 +62,8 @@ architecture Dpbram_v1_0_size38kB of Dpbram_v1_0_size38kB is
 	signal enA16: std_logic := '0';
 	signal enA17: std_logic := '0';
 	signal enA18: std_logic := '0';
-	signal enA0: std_logic := '0';
 
+	signal drdA0: std_logic_vector(7 downto 0) := x"00";
 	signal drdA1: std_logic_vector(7 downto 0) := x"00";
 	signal drdA2: std_logic_vector(7 downto 0) := x"00";
 	signal drdA3: std_logic_vector(7 downto 0) := x"00";
@@ -81,8 +82,8 @@ architecture Dpbram_v1_0_size38kB of Dpbram_v1_0_size38kB is
 	signal drdA16: std_logic_vector(7 downto 0) := x"00";
 	signal drdA17: std_logic_vector(7 downto 0) := x"00";
 	signal drdA18: std_logic_vector(7 downto 0) := x"00";
-	signal drdA0: std_logic_vector(7 downto 0) := x"00";
 
+	signal enB0: std_logic := '0';
 	signal enB1: std_logic := '0';
 	signal enB2: std_logic := '0';
 	signal enB3: std_logic := '0';
@@ -101,8 +102,8 @@ architecture Dpbram_v1_0_size38kB of Dpbram_v1_0_size38kB is
 	signal enB16: std_logic := '0';
 	signal enB17: std_logic := '0';
 	signal enB18: std_logic := '0';
-	signal enB0: std_logic := '0';
 
+	signal drdB0: std_logic_vector(7 downto 0) := x"00";
 	signal drdB1: std_logic_vector(7 downto 0) := x"00";
 	signal drdB2: std_logic_vector(7 downto 0) := x"00";
 	signal drdB3: std_logic_vector(7 downto 0) := x"00";
@@ -121,11 +122,7 @@ architecture Dpbram_v1_0_size38kB of Dpbram_v1_0_size38kB is
 	signal drdB16: std_logic_vector(7 downto 0) := x"00";
 	signal drdB17: std_logic_vector(7 downto 0) := x"00";
 	signal drdB18: std_logic_vector(7 downto 0) := x"00";
-	signal drdB0: std_logic_vector(7 downto 0) := x"00";
 	-- IP sigs --- END
-
---
-	signal weA4: 
 
 begin
 
@@ -133,40 +130,35 @@ begin
 	-- sub-module instantiation
 	------------------------------------------------------------------------
 
-	myBram0 : RAMB18E1
+	myBram0 : RAMB16_S9_S9
 		generic map (
-			DOA_REG => 1,
-			DOB_REG => 1,
-			INIT_A => x"00000",
-			INIT_B => x"00000",
-			READ_WIDTH_A => 9,
-			READ_WIDTH_B => 9,
-			WRITE_WIDTH_A => 9,
-			WRITE_WIDTH_B => 9,
-			SRVAL_A => x"00000",
-			SRVAL_B => x"00000",
+			INIT_A => x"000000",
+			INIT_B => x"000000",
+			SRVAL_A => x"000000",
+			SRVAL_B => x"000000",
 			WRITE_MODE_A => "WRITE_FIRST",
-			WRITE_MODE_B => "WRITE_FIRST"
+			WRITE_MODE_B => "WRITE_FIRST",
+			SIM_COLLISION_CHECK => "ALL"
 		)
 		port map (
-			DOADO => drdA0,
-			DOBDO => drdB0,
-			DOPADOP => open,
-			DOPBDOP => open,
-			ADDRARDADDR => aA(10 downto 0),
+			DOA => drdA0,
+			DOB => drdB0,
+			DOPA => open,
+			DOPB => open,
+			ADDRA => aA(10 downto 0),
 			ADDRB => aB(10 downto 0),
-			CLKARDCLK => clkA,
-			CLKBWRCLK => clkB,
-			DIADI => dwrA,
-			DIBDI => dwrB,
-			DIPADIP => "0",
-			DIPBDIP => "0",
-			ENARDEN => enA0,
-			ENBWREN => enB0,
-			-- SSRA => '0',
-			-- SSRB => '0',
+			CLKA => clkA,
+			CLKB => clkB,
+			DIA => dwrA,
+			DIB => dwrB,
+			DIPA => "0",
+			DIPB => "0",
+			ENA => enA0,
+			ENB => enB0,
+			SSRA => '0',
+			SSRB => '0',
 			WEA => weA,
-			WEBWE => weB
+			WEB => weB
 		);
 
 	myBram1 : RAMB16_S9_S9

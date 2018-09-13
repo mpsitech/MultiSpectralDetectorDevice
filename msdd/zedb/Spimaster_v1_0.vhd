@@ -2,7 +2,7 @@
 -- Spimaster_v1_0 module implementation
 -- author Alexander Wirthmueller
 -- date created: 17 May 2016
--- date modified: 28 Jan 2017
+-- date modified: 10 Sep 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -60,12 +60,12 @@ architecture Spimaster_v1_0 of Spimaster_v1_0 is
 		stateXferStop,
 		stateXferDone
 	);
-	signal stateXfer, stateXfer_next: stateXfer_t := stateXferInit;
+	signal stateXfer: stateXfer_t := stateXferInit;
 
 	signal sclk_sig: std_logic;
-	signal mosi_sig, mosi_sig_next: std_logic;
+	signal mosi_sig: std_logic;
 	
-	signal recv_sig, recv_sig_next: std_logic_vector(7 downto 0);
+	signal recv_sig: std_logic_vector(7 downto 0);
 
 begin
 
@@ -105,31 +105,31 @@ begin
 
 	begin
 		if reset='1' then
-			stateXfer_next <= stateXferInit;
-			mosi_sig_next <= '0';
-			recv_sig_next <= x"00";
+			stateXfer <= stateXferInit;
+			mosi_sig <= '0';
+			recv_sig <= x"00";
 
 		elsif rising_edge(mclk) then
 			if stateXfer=stateXferInit then
-				mosi_sig_next <= '0';
-				recv_sig_next <= x"00";
+				mosi_sig <= '0';
+				recv_sig <= x"00";
 				
 				bytecnt := 0;
 
-				stateXfer_next <= stateXferIdle;
+				stateXfer <= stateXferIdle;
 
 			elsif stateXfer=stateXferIdle then
 				if req='1' then
 					if to_integer(unsigned(len))=0 then
-						stateXfer_next <= stateXferDone;
+						stateXfer <= stateXferDone;
 					else
-						stateXfer_next <= stateXferLoad;
+						stateXfer <= stateXferLoad;
 					end if;
 				end if;
 
 			elsif stateXfer=stateXferLoad then
 				if req='0' then
-					stateXfer_next <= stateXferInit;
+					stateXfer <= stateXferInit;
 
 				else
 					send_var := send;
@@ -140,12 +140,12 @@ begin
 					bytecnt := bytecnt + 1; -- byte count put out for send
 
 					if cpha='0' then
-						mosi_sig_next <= send_var(7-bitcnt);
+						mosi_sig <= send_var(7-bitcnt);
 					end if;
 
 					i := 0;
 
-					stateXfer_next <= stateXferDataA;
+					stateXfer <= stateXferDataA;
 				end if;
 
 			elsif stateXfer=stateXferDataA then -- sclk='0'
@@ -155,12 +155,12 @@ begin
 					if cpha='0' then
 						recvraw(7-bitcnt) := miso;
 					elsif cpha='1' then
-						mosi_sig_next <= send_var(7-bitcnt);
+						mosi_sig <= send_var(7-bitcnt);
 					end if;
 
 					i := 0;
 
-					stateXfer_next <= stateXferDataB;
+					stateXfer <= stateXferDataB;
 				end if;
 
 			elsif stateXfer=stateXferDataB then -- sclk='1'
@@ -174,26 +174,26 @@ begin
 					end if;
 					
 					if bitcnt=7 then
-						recv_sig_next <= recvraw;
+						recv_sig <= recvraw;
 
 						j := 0;
 						
-						stateXfer_next <= stateXferStore;
+						stateXfer <= stateXferStore;
 
 					else	
 						bitcnt := bitcnt + 1;
 
 						if cpha='0' then
-							mosi_sig_next <= send_var(7-bitcnt);
+							mosi_sig <= send_var(7-bitcnt);
 						end if;
 						
-						stateXfer_next <= stateXferDataA;
+						stateXfer <= stateXferDataA;
 					end if;
 				end if;
 
 			elsif stateXfer=stateXferStore then
 				i := i + 1;
-				stateXfer_next <= stateXferStop;
+				stateXfer <= stateXferStop;
 				
 			elsif stateXfer=stateXferStop then
 				i := i + 1;
@@ -204,27 +204,18 @@ begin
 
 					if j=Nstop then
 						if bytecnt=to_integer(unsigned(len)) then
-							stateXfer_next <= stateXferDone;
+							stateXfer <= stateXferDone;
 						else
-							stateXfer_next <= stateXferLoad;
+							stateXfer <= stateXferLoad;
 						end if;
 					end if;
 				end if;
 
 			elsif stateXfer=stateXferDone then
 				if req='0' then
-					stateXfer_next <= stateXferInit;
+					stateXfer <= stateXferInit;
 				end if;
 			end if;
-		end if;
-	end process;
-
-	process (mclk)
-	begin
-		if falling_edge(mclk) then
-			stateXfer <= stateXfer_next;
-			mosi_sig <= mosi_sig_next;
-			recv_sig <= recv_sig_next;
 		end if;
 	end process;
 
