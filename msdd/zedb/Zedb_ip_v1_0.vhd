@@ -1,8 +1,8 @@
 -- file Zedb_ip_v1_0.vhd
 -- Zedb_ip_v1_0 zynq_ip_v1_0 wrapper implementation
 -- author Alexander Wirthmueller
--- date created: 9 Aug 2018
--- date modified: 9 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -40,6 +40,8 @@ entity Zedb_ip_v1_0 is
 		s00_axi_rready: in std_logic;
 
 		sw: in std_logic_vector(7 downto 0);
+		gnd: out std_logic_vector(1 downto 0);
+		JA: out std_logic_vector(7 downto 0);
 		nxss: out std_logic;
 		xsck: out std_logic;
 		xmosi: out std_logic;
@@ -57,6 +59,8 @@ entity Zedb_ip_v1_0 is
 		irxd: in std_logic;
 		nirst: out std_logic;
 		imclk: out std_logic;
+		iscl: out std_logic;
+		isda: inout std_logic;
 		extclk: in std_logic;
 		oledVdd: out std_logic;
 		oledVbat: out std_logic;
@@ -70,12 +74,7 @@ entity Zedb_ip_v1_0 is
 		sred: out std_logic;
 		lmio: out std_logic_vector(1 downto 0);
 		rmio: out std_logic_vector(1 downto 0);
-		itxd: out std_logic;
-		isda: inout std_logic;
-		iscl: out std_logic;
-
-		gnd: out std_logic_vector(2 downto 0);
-		JA: out std_logic_vector(7 downto 0)
+		itxd: out std_logic
 	);
 end Zedb_ip_v1_0;
 
@@ -114,6 +113,8 @@ architecture Zedb_ip_v1_0 of Zedb_ip_v1_0 is
 			S_AXI_RREADY: in std_logic;
 
 			sw: in std_logic_vector(7 downto 0);
+			gnd: out std_logic_vector(1 downto 0);
+			JA: out std_logic_vector(7 downto 0);
 			nxss: out std_logic;
 			xsck: out std_logic;
 			xmosi: out std_logic;
@@ -131,6 +132,8 @@ architecture Zedb_ip_v1_0 of Zedb_ip_v1_0 is
 			irxd: in std_logic;
 			nirst: out std_logic;
 			imclk: out std_logic;
+			iscl: out std_logic;
+			isda: inout std_logic;
 			extclk: in std_logic;
 			oledVdd: out std_logic;
 			oledVbat: out std_logic;
@@ -144,12 +147,7 @@ architecture Zedb_ip_v1_0 of Zedb_ip_v1_0 is
 			sred: out std_logic;
 			lmio: out std_logic_vector(1 downto 0);
 			rmio: out std_logic_vector(1 downto 0);
-			itxd: out std_logic;
-			isda: inout std_logic;
-			iscl: out std_logic;
-
-			gnd: out std_logic_vector(2 downto 0);
-			JA: out std_logic_vector(7 downto 0)
+			itxd: out std_logic
 		);
 	end component;
 
@@ -195,6 +193,8 @@ begin
 			S_AXI_RREADY => s00_axi_rready,
 
 			sw => sw,
+			gnd => gnd,
+			JA => JA,
 			nxss => nxss,
 			xsck => xsck,
 			xmosi => xmosi,
@@ -212,6 +212,8 @@ begin
 			irxd => irxd,
 			nirst => nirst,
 			imclk => imclk,
+			iscl => iscl,
+			isda => isda,
 			extclk => extclk,
 			oledVdd => oledVdd,
 			oledVbat => oledVbat,
@@ -225,12 +227,7 @@ begin
 			sred => sred,
 			lmio => lmio,
 			rmio => rmio,
-			itxd => itxd,
-			isda => isda,
-			iscl => iscl,
-
-			gnd => gnd,
-			JA => JA
+			itxd => itxd
 		);
 
 	------------------------------------------------------------------------

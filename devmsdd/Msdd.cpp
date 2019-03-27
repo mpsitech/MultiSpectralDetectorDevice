@@ -2,8 +2,8 @@
   * \file Msdd.cpp
   * Msdd global functionality and unit/controller exchange (implementation)
   * \author Alexander Wirthmueller
-  * \date created: 26 Aug 2018
-  * \date modified: 26 Aug 2018
+  * \date created: 18 Oct 2018
+  * \date modified: 18 Oct 2018
   */
 
 #include "Msdd.h"
@@ -12,10 +12,11 @@
  class UntMsdd
  ******************************************************************************/
 
-UntMsdd::UntMsdd() :
+UntMsdd::UntMsdd()
+		:
 			mAccess("mAccess", "UntMsdd", "UntMsdd")
 		{
-	initdone = false;
+	initdone = false;;
 
 	txburst = false;
 	rxtxdump = false;
@@ -103,7 +104,6 @@ bool UntMsdd::runBufxfFromBuf(
 	if (success) bufxf->ptr = bufxf->reqlen;
 
 	if (success) {
-		///
 		// received CRC bytes are bit-inverted
 		bufxf->data[bufxf->reqlen] = ~(bufxf->data[bufxf->reqlen]);
 		bufxf->data[bufxf->reqlen+1] = ~(bufxf->data[bufxf->reqlen+1]);
@@ -167,7 +167,6 @@ bool UntMsdd::runBufxfToBuf(
 
 	if (success) success = rx(rxbuf, 2); // expect CRC of empty buffer (~0x0000 = 0xFFFF)
 
-///
 	if (success) success = ((rxbuf[0] == 0xFF) && (rxbuf[1] == 0xFF));
 
 	unlockAccess("runBufxfToBuf");
@@ -251,7 +250,6 @@ bool UntMsdd::runCmdInvToVoid(
 
 	if (success) success = rx(rxbuf, 2); // expect CRC of empty buffer (~0x0000 = 0xFFFF)
 
-///
 	if (success) success = ((rxbuf[0] == 0xFF) && (rxbuf[1] == 0xFF));
 
 	if (buf) delete[] buf;
@@ -283,7 +281,6 @@ bool UntMsdd::runCmdVoidToRet(
 	if (success) success = rx(rxbuf, cmd->getRetBuflen()+2);
 
 	if (success) {
-		///
 		// received CRC bytes are bit-inverted
 		rxbuf[cmd->getRetBuflen()] = ~(rxbuf[cmd->getRetBuflen()]);
 		rxbuf[cmd->getRetBuflen()+1] = ~(rxbuf[cmd->getRetBuflen()+1]);

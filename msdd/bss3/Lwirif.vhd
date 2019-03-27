@@ -1,8 +1,8 @@
 -- file Lwirif.vhd
 -- Lwirif easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -82,7 +82,7 @@ architecture Lwirif of Lwirif is
 		stateGetReady,
 		stateGetRunA, stateGetRunB, stateGetRunC
 	);
-	signal stateGet, stateGet_next: stateGet_t := stateGetReady;
+	signal stateGet: stateGet_t := stateGetReady;
 
 	signal strbGet: std_logic;
 
@@ -101,7 +101,7 @@ architecture Lwirif of Lwirif is
 		stateOpCheckErrA, stateOpCheckErrB,
 		stateOpReadA, stateOpReadB
 	);
-	signal stateOp, stateOp_next: stateOp_t := stateOpInit;
+	signal stateOp: stateOp_t := stateOpInit;
 
 	signal rng_sig: std_logic;
 	signal nirst_sig: std_logic;
@@ -210,7 +210,7 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.get.rising.asyncrst --- BEGIN
-			stateGet_next <= stateGetReady;
+			stateGet <= stateGetReady;
 			-- IP impl.get.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
@@ -218,17 +218,17 @@ begin
 				if tkclk='0' then
 					i := 0; -- IP impl.get.rising.ready.prepRun --- ILINE
 
-					stateGet_next <= stateGetRunA;
+					stateGet <= stateGetRunA;
 				end if;
 
 			elsif stateGet=stateGetRunA then
 				if tkclk='1' then
-					stateGet_next <= stateGetRunC;
+					stateGet <= stateGetRunC;
 				end if;
 
 			elsif stateGet=stateGetRunB then
 				if tkclk='1' then
-					stateGet_next <= stateGetRunC;
+					stateGet <= stateGetRunC;
 				end if;
 
 			elsif stateGet=stateGetRunC then
@@ -238,10 +238,10 @@ begin
 					if i=50000 then
 						i := 0; -- IP impl.get.rising.runC.prepRun --- ILINE
 
-						stateGet_next <= stateGetRunA;
+						stateGet <= stateGetRunA;
 
 					else
-						stateGet_next <= stateGetRunB;
+						stateGet <= stateGetRunB;
 					end if;
 				end if;
 			end if;
@@ -249,16 +249,15 @@ begin
 	end process;
 	-- IP impl.get.rising --- END
 
-	-- IP impl.get.falling --- BEGIN
+-- IP impl.get.falling --- BEGIN
 	process (mclk)
 		-- IP impl.get.falling.vars --- BEGIN
 		-- IP impl.get.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateGet <= stateGet_next;
 		end if;
 	end process;
-	-- IP impl.get.falling --- END
+-- IP impl.get.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: main operation (op)
@@ -321,30 +320,34 @@ begin
 		elsif rising_edge(mclk) then
 			if (stateOp=stateOpInit or (stateOp/=stateOpInv and reqInvSetRng='1') or setRngRng=fls8) then
 				if reqInvSetRng='1' then
-					stateOp_next <= stateOpInv;
+					stateOp <= stateOpInv;
 
 				else
 					if setRngRng=fls8 then
 						-- IP impl.op.rising.syncrst --- BEGIN
+						i2creadNotWrite <= '0';
+						i2cregaddr <= x"0000";
+						i2csend <= x"0000";
+
 						-- IP impl.op.rising.syncrst --- END
 
-						stateOp_next <= stateOpInit;
+						stateOp <= stateOpInit;
 
 					else
 						i := 0; -- IP impl.op.rising.init.rng --- ILINE
 
 						if tkclk='0' then
-							stateOp_next <= stateOpStartB;
+							stateOp <= stateOpStartB;
 
 						else
-							stateOp_next <= stateOpStartA;
+							stateOp <= stateOpStartA;
 						end if;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpInv then
 				if reqInvSetRng='0' then
-					stateOp_next <= stateOpInit;
+					stateOp <= stateOpInit;
 				end if;
 
 			elsif stateOp=stateOpStartA then
@@ -352,16 +355,16 @@ begin
 					i := i + 1; -- IP impl.op.rising.startA.inc --- ILINE
 
 					if i=50000 then
-						stateOp_next <= stateOpReady;
+						stateOp <= stateOpReady;
 
 					else
-						stateOp_next <= stateOpStartB;
+						stateOp <= stateOpStartB;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpStartB then
 				if tkclk='1' then
-					stateOp_next <= stateOpStartA;
+					stateOp <= stateOpStartA;
 				end if;
 
 			elsif stateOp=stateOpReady then
@@ -371,7 +374,7 @@ begin
 					lenRxbuf := lenRxbufGetSerno;
 					-- IP impl.op.rising.ready --- IEND
 
-					stateOp_next <= stateOpWaitReadyA;
+					stateOp <= stateOpWaitReadyA;
 				end if;
 
 			elsif stateOp=stateOpLoopCmd then
@@ -381,7 +384,7 @@ begin
 					lenRxbuf := lenRxbufGetPartno;
 					-- IP impl.op.rising.loopCmd.partno --- IEND
 
-					stateOp_next <= stateOpWaitReadyA;
+					stateOp <= stateOpWaitReadyA;
 
 				elsif cmd=cmdGetPartno then
 					-- IP impl.op.rising.loopCmd.auxtemp --- IBEGIN
@@ -389,7 +392,7 @@ begin
 					lenRxbuf := lenRxbufGetAuxtemp;
 					-- IP impl.op.rising.loopCmd.auxtemp --- IEND
 
-					stateOp_next <= stateOpWaitReadyA;
+					stateOp <= stateOpWaitReadyA;
 
 				elsif cmd=cmdGetAuxtemp then
 					-- IP impl.op.rising.loopCmd.fpatemp --- IBEGIN
@@ -397,7 +400,7 @@ begin
 					lenRxbuf := lenRxbufGetFpatemp;
 					-- IP impl.op.rising.loopCmd.fpatemp --- IEND
 
-					stateOp_next <= stateOpWaitReadyA;
+					stateOp <= stateOpWaitReadyA;
 
 				elsif cmd=cmdGetFpatemp then
 					-- IP impl.op.rising.loopCmd.stats --- IBEGIN
@@ -405,10 +408,10 @@ begin
 					lenRxbuf := lenRxbufGetStats;
 					-- IP impl.op.rising.loopCmd.stats --- IEND
 
-					stateOp_next <= stateOpWaitReadyA;
+					stateOp <= stateOpWaitReadyA;
 
 				elsif cmd=cmdGetStats then
-					stateOp_next <= stateOpReady;
+					stateOp <= stateOpReady;
 				end if;
 
 			elsif stateOp=stateOpWaitReadyA then
@@ -417,15 +420,15 @@ begin
 				i2cregaddr <= regaddrStat;
 				-- IP impl.op.rising.waitReadyA --- IEND
 
-				stateOp_next <= stateOpWaitReadyB;
+				stateOp <= stateOpWaitReadyB;
 
 			elsif stateOp=stateOpWaitReadyB then
 				if dneI2c='1' then
 					if i2crecv(2 downto 0)="110" then
-						stateOp_next <= stateOpSetLenA;
+						stateOp <= stateOpSetLenA;
 
 					else
-						stateOp_next <= stateOpWaitReadyA;
+						stateOp <= stateOpWaitReadyA;
 					end if;
 				end if;
 
@@ -447,11 +450,11 @@ begin
 				end if;
 				-- IP impl.op.rising.setLenA --- IEND
 
-				stateOp_next <= stateOpSetLenB;
+				stateOp <= stateOpSetLenB;
 
 			elsif stateOp=stateOpSetLenB then
 				if dneI2c='1' then
-					stateOp_next <= stateOpSetCmdA;
+					stateOp <= stateOpSetCmdA;
 				end if;
 
 			elsif stateOp=stateOpSetCmdA then
@@ -472,11 +475,11 @@ begin
 				end if;
 				-- IP impl.op.rising.setCmdA --- IEND
 
-				stateOp_next <= stateOpSetCmdB;
+				stateOp <= stateOpSetCmdB;
 
 			elsif stateOp=stateOpSetCmdB then
 				if dneI2c='1' then
-					stateOp_next <= stateOpCheckErrA;
+					stateOp <= stateOpCheckErrA;
 				end if;
 
 			elsif stateOp=stateOpCheckErrA then
@@ -485,13 +488,13 @@ begin
 				i2cregaddr <= regaddrStat;
 				-- IP impl.op.rising.checkErrA --- IEND
 
-				stateOp_next <= stateOpCheckErrB;
+				stateOp <= stateOpCheckErrB;
 
 			elsif stateOp=stateOpCheckErrB then
 				if dneI2c='1' then
 					if i2crecv(2 downto 0)="110" then
 						if lenRxbuf=0 then
-							stateOp_next <= stateOpLoopCmd;
+							stateOp <= stateOpLoopCmd;
 
 						else
 							-- IP impl.op.rising.checkErrB.prepRead --- IBEGIN
@@ -499,18 +502,18 @@ begin
 							j := 0;
 							-- IP impl.op.rising.checkErrB.prepRead --- IEND
 
-							stateOp_next <= stateOpReadA;
+							stateOp <= stateOpReadA;
 						end if;
 
 					else
-						stateOp_next <= stateOpCheckErrA;
+						stateOp <= stateOpCheckErrA;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpReadA then
 				i2creadNotWrite <= '1'; -- IP impl.op.rising.readA --- ILINE
 
-				stateOp_next <= stateOpReadB;
+				stateOp <= stateOpReadB;
 
 			elsif stateOp=stateOpReadB then
 				if dneI2c='1' then
@@ -521,12 +524,12 @@ begin
 					-- IP impl.op.rising.readB --- IEND
 
 					if j=lenRxbuf then
-						stateOp_next <= stateOpLoopCmd;
+						stateOp <= stateOpLoopCmd;
 
 					else
 						i2cregaddr <= std_logic_vector(unsigned(i2cregaddr) + 2); -- IP impl.op.rising.readB.inc --- ILINE
 
-						stateOp_next <= stateOpReadA;
+						stateOp <= stateOpReadA;
 					end if;
 				end if;
 			end if;
@@ -534,16 +537,15 @@ begin
 	end process;
 	-- IP impl.op.rising --- END
 
-	-- IP impl.op.falling --- BEGIN
+-- IP impl.op.falling --- BEGIN
 	process (mclk)
 		-- IP impl.op.falling.vars --- BEGIN
 		-- IP impl.op.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateOp <= stateOp_next;
 		end if;
 	end process;
-	-- IP impl.op.falling --- END
+-- IP impl.op.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: other 
@@ -553,5 +555,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Lwirif;
+
 
 

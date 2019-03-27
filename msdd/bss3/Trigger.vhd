@@ -1,8 +1,8 @@
 -- file Trigger.vhd
 -- Trigger easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -68,7 +68,7 @@ architecture Trigger of Trigger is
 		stateLwirDelayA, stateLwirDelayB,
 		stateLwirOn
 	);
-	signal stateLwir, stateLwir_next: stateLwir_t := stateLwirInit;
+	signal stateLwir: stateLwir_t := stateLwirInit;
 
 	signal ackInvSetTdlyLwir_sig: std_logic;
 	signal strbLwir_sig: std_logic;
@@ -83,10 +83,10 @@ architecture Trigger of Trigger is
 		stateTfrmRunA, stateTfrmRunB, stateTfrmRunC,
 		stateTfrmBtnA, stateTfrmBtnB, stateTfrmBtnC
 	);
-	signal stateTfrm, stateTfrm_next: stateTfrm_t := stateTfrmInit;
+	signal stateTfrm: stateTfrm_t := stateTfrmInit;
 
-	signal ackInvSetRng_sig, ackInvSetRng_sig_next: std_logic;
-	signal ackInvSetTfrm_sig, ackInvSetTfrm_sig_next: std_logic;
+	signal ackInvSetRng_sig: std_logic;
+	signal ackInvSetTfrm_sig: std_logic;
 	signal rng_sig: std_logic;
 	signal strbTfrm: std_logic;
 
@@ -98,7 +98,7 @@ architecture Trigger of Trigger is
 		stateVislReady,
 		stateVislOn
 	);
-	signal stateVisl, stateVisl_next: stateVisl_t := stateVislInit;
+	signal stateVisl: stateVisl_t := stateVislInit;
 
 	signal trigVisl_sig: std_logic;
 
@@ -112,7 +112,7 @@ architecture Trigger of Trigger is
 		stateVisrDelayA, stateVisrDelayB,
 		stateVisrOn
 	);
-	signal stateVisr, stateVisr_next: stateVisr_t := stateVisrInit;
+	signal stateVisr: stateVisr_t := stateVisrInit;
 
 	signal ackInvSetTdlyVisr_sig: std_logic;
 	signal trigVisr_sig: std_logic;
@@ -148,32 +148,32 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.lwir.rising.asyncrst --- BEGIN
-			stateLwir_next <= stateLwirInit;
+			stateLwir <= stateLwirInit;
 			-- IP impl.lwir.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
 			if (stateLwir=stateLwirInit or (stateLwir/=stateLwirInv and (reqInvSetTdlyLwir='1' or setRngRng=fls8))) then
 				if reqInvSetTdlyLwir='1' then
-					stateLwir_next <= stateLwirInv;
+					stateLwir <= stateLwirInv;
 
 				else
 					-- IP impl.lwir.rising.syncrst --- BEGIN
 					-- IP impl.lwir.rising.syncrst --- END
 
 					if setRngRng=fls8 then
-						stateLwir_next <= stateLwirInit;
+						stateLwir <= stateLwirInit;
 
 					elsif to_integer(unsigned(setTdlyLwirTdlyLwir))=0 then
-						stateLwir_next <= stateLwirReadyA;
+						stateLwir <= stateLwirReadyA;
 
 					else
-						stateLwir_next <= stateLwirReadyB;
+						stateLwir <= stateLwirReadyB;
 					end if;
 				end if;
 
 			elsif stateLwir=stateLwirInv then
 				if reqInvSetTdlyLwir='0' then
-					stateLwir_next <= stateLwirInit;
+					stateLwir <= stateLwirInit;
 				end if;
 
 			elsif stateLwir=stateLwirReadyA then
@@ -183,43 +183,42 @@ begin
 				if strbTfrm='1' then
 					i := 0; -- IP impl.lwir.rising.readyB.prepDelay --- ILINE
 
-					stateLwir_next <= stateLwirDelayA;
+					stateLwir <= stateLwirDelayA;
 				end if;
 
 			elsif stateLwir=stateLwirDelayA then
 				if tkclk='0' then
 					i := i + 1; -- IP impl.lwir.rising.delayA.inc --- ILINE
 
-					stateLwir_next <= stateLwirDelayB;
+					stateLwir <= stateLwirDelayB;
 				end if;
 
 			elsif stateLwir=stateLwirDelayB then
 				if tkclk='1' then
 					if i=to_integer(unsigned(setTdlyLwirTdlyLwir)) then
-						stateLwir_next <= stateLwirOn;
+						stateLwir <= stateLwirOn;
 
 					else
-						stateLwir_next <= stateLwirDelayA;
+						stateLwir <= stateLwirDelayA;
 					end if;
 				end if;
 
 			elsif stateLwir=stateLwirOn then
-				stateLwir_next <= stateLwirReadyB;
+				stateLwir <= stateLwirReadyB;
 			end if;
 		end if;
 	end process;
 	-- IP impl.lwir.rising --- END
 
-	-- IP impl.lwir.falling --- BEGIN
+-- IP impl.lwir.falling --- BEGIN
 	process (mclk)
 		-- IP impl.lwir.falling.vars --- BEGIN
 		-- IP impl.lwir.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateLwir <= stateLwir_next;
 		end if;
 	end process;
-	-- IP impl.lwir.falling --- END
+-- IP impl.lwir.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: frame clock (tfrm)
@@ -243,9 +242,9 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.tfrm.rising.asyncrst --- BEGIN
-			stateTfrm_next <= stateTfrmInit;
-			ackInvSetRng_sig_next <= '0';
-			ackInvSetTfrm_sig_next <= '0';
+			stateTfrm <= stateTfrmInit;
+			ackInvSetRng_sig <= '0';
+			ackInvSetTfrm_sig <= '0';
 			-- IP impl.tfrm.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
@@ -256,7 +255,7 @@ begin
 					ackInvSetTfrm_sig_next <= '0';
 					-- IP impl.tfrm.rising.init.invSetRng --- IEND
 
-					stateTfrm_next <= stateTfrmInv;
+					stateTfrm <= stateTfrmInv;
 
 				elsif reqInvSetTfrm='1' then
 					-- IP impl.tfrm.rising.init.invSetTfrm --- IBEGIN
@@ -264,26 +263,26 @@ begin
 					ackInvSetTfrm_sig_next <= '1';
 					-- IP impl.tfrm.rising.init.invSetTfrm --- IEND
 
-					stateTfrm_next <= stateTfrmInv;
+					stateTfrm <= stateTfrmInv;
 
 				else
 					-- IP impl.tfrm.rising.syncrst --- BEGIN
-					ackInvSetRng_sig_next <= '0';
-					ackInvSetTfrm_sig_next <= '0';
+					ackInvSetRng_sig <= '0';
+					ackInvSetTfrm_sig <= '0';
 
 					-- IP impl.tfrm.rising.syncrst --- END
 
 					if setRngRng=fls8 then
-						stateTfrm_next <= stateTfrmInit;
+						stateTfrm <= stateTfrmInit;
 
 					else
-						stateTfrm_next <= stateTfrmReady;
+						stateTfrm <= stateTfrmReady;
 					end if;
 				end if;
 
 			elsif stateTfrm=stateTfrmInv then
 				if ((reqInvSetRng='0' and ackInvSetRng_sig='1') or (reqInvSetTfrm='0' and ackInvSetTfrm_sig='1')) then
-					stateTfrm_next <= stateTfrmInit;
+					stateTfrm <= stateTfrmInit;
 				end if;
 
 			elsif stateTfrm=stateTfrmReady then
@@ -291,23 +290,23 @@ begin
 					if tkclk='0' then
 						i := 0; -- IP impl.tfrm.rising.ready.prepRun --- ILINE
 
-						stateTfrm_next <= stateTfrmRunA;
+						stateTfrm <= stateTfrmRunA;
 					end if;
 
 				else
 					if btn='0' then
-						stateTfrm_next <= stateTfrmBtnA;
+						stateTfrm <= stateTfrmBtnA;
 					end if;
 				end if;
 
 			elsif stateTfrm=stateTfrmRunA then
 				if tkclk='1' then
-					stateTfrm_next <= stateTfrmRunC;
+					stateTfrm <= stateTfrmRunC;
 				end if;
 
 			elsif stateTfrm=stateTfrmRunB then
 				if tkclk='1' then
-					stateTfrm_next <= stateTfrmRunC;
+					stateTfrm <= stateTfrmRunC;
 				end if;
 
 			elsif stateTfrm=stateTfrmRunC then
@@ -317,44 +316,41 @@ begin
 					if i=to_integer(unsigned(setTfrmTfrm)) then
 						i := 0; -- IP impl.tfrm.rising.runC.prepRun --- ILINE
 
-						stateTfrm_next <= stateTfrmRunA;
+						stateTfrm <= stateTfrmRunA;
 
 					else
-						stateTfrm_next <= stateTfrmRunB;
+						stateTfrm <= stateTfrmRunB;
 					end if;
 				end if;
 
 			elsif stateTfrm=stateTfrmBtnA then
 				if (btn='1' and tkclk='0') then
-					stateTfrm_next <= stateTfrmBtnB;
+					stateTfrm <= stateTfrmBtnB;
 				end if;
 
 			elsif stateTfrm=stateTfrmBtnB then
 				if tkclk='1' then
-					stateTfrm_next <= stateTfrmBtnC;
+					stateTfrm <= stateTfrmBtnC;
 				end if;
 
 			elsif stateTfrm=stateTfrmBtnC then
 				if btn='0' then
-					stateTfrm_next <= stateTfrmBtnA;
+					stateTfrm <= stateTfrmBtnA;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.tfrm.rising --- END
 
-	-- IP impl.tfrm.falling --- BEGIN
+-- IP impl.tfrm.falling --- BEGIN
 	process (mclk)
 		-- IP impl.tfrm.falling.vars --- BEGIN
 		-- IP impl.tfrm.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateTfrm <= stateTfrm_next;
-			ackInvSetRng_sig <= ackInvSetRng_sig_next;
-			ackInvSetTfrm_sig <= ackInvSetTfrm_sig_next;
 		end if;
 	end process;
-	-- IP impl.tfrm.falling --- END
+-- IP impl.tfrm.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: VIS-L trigger (visl)
@@ -374,7 +370,7 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.visl.rising.asyncrst --- BEGIN
-			stateVisl_next <= stateVislInit;
+			stateVisl <= stateVislInit;
 			-- IP impl.visl.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
@@ -383,40 +379,39 @@ begin
 				-- IP impl.visl.rising.syncrst --- END
 
 				if setRngRng=fls8 then
-					stateVisl_next <= stateVislInit;
+					stateVisl <= stateVislInit;
 
 				else
-					stateVisl_next <= stateVislReady;
+					stateVisl <= stateVislReady;
 				end if;
 
 			elsif stateVisl=stateVislReady then
 				if strbTfrm='1' then
 					j := 0; -- IP impl.visl.rising.ready --- ILINE
 
-					stateVisl_next <= stateVislOn;
+					stateVisl <= stateVislOn;
 				end if;
 
 			elsif stateVisl=stateVislOn then
 				j := j + 1; -- IP impl.visl.rising.on.ext --- ILINE
 
 				if j=fMclk/10 then
-					stateVisl_next <= stateVislReady;
+					stateVisl <= stateVislReady;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.visl.rising --- END
 
-	-- IP impl.visl.falling --- BEGIN
+-- IP impl.visl.falling --- BEGIN
 	process (mclk)
 		-- IP impl.visl.falling.vars --- BEGIN
 		-- IP impl.visl.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateVisl <= stateVisl_next;
 		end if;
 	end process;
-	-- IP impl.visl.falling --- END
+-- IP impl.visl.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: VIS-R trigger (visr)
@@ -439,39 +434,39 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.visr.rising.asyncrst --- BEGIN
-			stateVisr_next <= stateVisrInit;
+			stateVisr <= stateVisrInit;
 			-- IP impl.visr.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
 			if (stateVisr=stateVisrInit or (stateVisr/=stateVisrInv and (reqInvSetTdlyVisr='1' or setRngRng=fls8))) then
 				if reqInvSetTdlyVisr='1' then
-					stateVisr_next <= stateVisrInv;
+					stateVisr <= stateVisrInv;
 
 				else
 					-- IP impl.visr.rising.syncrst --- BEGIN
 					-- IP impl.visr.rising.syncrst --- END
 
 					if setRngRng=fls8 then
-						stateVisr_next <= stateVisrInit;
+						stateVisr <= stateVisrInit;
 
 					elsif to_integer(unsigned(setTdlyVisrTdlyVisr))=0 then
-						stateVisr_next <= stateVisrReadyA;
+						stateVisr <= stateVisrReadyA;
 
 					else
-						stateVisr_next <= stateVisrReadyB;
+						stateVisr <= stateVisrReadyB;
 					end if;
 				end if;
 
 			elsif stateVisr=stateVisrInv then
 				if reqInvSetTdlyVisr='0' then
-					stateVisr_next <= stateVisrInit;
+					stateVisr <= stateVisrInit;
 				end if;
 
 			elsif stateVisr=stateVisrReadyA then
 				if strbTfrm='1' then
 					j := 0; -- IP impl.visr.rising.readyA --- ILINE
 
-					stateVisr_next <= stateVisrOn;
+					stateVisr <= stateVisrOn;
 				end if;
 
 			elsif stateVisr=stateVisrReadyB then
@@ -481,23 +476,23 @@ begin
 					j := 0;
 					-- IP impl.visr.rising.readyB.prepDelay --- IEND
 
-					stateVisr_next <= stateVisrDelayA;
+					stateVisr <= stateVisrDelayA;
 				end if;
 
 			elsif stateVisr=stateVisrDelayA then
 				if tkclk='0' then
 					i := i + 1; -- IP impl.visr.rising.delayA.inc --- ILINE
 
-					stateVisr_next <= stateVisrDelayB;
+					stateVisr <= stateVisrDelayB;
 				end if;
 
 			elsif stateVisr=stateVisrDelayB then
 				if tkclk='1' then
 					if i=to_integer(unsigned(setTdlyVisrTdlyVisr)) then
-						stateVisr_next <= stateVisrOn;
+						stateVisr <= stateVisrOn;
 
 					else
-						stateVisr_next <= stateVisrDelayA;
+						stateVisr <= stateVisrDelayA;
 					end if;
 				end if;
 
@@ -506,10 +501,10 @@ begin
 
 				if j=fMclk/10 then
 					if to_integer(unsigned(setTdlyVisrTdlyVisr))=0 then
-						stateVisr_next <= stateVisrReadyA;
+						stateVisr <= stateVisrReadyA;
 
 					else
-						stateVisr_next <= stateVisrReadyB;
+						stateVisr <= stateVisrReadyB;
 					end if;
 				end if;
 			end if;
@@ -517,16 +512,15 @@ begin
 	end process;
 	-- IP impl.visr.rising --- END
 
-	-- IP impl.visr.falling --- BEGIN
+-- IP impl.visr.falling --- BEGIN
 	process (mclk)
 		-- IP impl.visr.falling.vars --- BEGIN
 		-- IP impl.visr.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateVisr <= stateVisr_next;
 		end if;
 	end process;
-	-- IP impl.visr.falling --- END
+-- IP impl.visr.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: other 
@@ -536,5 +530,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Trigger;
+
 
 

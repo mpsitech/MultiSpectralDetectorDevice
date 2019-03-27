@@ -1,8 +1,8 @@
 -- file Servo.vhd
 -- Servo easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -52,7 +52,7 @@ architecture Servo of Servo is
 		statePhiOn,
 		statePhiOff
 	);
-	signal statePhi, statePhi_next: statePhi_t := statePhiInit;
+	signal statePhi: statePhi_t := statePhiInit;
 
 	signal ackInvSetPhi_sig: std_logic;
 	signal ppwm_sig: std_logic;
@@ -66,7 +66,7 @@ architecture Servo of Servo is
 		stateThetaOn,
 		stateThetaOff
 	);
-	signal stateTheta, stateTheta_next: stateTheta_t := stateThetaInit;
+	signal stateTheta: stateTheta_t := stateThetaInit;
 
 	signal ackInvSetTheta_sig: std_logic;
 	signal tpwm_sig: std_logic;
@@ -78,9 +78,9 @@ architecture Servo of Servo is
 		stateTusInit,
 		stateTusRun
 	);
-	signal stateTus, stateTus_next: stateTus_t := stateTusInit;
+	signal stateTus: stateTus_t := stateTusInit;
 
-	signal strbTus, strbTus_next: std_logic;
+	signal strbTus: std_logic;
 
 	-- IP sigs.tus.cust --- INSERT
 
@@ -116,7 +116,7 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.phi.rising.asyncrst --- BEGIN
-			statePhi_next <= statePhiInit;
+			statePhi <= statePhiInit;
 			-- IP impl.phi.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
@@ -127,15 +127,15 @@ begin
 				-- IP impl.phi.rising.syncrst --- REND
 
 				if reqInvSetPhi='1' then
-					statePhi_next <= statePhiInv;
+					statePhi <= statePhiInv;
 
 				else
-					statePhi_next <= statePhiOn;
+					statePhi <= statePhiOn;
 				end if;
 
 			elsif statePhi=statePhiInv then
 				if reqInvSetPhi='0' then
-					statePhi_next <= statePhiInit;
+					statePhi <= statePhiInit;
 				end if;
 
 			elsif statePhi=statePhiOn then
@@ -143,7 +143,7 @@ begin
 					i := i + 1; -- IP impl.phi.rising.on.inc --- ILINE
 
 					if i=ioff then
-						statePhi_next <= statePhiOff;
+						statePhi <= statePhiOff;
 					end if;
 				end if;
 
@@ -154,7 +154,7 @@ begin
 					if i=imax then
 						i := 0; -- IP impl.phi.rising.off.prepOn --- ILINE
 
-						statePhi_next <= statePhiOn;
+						statePhi <= statePhiOn;
 					end if;
 				end if;
 			end if;
@@ -162,16 +162,15 @@ begin
 	end process;
 	-- IP impl.phi.rising --- END
 
-	-- IP impl.phi.falling --- BEGIN
+-- IP impl.phi.falling --- BEGIN
 	process (mclk)
 		-- IP impl.phi.falling.vars --- BEGIN
 		-- IP impl.phi.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			statePhi <= statePhi_next;
 		end if;
 	end process;
-	-- IP impl.phi.falling --- END
+-- IP impl.phi.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: theta axis servo PWM (theta)
@@ -196,7 +195,7 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.theta.rising.asyncrst --- BEGIN
-			stateTheta_next <= stateThetaInit;
+			stateTheta <= stateThetaInit;
 			-- IP impl.theta.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
@@ -207,15 +206,15 @@ begin
 				-- IP impl.theta.rising.syncrst --- REND
 
 				if reqInvSetTheta='1' then
-					stateTheta_next <= stateThetaInv;
+					stateTheta <= stateThetaInv;
 
 				else
-					stateTheta_next <= stateThetaOn;
+					stateTheta <= stateThetaOn;
 				end if;
 
 			elsif stateTheta=stateThetaInv then
 				if reqInvSetTheta='0' then
-					stateTheta_next <= stateThetaInit;
+					stateTheta <= stateThetaInit;
 				end if;
 
 			elsif stateTheta=stateThetaOn then
@@ -223,7 +222,7 @@ begin
 					i := i + 1; -- IP impl.theta.rising.on.inc --- ILINE
 
 					if i=ioff then
-						stateTheta_next <= stateThetaOff;
+						stateTheta <= stateThetaOff;
 					end if;
 				end if;
 
@@ -234,7 +233,7 @@ begin
 					if i=imax then
 						i := 0; -- IP impl.theta.rising.off.prepOn --- ILINE
 
-						stateTheta_next <= stateThetaOn;
+						stateTheta <= stateThetaOn;
 					end if;
 				end if;
 			end if;
@@ -242,16 +241,15 @@ begin
 	end process;
 	-- IP impl.theta.rising --- END
 
-	-- IP impl.theta.falling --- BEGIN
+-- IP impl.theta.falling --- BEGIN
 	process (mclk)
 		-- IP impl.theta.falling.vars --- BEGIN
 		-- IP impl.theta.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateTheta <= stateTheta_next;
 		end if;
 	end process;
-	-- IP impl.theta.falling --- END
+-- IP impl.theta.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: microsecond clock (tus)
@@ -269,13 +267,13 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.tus.rising.asyncrst --- BEGIN
-			stateTus_next <= stateTusInit;
-			strbTus_next <= '0';
+			stateTus <= stateTusInit;
+			strbTus <= '0';
 			-- IP impl.tus.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
 			if stateTus=stateTusInit then
-				stateTus_next <= stateTusRun;
+				stateTus <= stateTusRun;
 
 			elsif stateTus=stateTusRun then
 				-- IP impl.tus.rising.run --- IBEGIN
@@ -294,17 +292,15 @@ begin
 	end process;
 	-- IP impl.tus.rising --- END
 
-	-- IP impl.tus.falling --- BEGIN
+-- IP impl.tus.falling --- BEGIN
 	process (mclk)
 		-- IP impl.tus.falling.vars --- BEGIN
 		-- IP impl.tus.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateTus <= stateTus_next;
-			strbTus <= strbTus_next;
 		end if;
 	end process;
-	-- IP impl.tus.falling --- END
+-- IP impl.tus.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: other 
@@ -314,5 +310,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Servo;
+
 
 

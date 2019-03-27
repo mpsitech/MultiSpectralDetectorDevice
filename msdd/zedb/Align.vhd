@@ -1,8 +1,8 @@
 -- file Align.vhd
 -- Align easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 9 Aug 2018
--- date modified: 10 Sep 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -269,6 +269,16 @@ begin
 	end process;
 	-- IP impl.op.rising --- END
 
+-- IP impl.op.falling --- BEGIN
+	process (mclk)
+		-- IP impl.op.falling.vars --- BEGIN
+		-- IP impl.op.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.op.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: other 
 	------------------------------------------------------------------------
@@ -277,5 +287,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Align;
+
 
 

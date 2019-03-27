@@ -1,8 +1,8 @@
 -- file Crc8005_v1_0.vhd
 -- Crc8005_v1_0 crcspec_v1_0 implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -38,7 +38,7 @@ architecture Crc8005_v1_0 of Crc8005_v1_0 is
 		stateOpCaptA, stateOpCaptB, stateOpCaptC,
 		stateOpDone
 	);
-	signal stateOp, stateOp_next: stateOp_t := stateOpInit;
+	signal stateOp: stateOp_t := stateOpInit;
 
 	signal crcold: std_logic_vector(15 downto 0);
 	signal dinc: std_logic_vector(7 downto 0);
@@ -59,7 +59,7 @@ begin
 	process (reset, mclk)
 	begin
 		if reset='1' then
-			stateOp_next <= stateOpInit;
+			stateOp <= stateOpInit;
 			crcold <= x"0000";
 			dinc <= x"00";
 			crc_sig <= x"0000";
@@ -71,18 +71,18 @@ begin
 				crc_sig <= x"0000";
 
 				if (req='1' and captNotFin='1') then
-					stateOp_next <= stateOpCaptA;
+					stateOp <= stateOpCaptA;
 				else
-					stateOp_next <= stateOpInit;
+					stateOp <= stateOpInit;
 				end if;
 
 			elsif stateOp=stateOpCaptA then
 				if captNotFin='0' then
-					stateOp_next <= stateOpDone;
+					stateOp <= stateOpDone;
 				elsif strbD='1' then
 					crcold <= crc_sig;
 					dinc <= d;
-					stateOp_next <= stateOpCaptB;
+					stateOp <= stateOpCaptB;
 				end if;
 
 			elsif stateOp=stateOpCaptB then
@@ -103,27 +103,20 @@ begin
 				crc_sig(1) <= dinc(7) xor dinc(6) xor dinc(5) xor dinc(4) xor dinc(3) xor dinc(2) xor dinc(1) xor crcold(9) xor crcold(10) xor crcold(11) xor crcold(12) xor crcold(13) xor crcold(14) xor crcold(15);
 				crc_sig(0) <= dinc(7) xor dinc(6) xor dinc(5) xor dinc(4) xor dinc(3) xor dinc(2) xor dinc(1) xor dinc(0) xor crcold(8) xor crcold(9) xor crcold(10) xor crcold(11) xor crcold(12) xor crcold(13) xor crcold(14) xor crcold(15);
 
-				stateOp_next <= stateOpCaptC;
+				stateOp <= stateOpCaptC;
 
 			elsif stateOp=stateOpCaptC then
 				if captNotFin='0' then
-					stateOp_next <= stateOpDone;
+					stateOp <= stateOpDone;
 				elsif strbD='0' then
-					stateOp_next <= stateOpCaptA;
+					stateOp <= stateOpCaptA;
 				end if;
 
 			elsif stateOp=stateOpDone then
 				-- if req='0' then
-				-- 	stateOp_next <= stateOpInit;
+				-- 	stateOp <= stateOpInit;
 				-- end if;
 			end if;
-		end if;
-	end process;
-
-	process (mclk)
-	begin
-		if falling_edge(mclk) then
-			stateOp <= stateOp_next;
 		end if;
 	end process;
 

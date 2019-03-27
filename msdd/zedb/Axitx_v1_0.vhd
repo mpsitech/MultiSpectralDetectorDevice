@@ -2,7 +2,7 @@
 -- Axitx_v1_0 module implementation
 -- author Alexander Wirthmueller
 -- date created: 6 Mar 2017
--- date modified: 10 Sep 2018
+-- date modified: 19 Jun 2017
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -25,9 +25,7 @@ entity Axitx_v1_0 is
 
 		enTx: in std_logic;
 		tx: out std_logic_vector(31 downto 0);
-		strbTx: in std_logic;
-
-		stateSend_dbg: out std_logic_vector(7 downto 0)
+		strbTx: in std_logic
 	);
 end Axitx_v1_0;
 
@@ -63,17 +61,6 @@ begin
 	dne <= '1' when stateSend=stateSendDoneB else '0';
 
 	strbD <= '0' when stateSend=stateSendDataB else '1';
-
-	stateSend_dbg <= x"00" when stateSend=stateSendInit
-				else x"10" when stateSend=stateSendWaitStartA
-				else x"11" when stateSend=stateSendWaitStartB
-				else x"20" when stateSend=stateSendLoad
-				else x"30" when stateSend=stateSendDataA
-				else x"31" when stateSend=stateSendDataB
-				else x"40" when stateSend=stateSendDoneA
-				else x"41" when stateSend=stateSendDoneB
-				else x"50" when stateSend=stateSendErr
-				else x"FF";
 
 	process (reset, mclk)
 		variable bytecnt: natural range 0 to 65536;

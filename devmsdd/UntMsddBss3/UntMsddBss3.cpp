@@ -2,8 +2,8 @@
   * \file UntMsddBss3.cpp
   * Digilent Basys3 unit (implementation)
   * \author Alexander Wirthmueller
-  * \date created: 26 Aug 2018
-  * \date modified: 26 Aug 2018
+  * \date created: 18 Oct 2018
+  * \date modified: 18 Oct 2018
   */
 
 #include "UntMsddBss3.h"
@@ -468,6 +468,7 @@ void UntMsddBss3::readBbufFromVgaacq(
 
 	delete bufxf;
 };
+
 
 
 

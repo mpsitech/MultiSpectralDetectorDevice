@@ -1,8 +1,8 @@
 -- file Lwiracq.vhd
 -- Lwiracq easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 9 Aug 2018
--- date modified: 10 Sep 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -21,6 +21,7 @@ entity Lwiracq is
 		tkclk: in std_logic;
 		lwirrng: in std_logic;
 		strbLwir: in std_logic;
+		tkclksrcGetTkstTkst: in std_logic_vector(31 downto 0);
 
 		reqInvSetRng: in std_logic;
 		ackInvSetRng: out std_logic;
@@ -31,8 +32,6 @@ entity Lwiracq is
 		getInfoTkst: out std_logic_vector(31 downto 0);
 		getInfoMin: out std_logic_vector(15 downto 0);
 		getInfoMax: out std_logic_vector(15 downto 0);
-
-		tkclksrcGetTkstTkst: in std_logic_vector(31 downto 0);
 
 		reqAbufToHostif: in std_logic;
 
@@ -59,7 +58,12 @@ entity Lwiracq is
 
 		nss: out std_logic;
 		sclk: out std_logic;
-		miso: in std_logic
+		miso: in std_logic;
+
+		abbufLock_dbg: out std_logic_vector(7 downto 0);
+		stateBuf_dbg: out std_logic_vector(7 downto 0);
+		stateBufB_dbg: out std_logic_vector(7 downto 0);
+		stateOp_dbg: out std_logic_vector(7 downto 0)
 	);
 end Lwiracq;
 
@@ -264,7 +268,10 @@ architecture Lwiracq of Lwiracq is
 	signal ackSpi: std_logic;
 	signal dneSpi: std_logic;
 
-	-- IP sigs.oth.cust --- INSERT
+	---- other
+	-- IP sigs.oth.cust --- IBEGIN
+	signal abbufLock_dbg_sig: std_logic_vector(7 downto 0);
+	-- IP sigs.oth.cust --- IEND
 
 begin
 
@@ -401,6 +408,7 @@ begin
 				ackBufBToBufBbufLock <= '0';
 				dnyBufBToBufBbufLock <= '0';
 				ackBufBToBufBbufClear <= '0';
+
 				-- IP impl.buf.rising.syncrst --- END
 
 				if bufrun='0' then
@@ -576,6 +584,16 @@ begin
 	end process;
 	-- IP impl.buf.rising --- END
 
+-- IP impl.buf.falling --- BEGIN
+	process (mclk)
+		-- IP impl.buf.falling.vars --- BEGIN
+		-- IP impl.buf.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.buf.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: {a/b}buf B/hostif-facing operation (bufB)
 	------------------------------------------------------------------------
@@ -617,6 +635,8 @@ begin
 		if reset='1' then
 			-- IP impl.bufB.rising.asyncrst --- BEGIN
 			stateBufB <= stateBufBInit;
+			infoTixVBufstate <= x"00";
+			aBufB_vec <= x"0000";
 			aBufB <= 0;
 			ackBufToHostif <= '0';
 			reqBufBToBufAbufLock <= '0';
@@ -628,12 +648,15 @@ begin
 		elsif rising_edge(mclk) then
 			if (stateBufB=stateBufBInit or bufrun='0') then
 				-- IP impl.bufB.rising.syncrst --- BEGIN
+				infoTixVBufstate <= x"00";
+				aBufB_vec <= x"0000";
 				aBufB <= 0;
 				ackBufToHostif <= '0';
 				reqBufBToBufAbufLock <= '0';
 				reqBufBToBufAbufClear <= '0';
 				reqBufBToBufBbufLock <= '0';
 				reqBufBToBufBbufClear <= '0';
+
 				-- IP impl.bufB.rising.syncrst --- END
 
 				if bufrun='0' then
@@ -718,7 +741,7 @@ begin
 
 			elsif stateBufB=stateBufBReadB then
 				if ((abufLock=lockBufB and strbDAbufToHostif='1') or (bbufLock=lockBufB and strbDBbufToHostif='1')) then
-					aBufB <= aBufB + 1; -- IP impl.bufB.rising.readB.inc --- ILINE
+					-- IP impl.bufB.rising.readB.inc --- INSERT
 
 					stateBufB <= stateBufBReadA;
 				end if;
@@ -732,6 +755,16 @@ begin
 	end process;
 	-- IP impl.bufB.rising --- END
 
+-- IP impl.bufB.falling --- BEGIN
+	process (mclk)
+		-- IP impl.bufB.falling.vars --- BEGIN
+		-- IP impl.bufB.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.bufB.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: main operation (op)
 	------------------------------------------------------------------------
@@ -742,10 +775,11 @@ begin
 	enAbuf <= '1' when (abufLock=lockOp and stateOp=stateOpDataC) else '0';
 	enBbuf <= '1' when (bbufLock=lockOp and stateOp=stateOpDataC) else '0';
 
-	reqSpi <= '1' when (stateOp=stateOpHdrA or stateOp=stateOpHdrB or stateOp=stateOpTrylockA or stateOp=stateOpTrylockB or stateOp=stateOpDataA or stateOp=stateOpDataB or stateOp=stateOpDataC or stateOp=stateOpSkip) else '0';
-
 	ackInvSetRng_sig <= '1' when stateOp=stateOpInv else '0';
 	ackInvSetRng <= ackInvSetRng_sig;
+
+	reqSpi <= '1' when (stateOp=stateOpHdrA or stateOp=stateOpHdrB or stateOp=stateOpTrylockA or stateOp=stateOpTrylockB
+				 or stateOp=stateOpDataA or stateOp=stateOpDataB or stateOp=stateOpDataC or stateOp=stateOpSkip) else '0';
 	-- IP impl.op.wiring --- END
 
 	-- IP impl.op.rising --- BEGIN
@@ -1127,11 +1161,70 @@ begin
 	end process;
 	-- IP impl.op.rising --- END
 
+-- IP impl.op.falling --- BEGIN
+	process (mclk)
+		-- IP impl.op.falling.vars --- BEGIN
+		-- IP impl.op.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.op.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: other 
 	------------------------------------------------------------------------
 
 	
-	-- IP impl.oth.cust --- INSERT
+	-- IP impl.oth.cust --- IBEGIN
+	abbufLock_dbg <= abbufLock_dbg_sig;
+
+	abbufLock_dbg_sig(7 downto 4) <= "0000" when abufLock=lockIdle
+				else "0001" when abufLock=lockBufB
+				else "0010" when abufLock=lockOp
+				else "1111";
+
+	abbufLock_dbg_sig(3 downto 0) <= "0000" when bbufLock=lockIdle
+				else "0001" when bbufLock=lockBufB
+				else "0010" when bbufLock=lockOp
+				else "1111";
+
+	stateBuf_dbg <= x"00" when stateBuf=stateBufInit
+				else x"10" when stateBuf=stateBufReady
+				else x"20" when stateBuf=stateBufAck
+				else x"FF";
+
+	stateBufB_dbg <= x"00" when stateBufB=stateBufBInit
+				else x"10" when stateBufB=stateBufBReady
+				else x"20" when stateBufB=stateBufBTrylock
+				else x"30" when stateBufB=stateBufBReadA
+				else x"31" when stateBufB=stateBufBReadB
+				else x"40" when stateBufB=stateBufBDone
+				else x"FF";
+
+	stateOp_dbg <= x"00" when stateOp=stateOpInit
+				else x"10" when stateOp=stateOpInv
+				else x"20" when stateOp=stateOpReady
+				else x"30" when stateOp=stateOpTimeoutA
+				else x"31" when stateOp=stateOpTimeoutB
+				else x"40" when stateOp=stateOpLoopSeg
+				else x"50" when stateOp=stateOpLoopPkt
+				else x"60" when stateOp=stateOpInterpkg
+				else x"70" when stateOp=stateOpHdrA
+				else x"71" when stateOp=stateOpHdrB
+				else x"80" when stateOp=stateOpTrylockA
+				else x"81" when stateOp=stateOpTrylockB
+				else x"90" when stateOp=stateOpDataA
+				else x"91" when stateOp=stateOpDataB
+				else x"92" when stateOp=stateOpDataC
+				else x"A0" when stateOp=stateOpSkip
+				else x"B0" when stateOp=stateOpCancel
+				else x"C0" when stateOp=stateOpDoneA
+				else x"C1" when stateOp=stateOpDoneB
+				else x"FF";
+	-- IP impl.oth.cust --- IEND
 
 end Lwiracq;
+
+
+

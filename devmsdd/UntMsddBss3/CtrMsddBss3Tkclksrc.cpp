@@ -2,8 +2,8 @@
   * \file CtrMsddBss3Tkclksrc.cpp
   * tkclksrc controller (implementation)
   * \author Alexander Wirthmueller
-  * \date created: 26 Aug 2018
-  * \date modified: 26 Aug 2018
+  * \date created: 18 Oct 2018
+  * \date modified: 18 Oct 2018
   */
 
 #include "CtrMsddBss3Tkclksrc.h"

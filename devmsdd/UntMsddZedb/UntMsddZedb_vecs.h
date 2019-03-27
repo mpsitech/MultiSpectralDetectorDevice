@@ -2,8 +2,8 @@
   * \file UntMsddZedb_vecs.h
   * ZedBoard unit vectors (declarations)
   * \author Alexander Wirthmueller
-  * \date created: 26 Aug 2018
-  * \date modified: 26 Aug 2018
+  * \date created: 18 Oct 2018
+  * \date modified: 18 Oct 2018
   */
 
 #ifndef UNTMSDDZEDB_VECS_H

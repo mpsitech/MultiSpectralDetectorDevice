@@ -1,8 +1,8 @@
 -- file I2c.vhd
 -- I2c other module implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -61,13 +61,13 @@ architecture I2c of I2c is
 		stateXferStopA, stateXferStopB, stateXferStopC,
 		stateXferDone
 	);
-	signal stateXfer, stateXfer_next: stateXfer_t := stateXferInit;
+	signal stateXfer: stateXfer_t := stateXferInit;
 
 	signal ack_sig: std_logic;
 	signal dne_sig: std_logic;
-	signal recv_sig, recv_sig_next: std_logic_vector(15 downto 0);
+	signal recv_sig: std_logic_vector(15 downto 0);
 	signal scl_sig: std_logic;
-	signal sda_sig, sda_sig_next: std_logic;
+	signal sda_sig: std_logic;
 
 	-- IP sigs.xfer.cust --- INSERT
 
@@ -122,9 +122,9 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.xfer.rising.asyncrst --- BEGIN
-			stateXfer_next <= stateXferInit;
-			recv_sig_next <= x"0000";
-			sda_sig_next <= '0';
+			stateXfer <= stateXferInit;
+			recv_sig <= x"0000";
+			sda_sig <= '0';
 			-- IP impl.xfer.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
@@ -151,10 +151,10 @@ begin
 				-- IP impl.xfer.rising.syncrst --- REND
 
 				if req='0' then
-					stateXfer_next <= stateXferInit;
+					stateXfer <= stateXferInit;
 
 				else
-					stateXfer_next <= stateXferStartA;
+					stateXfer <= stateXferStartA;
 				end if;
 
 			elsif stateXfer=stateXferStartA then
@@ -167,7 +167,7 @@ begin
 					sda_sig_next <= '0';
 					-- IP impl.xfer.rising.startA.step --- IEND
 
-					stateXfer_next <= stateXferStartB;
+					stateXfer <= stateXferStartB;
 				end if;
 
 			elsif stateXfer=stateXferStartB then
@@ -180,7 +180,7 @@ begin
 					bitcnt := 0;
 					-- IP impl.xfer.rising.startB.step --- IEND
 
-					stateXfer_next <= stateXferBitA;
+					stateXfer <= stateXferBitA;
 				end if;
 
 			elsif stateXfer=stateXferBitA then
@@ -221,7 +221,7 @@ begin
 				if i=imax then
 					i := 0; -- IP impl.xfer.rising.bitA.step --- ILINE
 
-					stateXfer_next <= stateXferBitB;
+					stateXfer <= stateXferBitB;
 				end if;
 
 			elsif stateXfer=stateXferBitB then
@@ -243,10 +243,10 @@ begin
 					-- IP impl.xfer.rising.bitB.step --- IEND
 
 					if bitcnt=8 then
-						stateXfer_next <= stateXferAckA;
+						stateXfer <= stateXferAckA;
 
 					else
-						stateXfer_next <= stateXferBitA;
+						stateXfer <= stateXferBitA;
 					end if;
 				end if;
 
@@ -264,7 +264,7 @@ begin
 				if i=imax then
 					i := 0; -- IP impl.xfer.rising.ackA.step --- ILINE
 
-					stateXfer_next <= stateXferAckB;
+					stateXfer <= stateXferAckB;
 				end if;
 
 			elsif stateXfer=stateXferAckB then
@@ -281,19 +281,19 @@ begin
 
 					if bytecnt=3 then
 						if readNotWrite='1' then
-							stateXfer_next <= stateXferRestart;
+							stateXfer <= stateXferRestart;
 
 						else
-							stateXfer_next <= stateXferBitA;
+							stateXfer <= stateXferBitA;
 						end if;
 
 					elsif ((bytecnt=5 and readNotWrite='0') or (bytecnt=6 and readNotWrite='1')) then
 						sda_sig_next <= '0'; -- IP impl.xfer.rising.ackB.prepStop --- ILINE
 
-						stateXfer_next <= stateXferStopA;
+						stateXfer <= stateXferStopA;
 
 					else
-						stateXfer_next <= stateXferBitA;
+						stateXfer <= stateXferBitA;
 					end if;
 				end if;
 
@@ -303,7 +303,7 @@ begin
 				if i=imax then
 					i := 0; -- IP impl.xfer.rising.restart.step --- ILINE
 
-					stateXfer_next <= stateXferStartA;
+					stateXfer <= stateXferStartA;
 				end if;
 
 			elsif stateXfer=stateXferStopA then
@@ -312,7 +312,7 @@ begin
 				if i=imax then
 					i := 0; -- IP impl.xfer.rising.stopA.step --- ILINE
 
-					stateXfer_next <= stateXferStopB;
+					stateXfer <= stateXferStopB;
 				end if;
 
 			elsif stateXfer=stateXferStopB then
@@ -324,7 +324,7 @@ begin
 					sda_sig_next <= '1';
 					-- IP impl.xfer.rising.stopB.step --- IEND
 
-					stateXfer_next <= stateXferStopC;
+					stateXfer <= stateXferStopC;
 				end if;
 
 			elsif stateXfer=stateXferStopC then
@@ -337,30 +337,27 @@ begin
 					end if;
 					-- IP impl.xfer.rising.stopC.step --- IEND
 
-					stateXfer_next <= stateXferDone;
+					stateXfer <= stateXferDone;
 				end if;
 
 			elsif stateXfer=stateXferDone then
 				if req='0' then
-					stateXfer_next <= stateXferInit;
+					stateXfer <= stateXferInit;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.xfer.rising --- END
 
-	-- IP impl.xfer.falling --- BEGIN
+-- IP impl.xfer.falling --- BEGIN
 	process (mclk)
 		-- IP impl.xfer.falling.vars --- BEGIN
 		-- IP impl.xfer.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateXfer <= stateXfer_next;
-			recv_sig <= recv_sig_next;
-			sda_sig <= sda_sig_next;
 		end if;
 	end process;
-	-- IP impl.xfer.falling --- END
+-- IP impl.xfer.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: other 
@@ -370,5 +367,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end I2c;
+
 
 

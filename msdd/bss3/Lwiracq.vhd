@@ -1,8 +1,8 @@
 -- file Lwiracq.vhd
 -- Lwiracq easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -21,6 +21,7 @@ entity Lwiracq is
 		tkclk: in std_logic;
 		lwirrng: in std_logic;
 		strbLwir: in std_logic;
+		tkclksrcGetTkstTkst: in std_logic_vector(31 downto 0);
 
 		reqInvSetRng: in std_logic;
 		ackInvSetRng: out std_logic;
@@ -137,14 +138,14 @@ architecture Lwiracq of Lwiracq is
 		stateBufReady,
 		stateBufAck
 	);
-	signal stateBuf, stateBuf_next: stateBuf_t := stateBufInit;
+	signal stateBuf: stateBuf_t := stateBufInit;
 
 	type lock_t is (lockIdle, lockBufB, lockOp);
-	signal abufLock, abufLock_next: lock_t;
-	signal abufFull, abufFull_next: std_logic;
+	signal abufLock: lock_t;
+	signal abufFull: std_logic;
 
-	signal bbufLock, bbufLock_next: lock_t;
-	signal bbufFull, bbufFull_next: std_logic;
+	signal bbufLock: lock_t;
+	signal bbufFull: std_logic;
 
 	-- IP sigs.buf.cust --- INSERT
 
@@ -156,7 +157,7 @@ architecture Lwiracq of Lwiracq is
 		stateBufBReadA, stateBufBReadB,
 		stateBufBDone
 	);
-	signal stateBufB, stateBufB_next: stateBufB_t := stateBufBInit;
+	signal stateBufB: stateBufB_t := stateBufBInit;
 
 	signal enAbufB: std_logic;
 	signal enBbufB: std_logic;
@@ -167,9 +168,9 @@ architecture Lwiracq of Lwiracq is
 	signal getInfoMax_sig: std_logic_vector(15 downto 0);
 
 	signal aBufB_vec: std_logic_vector(15 downto 0);
-	signal aBufB, aBufB_next: natural range 0 to 38912;
+	signal aBufB: natural range 0 to 38912;
 
-	signal ackBufToHostif, ackBufToHostif_next: std_logic;
+	signal ackBufToHostif: std_logic;
 	signal ackAbufToHostif_sig: std_logic;
 	signal ackBbufToHostif_sig: std_logic;
 
@@ -191,7 +192,7 @@ architecture Lwiracq of Lwiracq is
 		stateOpCancel,
 		stateOpDoneA, stateOpDoneB
 	);
-	signal stateOp, stateOp_next: stateOp_t := stateOpInit;
+	signal stateOp: stateOp_t := stateOpInit;
 
 	signal bufrun: std_logic;
 
@@ -202,13 +203,13 @@ architecture Lwiracq of Lwiracq is
 	signal infoMaxA: std_logic_vector(15 downto 0);
 	signal infoMaxB: std_logic_vector(15 downto 0);
 
-	signal latestBNotA, latestBNotA_next: std_logic;
+	signal latestBNotA: std_logic;
 
 	signal enAbuf: std_logic;
 	signal enBbuf: std_logic;
 
-	signal aBuf, aBuf_next: std_logic_vector(15 downto 0);
-	signal dwrBuf, dwrBuf_next: std_logic_vector(7 downto 0);
+	signal aBuf: std_logic_vector(15 downto 0);
+	signal dwrBuf: std_logic_vector(7 downto 0);
 	signal spilen: std_logic_vector(16 downto 0);
 	signal ackInvSetRng_sig: std_logic;
 
@@ -220,40 +221,40 @@ architecture Lwiracq of Lwiracq is
 
 	---- handshake
 	-- op to buf
-	signal reqOpToBufAbufLock, reqOpToBufAbufLock_next: std_logic;
-	signal ackOpToBufAbufLock, ackOpToBufAbufLock_next: std_logic;
-	signal dnyOpToBufAbufLock, dnyOpToBufAbufLock_next: std_logic;
+	signal reqOpToBufAbufLock: std_logic;
+	signal ackOpToBufAbufLock: std_logic;
+	signal dnyOpToBufAbufLock: std_logic;
 
 	-- op to buf
-	signal reqOpToBufAbufSetFull, reqOpToBufAbufSetFull_next: std_logic;
-	signal ackOpToBufAbufSetFull, ackOpToBufAbufSetFull_next: std_logic;
+	signal reqOpToBufAbufSetFull: std_logic;
+	signal ackOpToBufAbufSetFull: std_logic;
 
 	-- op to buf
-	signal reqOpToBufBbufLock, reqOpToBufBbufLock_next: std_logic;
-	signal ackOpToBufBbufLock, ackOpToBufBbufLock_next: std_logic;
-	signal dnyOpToBufBbufLock, dnyOpToBufBbufLock_next: std_logic;
+	signal reqOpToBufBbufLock: std_logic;
+	signal ackOpToBufBbufLock: std_logic;
+	signal dnyOpToBufBbufLock: std_logic;
 
 	-- op to buf
-	signal reqOpToBufBbufSetFull, reqOpToBufBbufSetFull_next: std_logic;
-	signal ackOpToBufBbufSetFull, ackOpToBufBbufSetFull_next: std_logic;
+	signal reqOpToBufBbufSetFull: std_logic;
+	signal ackOpToBufBbufSetFull: std_logic;
 
 	-- bufB to buf
-	signal reqBufBToBufAbufLock, reqBufBToBufAbufLock_next: std_logic;
-	signal ackBufBToBufAbufLock, ackBufBToBufAbufLock_next: std_logic;
-	signal dnyBufBToBufAbufLock, dnyBufBToBufAbufLock_next: std_logic;
+	signal reqBufBToBufAbufLock: std_logic;
+	signal ackBufBToBufAbufLock: std_logic;
+	signal dnyBufBToBufAbufLock: std_logic;
 
 	-- bufB to buf
-	signal reqBufBToBufAbufClear, reqBufBToBufAbufClear_next: std_logic;
-	signal ackBufBToBufAbufClear, ackBufBToBufAbufClear_next: std_logic;
+	signal reqBufBToBufAbufClear: std_logic;
+	signal ackBufBToBufAbufClear: std_logic;
 
 	-- bufB to buf
-	signal reqBufBToBufBbufLock, reqBufBToBufBbufLock_next: std_logic;
-	signal ackBufBToBufBbufLock, ackBufBToBufBbufLock_next: std_logic;
-	signal dnyBufBToBufBbufLock, dnyBufBToBufBbufLock_next: std_logic;
+	signal reqBufBToBufBbufLock: std_logic;
+	signal ackBufBToBufBbufLock: std_logic;
+	signal dnyBufBToBufBbufLock: std_logic;
 
 	-- bufB to buf
-	signal reqBufBToBufBbufClear, reqBufBToBufBbufClear_next: std_logic;
-	signal ackBufBToBufBbufClear, ackBufBToBufBbufClear_next: std_logic;
+	signal reqBufBToBufBbufClear: std_logic;
+	signal ackBufBToBufBbufClear: std_logic;
 
 	-- op to mySpi
 	signal reqSpi: std_logic;
@@ -360,52 +361,52 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.buf.rising.asyncrst --- BEGIN
-			stateBuf_next <= stateBufInit;
-			abufLock_next <= lockIdle;
-			abufFull_next <= '0';
-			bbufLock_next <= lockIdle;
-			bbufFull_next <= '0';
-			ackOpToBufAbufLock_next <= '0';
-			dnyOpToBufAbufLock_next <= '0';
-			ackOpToBufAbufSetFull_next <= '0';
-			ackOpToBufBbufLock_next <= '0';
-			dnyOpToBufBbufLock_next <= '0';
-			ackOpToBufBbufSetFull_next <= '0';
-			ackBufBToBufAbufLock_next <= '0';
-			dnyBufBToBufAbufLock_next <= '0';
-			ackBufBToBufAbufClear_next <= '0';
-			ackBufBToBufBbufLock_next <= '0';
-			dnyBufBToBufBbufLock_next <= '0';
-			ackBufBToBufBbufClear_next <= '0';
+			stateBuf <= stateBufInit;
+			abufLock <= lockIdle;
+			abufFull <= '0';
+			bbufLock <= lockIdle;
+			bbufFull <= '0';
+			ackOpToBufAbufLock <= '0';
+			dnyOpToBufAbufLock <= '0';
+			ackOpToBufAbufSetFull <= '0';
+			ackOpToBufBbufLock <= '0';
+			dnyOpToBufBbufLock <= '0';
+			ackOpToBufBbufSetFull <= '0';
+			ackBufBToBufAbufLock <= '0';
+			dnyBufBToBufAbufLock <= '0';
+			ackBufBToBufAbufClear <= '0';
+			ackBufBToBufBbufLock <= '0';
+			dnyBufBToBufBbufLock <= '0';
+			ackBufBToBufBbufClear <= '0';
 			-- IP impl.buf.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
 			if (stateBuf=stateBufInit or bufrun='0') then
 				-- IP impl.buf.rising.syncrst --- BEGIN
-				abufLock_next <= lockIdle;
-				abufFull_next <= '0';
-				bbufLock_next <= lockIdle;
-				bbufFull_next <= '0';
-				ackOpToBufAbufLock_next <= '0';
-				dnyOpToBufAbufLock_next <= '0';
-				ackOpToBufAbufSetFull_next <= '0';
-				ackOpToBufBbufLock_next <= '0';
-				dnyOpToBufBbufLock_next <= '0';
-				ackOpToBufBbufSetFull_next <= '0';
-				ackBufBToBufAbufLock_next <= '0';
-				dnyBufBToBufAbufLock_next <= '0';
-				ackBufBToBufAbufClear_next <= '0';
-				ackBufBToBufBbufLock_next <= '0';
-				dnyBufBToBufBbufLock_next <= '0';
-				ackBufBToBufBbufClear_next <= '0';
+				abufLock <= lockIdle;
+				abufFull <= '0';
+				bbufLock <= lockIdle;
+				bbufFull <= '0';
+				ackOpToBufAbufLock <= '0';
+				dnyOpToBufAbufLock <= '0';
+				ackOpToBufAbufSetFull <= '0';
+				ackOpToBufBbufLock <= '0';
+				dnyOpToBufBbufLock <= '0';
+				ackOpToBufBbufSetFull <= '0';
+				ackBufBToBufAbufLock <= '0';
+				dnyBufBToBufAbufLock <= '0';
+				ackBufBToBufAbufClear <= '0';
+				ackBufBToBufBbufLock <= '0';
+				dnyBufBToBufBbufLock <= '0';
+				ackBufBToBufBbufClear <= '0';
 
 				-- IP impl.buf.rising.syncrst --- END
 
 				if bufrun='0' then
-					stateBuf_next <= stateBufInit;
+					stateBuf <= stateBufInit;
 
 				else
-					stateBuf_next <= stateBufReady;
+					stateBuf <= stateBufReady;
 				end if;
 
 			elsif stateBuf=stateBufReady then
@@ -423,7 +424,7 @@ begin
 					end if;
 					-- IP impl.buf.rising.ready.opAbufLock --- IEND
 
-					stateBuf_next <= stateBufAck;
+					stateBuf <= stateBufAck;
 
 				elsif reqOpToBufAbufSetFull='1' then
 					-- IP impl.buf.rising.ready.abufFull --- IBEGIN
@@ -434,7 +435,7 @@ begin
 					end if;
 					-- IP impl.buf.rising.ready.abufFull --- IEND
 
-					stateBuf_next <= stateBufAck;
+					stateBuf <= stateBufAck;
 
 				elsif reqOpToBufBbufLock='1' then
 					-- IP impl.buf.rising.ready.opBbufLock --- IBEGIN
@@ -450,7 +451,7 @@ begin
 					end if;
 					-- IP impl.buf.rising.ready.opBbufLock --- IEND
 
-					stateBuf_next <= stateBufAck;
+					stateBuf <= stateBufAck;
 
 				elsif reqOpToBufBbufSetFull='1' then
 					-- IP impl.buf.rising.ready.bbufFull --- IBEGIN
@@ -461,7 +462,7 @@ begin
 					end if;
 					-- IP impl.buf.rising.ready.bbufFull --- IEND
 
-					stateBuf_next <= stateBufAck;
+					stateBuf <= stateBufAck;
 
 				elsif reqBufBToBufAbufLock='1' then
 					-- IP impl.buf.rising.ready.bufBAbufLock --- IBEGIN
@@ -476,7 +477,7 @@ begin
 					end if;
 					-- IP impl.buf.rising.ready.bufBAbufLock --- IEND
 
-					stateBuf_next <= stateBufAck;
+					stateBuf <= stateBufAck;
 
 				elsif reqBufBToBufAbufClear='1' then
 					-- IP impl.buf.rising.ready.abufClear --- IBEGIN
@@ -487,7 +488,7 @@ begin
 					end if;
 					-- IP impl.buf.rising.ready.abufClear --- IEND
 
-					stateBuf_next <= stateBufAck;
+					stateBuf <= stateBufAck;
 
 				elsif reqBufBToBufBbufLock='1' then
 					-- IP impl.buf.rising.ready.bufBBbufLock --- IBEGIN
@@ -502,7 +503,7 @@ begin
 					end if;
 					-- IP impl.buf.rising.ready.bufBBbufLock --- IEND
 
-					stateBuf_next <= stateBufAck;
+					stateBuf <= stateBufAck;
 
 				elsif reqBufBToBufBbufClear='1' then
 					-- IP impl.buf.rising.ready.bbufClear --- IBEGIN
@@ -513,7 +514,7 @@ begin
 					end if;
 					-- IP impl.buf.rising.ready.bbufClear --- IEND
 
-					stateBuf_next <= stateBufAck;
+					stateBuf <= stateBufAck;
 				end if;
 
 			elsif stateBuf=stateBufAck then
@@ -523,12 +524,12 @@ begin
 					dnyOpToBufAbufLock_next <= '0';
 					-- IP impl.buf.rising.ack.opAbufLock --- IEND
 
-					stateBuf_next <= stateBufReady;
+					stateBuf <= stateBufReady;
 
 				elsif (ackOpToBufAbufSetFull='1' and reqOpToBufAbufSetFull='0') then
 					ackOpToBufAbufSetFull_next <= '0'; -- IP impl.buf.rising.ack.abufFull --- ILINE
 
-					stateBuf_next <= stateBufReady;
+					stateBuf <= stateBufReady;
 
 				elsif ((ackOpToBufBbufLock='1' or dnyOpToBufBbufLock='1') and reqOpToBufBbufLock='0') then
 					-- IP impl.buf.rising.ack.opBbufLock --- IBEGIN
@@ -536,12 +537,12 @@ begin
 					dnyOpToBufBbufLock_next <= '0';
 					-- IP impl.buf.rising.ack.opBbufLock --- IEND
 
-					stateBuf_next <= stateBufReady;
+					stateBuf <= stateBufReady;
 
 				elsif (ackOpToBufBbufSetFull='1' and reqOpToBufBbufSetFull='0') then
 					ackOpToBufBbufSetFull_next <= '0'; -- IP impl.buf.rising.ack.bbufFull --- ILINE
 
-					stateBuf_next <= stateBufReady;
+					stateBuf <= stateBufReady;
 
 				elsif ((ackBufBToBufAbufLock='1' or dnyBufBToBufAbufLock='1') and reqBufBToBufAbufLock='0') then
 					-- IP impl.buf.rising.ack.bufBAbufLock --- IBEGIN
@@ -549,12 +550,12 @@ begin
 					dnyBufBToBufAbufLock_next <= '0';
 					-- IP impl.buf.rising.ack.bufBAbufLock --- IEND
 
-					stateBuf_next <= stateBufReady;
+					stateBuf <= stateBufReady;
 
 				elsif (ackBufBToBufAbufClear='1' and reqBufBToBufAbufClear='0') then
 					ackBufBToBufAbufClear_next <= '0'; -- IP impl.buf.rising.ack.abufClear --- ILINE
 
-					stateBuf_next <= stateBufReady;
+					stateBuf <= stateBufReady;
 
 				elsif ((ackBufBToBufBbufLock='1' or dnyBufBToBufBbufLock='1') and reqBufBToBufBbufLock='0') then
 					-- IP impl.buf.rising.ack.bufBBbufLock --- IBEGIN
@@ -562,44 +563,27 @@ begin
 					dnyBufBToBufBbufLock_next <= '0';
 					-- IP impl.buf.rising.ack.bufBBbufLock --- IEND
 
-					stateBuf_next <= stateBufReady;
+					stateBuf <= stateBufReady;
 
 				elsif (ackBufBToBufBbufClear='1' and reqBufBToBufBbufClear='0') then
 					ackBufBToBufBbufClear_next <= '0'; -- IP impl.buf.rising.ack.bbufClear --- ILINE
 
-					stateBuf_next <= stateBufReady;
+					stateBuf <= stateBufReady;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.buf.rising --- END
 
-	-- IP impl.buf.falling --- BEGIN
+-- IP impl.buf.falling --- BEGIN
 	process (mclk)
 		-- IP impl.buf.falling.vars --- BEGIN
 		-- IP impl.buf.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateBuf <= stateBuf_next;
-			abufLock <= abufLock_next;
-			abufFull <= abufFull_next;
-			bbufLock <= bbufLock_next;
-			bbufFull <= bbufFull_next;
-			ackOpToBufAbufLock <= ackOpToBufAbufLock_next;
-			dnyOpToBufAbufLock <= dnyOpToBufAbufLock_next;
-			ackOpToBufAbufSetFull <= ackOpToBufAbufSetFull_next;
-			ackOpToBufBbufLock <= ackOpToBufBbufLock_next;
-			dnyOpToBufBbufLock <= dnyOpToBufBbufLock_next;
-			ackOpToBufBbufSetFull <= ackOpToBufBbufSetFull_next;
-			ackBufBToBufAbufLock <= ackBufBToBufAbufLock_next;
-			dnyBufBToBufAbufLock <= dnyBufBToBufAbufLock_next;
-			ackBufBToBufAbufClear <= ackBufBToBufAbufClear_next;
-			ackBufBToBufBbufLock <= ackBufBToBufBbufLock_next;
-			dnyBufBToBufBbufLock <= dnyBufBToBufBbufLock_next;
-			ackBufBToBufBbufClear <= ackBufBToBufBbufClear_next;
 		end if;
 	end process;
-	-- IP impl.buf.falling --- END
+-- IP impl.buf.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: {a/b}buf B/hostif-facing operation (bufB)
@@ -641,44 +625,48 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.bufB.rising.asyncrst --- BEGIN
-			stateBufB_next <= stateBufBInit;
-			aBufB_next <= 0;
-			ackBufToHostif_next <= '0';
-			reqBufBToBufAbufLock_next <= '0';
-			reqBufBToBufAbufClear_next <= '0';
-			reqBufBToBufBbufLock_next <= '0';
-			reqBufBToBufBbufClear_next <= '0';
+			stateBufB <= stateBufBInit;
+			infoTixVBufstate <= x"00";
+			aBufB_vec <= x"0000";
+			aBufB <= 0;
+			ackBufToHostif <= '0';
+			reqBufBToBufAbufLock <= '0';
+			reqBufBToBufAbufClear <= '0';
+			reqBufBToBufBbufLock <= '0';
+			reqBufBToBufBbufClear <= '0';
 			-- IP impl.bufB.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
 			if (stateBufB=stateBufBInit or bufrun='0') then
 				-- IP impl.bufB.rising.syncrst --- BEGIN
-				aBufB_next <= 0;
-				ackBufToHostif_next <= '0';
-				reqBufBToBufAbufLock_next <= '0';
-				reqBufBToBufAbufClear_next <= '0';
-				reqBufBToBufBbufLock_next <= '0';
-				reqBufBToBufBbufClear_next <= '0';
+				infoTixVBufstate <= x"00";
+				aBufB_vec <= x"0000";
+				aBufB <= 0;
+				ackBufToHostif <= '0';
+				reqBufBToBufAbufLock <= '0';
+				reqBufBToBufAbufClear <= '0';
+				reqBufBToBufBbufLock <= '0';
+				reqBufBToBufBbufClear <= '0';
 
 				-- IP impl.bufB.rising.syncrst --- END
 
 				if bufrun='0' then
-					stateBufB_next <= stateBufBInit;
+					stateBufB <= stateBufBInit;
 
 				else
-					stateBufB_next <= stateBufBReady;
+					stateBufB <= stateBufBReady;
 				end if;
 
 			elsif stateBufB=stateBufBReady then
 				if (infoTixVBufstate=tixVBufstateAbuf and reqAbufToHostif='1') then
 					reqBufBToBufAbufLock_next <= '1'; -- IP impl.bufB.rising.ready.aprep --- ILINE
 
-					stateBufB_next <= stateBufBTrylock;
+					stateBufB <= stateBufBTrylock;
 
 				elsif (infoTixVBufstate=tixVBufstateBbuf and reqBbufToHostif='1') then
 					reqBufBToBufBbufLock_next <= '1'; -- IP impl.bufB.rising.ready.bprep --- ILINE
 
-					stateBufB_next <= stateBufBTrylock;
+					stateBufB <= stateBufBTrylock;
 				end if;
 
 			elsif stateBufB=stateBufBTrylock then
@@ -688,10 +676,10 @@ begin
 					reqBufBToBufBbufLock_next <= '0';
 					-- IP impl.bufB.rising.trylock.ack --- IEND
 
-					stateBufB_next <= stateBufBReadA;
+					stateBufB <= stateBufBReadA;
 
 				elsif (dnyBufBToBufAbufLock='1' or dnyBufBToBufBbufLock='1') then
-					stateBufB_next <= stateBufBInit;
+					stateBufB <= stateBufBInit;
 				end if;
 
 			elsif stateBufB=stateBufBReadA then
@@ -702,7 +690,7 @@ begin
 						ackBufToHostif_next <= '0';
 						-- IP impl.bufB.rising.readA.adne --- IEND
 
-						stateBufB_next <= stateBufBDone;
+						stateBufB <= stateBufBDone;
 
 					elsif reqAbufToHostif='0' then
 						-- IP impl.bufB.rising.readA.acnc --- IBEGIN
@@ -710,12 +698,12 @@ begin
 						ackBufToHostif_next <= '0';
 						-- IP impl.bufB.rising.readA.acnc --- IEND
 
-						stateBufB_next <= stateBufBDone;
+						stateBufB <= stateBufBDone;
 
 					elsif strbDAbufToHostif='0' then
 						ackBufToHostif_next <= '1'; -- IP impl.bufB.rising.readA.astep --- ILINE
 
-						stateBufB_next <= stateBufBReadB;
+						stateBufB <= stateBufBReadB;
 					end if;
 
 				elsif bbufLock=lockBufB then
@@ -725,7 +713,7 @@ begin
 						ackBufToHostif_next <= '0';
 						-- IP impl.bufB.rising.readA.bdne --- IEND
 
-						stateBufB_next <= stateBufBDone;
+						stateBufB <= stateBufBDone;
 
 					elsif reqBbufToHostif='0' then
 						-- IP impl.bufB.rising.readA.bcnc --- IBEGIN
@@ -733,12 +721,12 @@ begin
 						ackBufToHostif_next <= '0';
 						-- IP impl.bufB.rising.readA.bcnc --- IEND
 
-						stateBufB_next <= stateBufBDone;
+						stateBufB <= stateBufBDone;
 
 					elsif strbDBbufToHostif='0' then
 						ackBufToHostif_next <= '1'; -- IP impl.bufB.rising.readA.bstep --- ILINE
 
-						stateBufB_next <= stateBufBReadB;
+						stateBufB <= stateBufBReadB;
 					end if;
 				end if;
 
@@ -746,34 +734,27 @@ begin
 				if ((abufLock=lockBufB and strbDAbufToHostif='1') or (bbufLock=lockBufB and strbDBbufToHostif='1')) then
 					aBufB_next <= aBufB + 1; -- IP impl.bufB.rising.readB.inc --- ILINE
 
-					stateBufB_next <= stateBufBReadA;
+					stateBufB <= stateBufBReadA;
 				end if;
 
 			elsif stateBufB=stateBufBDone then
 				if (ackBufBToBufAbufLock='1' or ackBufBToBufAbufClear='1' or ackBufBToBufBbufLock='1' or ackBufBToBufBbufClear='1') then
-					stateBufB_next <= stateBufBInit;
+					stateBufB <= stateBufBInit;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.bufB.rising --- END
 
-	-- IP impl.bufB.falling --- BEGIN
+-- IP impl.bufB.falling --- BEGIN
 	process (mclk)
 		-- IP impl.bufB.falling.vars --- BEGIN
 		-- IP impl.bufB.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateBufB <= stateBufB_next;
-			aBufB <= aBufB_next;
-			ackBufToHostif <= ackBufToHostif_next;
-			reqBufBToBufAbufLock <= reqBufBToBufAbufLock_next;
-			reqBufBToBufAbufClear <= reqBufBToBufAbufClear_next;
-			reqBufBToBufBbufLock <= reqBufBToBufBbufLock_next;
-			reqBufBToBufBbufClear <= reqBufBToBufBbufClear_next;
 		end if;
 	end process;
-	-- IP impl.bufB.falling --- END
+-- IP impl.bufB.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: main operation (op)
@@ -842,7 +823,7 @@ begin
 		elsif rising_edge(mclk) then
 			if (stateOp=stateOpInit or (stateOp/=stateOpInv and reqInvSetRng='1')) then
 				if reqInvSetRng='1' then
-					stateOp_next <= stateOpInv;
+					stateOp <= stateOpInv;
 
 				else
 					-- IP impl.op.rising.syncrst --- RBEGIN
@@ -864,16 +845,16 @@ begin
 					-- IP impl.op.rising.syncrst --- REND
 
 					if setRngRng=fls8 then
-						stateOp_next <= stateOpInit;
+						stateOp <= stateOpInit;
 
 					else
-						stateOp_next <= stateOpReady;
+						stateOp <= stateOpReady;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpInv then
 				if reqInvSetRng='0' then
-					stateOp_next <= stateOpInit;
+					stateOp <= stateOpInit;
 				end if;
 
 			elsif stateOp=stateOpReady then
@@ -894,7 +875,7 @@ begin
 					i := 0;
 					-- IP impl.op.rising.ready.rng --- IEND
 
-					stateOp_next <= stateOpHdrB;
+					stateOp <= stateOpHdrB;
 				end if;
 
 			elsif stateOp=stateOpTimeoutA then
@@ -902,16 +883,16 @@ begin
 					l := l + 1; -- IP impl.op.rising.timeoutA.inc --- ILINE
 
 					if l=50 then
-						stateOp_next <= stateOpReady;
+						stateOp <= stateOpReady;
 
 					else
-						stateOp_next <= stateOpTimeoutB;
+						stateOp <= stateOpTimeoutB;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpTimeoutB then
 				if tkclk='1' then
-					stateOp_next <= stateOpTimeoutA;
+					stateOp <= stateOpTimeoutA;
 				end if;
 
 			elsif stateOp=stateOpLoopSeg then
@@ -930,7 +911,7 @@ begin
 						reqOpToBufAbufSetFull_next <= '1';
 						-- IP impl.op.rising.loopSeg.abuf --- IEND
 
-						stateOp_next <= stateOpDoneA;
+						stateOp <= stateOpDoneA;
 
 					elsif bbufLock=lockOp then
 						-- IP impl.op.rising.loopSeg.bbuf --- IBEGIN
@@ -942,16 +923,16 @@ begin
 						reqOpToBufBbufSetFull_next <= '1';
 						-- IP impl.op.rising.loopSeg.bbuf --- IEND
 
-						stateOp_next <= stateOpDoneA;
+						stateOp <= stateOpDoneA;
 
 					else
-						stateOp_next <= stateOpReady;
+						stateOp <= stateOpReady;
 					end if;
 
 				else
 					k := 0; -- IP impl.op.rising.loopSeg.prepWait --- ILINE
 
-					stateOp_next <= stateOpInterpkg;
+					stateOp <= stateOpInterpkg;
 				end if;
 
 			elsif stateOp=stateOpLoopPkt then
@@ -960,12 +941,12 @@ begin
 				if pkt=60 then
 					pkt := 0; -- IP impl.op.rising.loopPkt.reset --- ILINE
 
-					stateOp_next <= stateOpLoopSeg;
+					stateOp <= stateOpLoopSeg;
 
 				else
 					k := 0; -- IP impl.op.rising.loopPkt.prepWait --- ILINE
 
-					stateOp_next <= stateOpInterpkg;
+					stateOp <= stateOpInterpkg;
 				end if;
 
 			elsif stateOp=stateOpInterpkg then
@@ -974,7 +955,7 @@ begin
 				if k=(10*(fMclk/1000)) then
 					i := 0; -- IP impl.op.rising.interpkg.prepHdr --- ILINE
 
-					stateOp_next <= stateOpHdrB;
+					stateOp <= stateOpHdrB;
 				end if;
 
 			elsif stateOp=stateOpHdrA then
@@ -1033,7 +1014,7 @@ begin
 				if (ackSpi='1' and strbSpirecv='1') then
 					hdrbuf(i) := spirecv; -- IP impl.op.rising.hdrB --- ILINE
 
-					stateOp_next <= stateOpHdrA;
+					stateOp <= stateOpHdrA;
 				end if;
 
 			elsif stateOp=stateOpTrylockA then
@@ -1043,7 +1024,7 @@ begin
 					infoTkstA <= tkclksrcGetTkstTkst;
 					-- IP impl.op.rising.trylockA.ack --- IEND
 
-					stateOp_next <= stateOpDataB;
+					stateOp <= stateOpDataB;
 
 				elsif dnyOpToBufAbufLock='1' then
 					-- IP impl.op.rising.trylockA.dny --- IBEGIN
@@ -1051,7 +1032,7 @@ begin
 					reqOpToBufBbufLock_next <= '1';
 					-- IP impl.op.rising.trylockA.dny --- IEND
 
-					stateOp_next <= stateOpTrylockB;
+					stateOp <= stateOpTrylockB;
 				end if;
 
 			elsif stateOp=stateOpTrylockB then
@@ -1061,7 +1042,7 @@ begin
 					infoTkstB <= tkclksrcGetTkstTkst;
 					-- IP impl.op.rising.trylockB.ack --- IEND
 
-					stateOp_next <= stateOpDataB;
+					stateOp <= stateOpDataB;
 
 				elsif dnyOpToBufBbufLock='1' then
 					-- IP impl.op.rising.trylockB.dny --- IBEGIN
@@ -1069,19 +1050,19 @@ begin
 					reqOpToBufAbufLock_next <= '1';
 					-- IP impl.op.rising.trylockB.dny --- IEND
 
-					stateOp_next <= stateOpTrylockA;
+					stateOp <= stateOpTrylockA;
 				end if;
 
 			elsif stateOp=stateOpDataA then
 				if strbSpirecv='0' then
 					aBuf_next <= std_logic_vector(unsigned(aBuf) + 1); -- IP impl.op.rising.dataA.next --- ILINE
 
-					stateOp_next <= stateOpDataB;
+					stateOp <= stateOpDataB;
 
 				elsif dneSpi='1' then
 					aBuf_next <= std_logic_vector(unsigned(aBuf) + 1); -- IP impl.op.rising.dataA.last --- ILINE
 
-					stateOp_next <= stateOpLoopPkt;
+					stateOp <= stateOpLoopPkt;
 				end if;
 
 			elsif stateOp=stateOpDataB then
@@ -1102,11 +1083,11 @@ begin
 					dwrBuf_next <= spirecv;
 					-- IP impl.op.rising.dataB --- IEND
 
-					stateOp_next <= stateOpDataC;
+					stateOp <= stateOpDataC;
 				end if;
 
 			elsif stateOp=stateOpDataC then
-				stateOp_next <= stateOpDataA;
+				stateOp <= stateOpDataA;
 
 			elsif stateOp=stateOpSkip then
 				if dneSpi='1' then
@@ -1114,23 +1095,23 @@ begin
 						if abufLock=lockOp then
 							reqOpToBufAbufLock_next <= '1'; -- IP impl.op.rising.skip.lockAbuf --- ILINE
 
-							stateOp_next <= stateOpCancel;
+							stateOp <= stateOpCancel;
 
 						elsif bbufLock=lockOp then
 							reqOpToBufBbufLock_next <= '1'; -- IP impl.op.rising.skip.lockBbuf --- ILINE
 
-							stateOp_next <= stateOpCancel;
+							stateOp <= stateOpCancel;
 
 						else
 							l := 0; -- IP impl.op.rising.skip.timeout --- ILINE
 
-							stateOp_next <= stateOpTimeoutA;
+							stateOp <= stateOpTimeoutA;
 						end if;
 
 					else
 						k := 0; -- IP impl.op.rising.skip.prepWait --- ILINE
 
-						stateOp_next <= stateOpInterpkg;
+						stateOp <= stateOpInterpkg;
 					end if;
 				end if;
 
@@ -1143,7 +1124,7 @@ begin
 					l := 0;
 					-- IP impl.op.rising.cancel --- IEND
 
-					stateOp_next <= stateOpTimeoutA;
+					stateOp <= stateOpTimeoutA;
 				end if;
 
 			elsif stateOp=stateOpDoneA then
@@ -1155,7 +1136,7 @@ begin
 					k := 0;
 					-- IP impl.op.rising.doneA --- IEND
 
-					stateOp_next <= stateOpDoneB;
+					stateOp <= stateOpDoneB;
 				end if;
 
 			elsif stateOp=stateOpDoneB then
@@ -1164,30 +1145,22 @@ begin
 				if k=(10*(fMclk/1000)) then
 					i := 0; -- IP impl.op.rising.doneB.reset --- ILINE
 
-					stateOp_next <= stateOpReady;
+					stateOp <= stateOpReady;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.op.rising --- END
 
-	-- IP impl.op.falling --- BEGIN
+-- IP impl.op.falling --- BEGIN
 	process (mclk)
 		-- IP impl.op.falling.vars --- BEGIN
 		-- IP impl.op.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateOp <= stateOp_next;
-			latestBNotA <= latestBNotA_next;
-			aBuf <= aBuf_next;
-			dwrBuf <= dwrBuf_next;
-			reqOpToBufAbufLock <= reqOpToBufAbufLock_next;
-			reqOpToBufAbufSetFull <= reqOpToBufAbufSetFull_next;
-			reqOpToBufBbufLock <= reqOpToBufBbufLock_next;
-			reqOpToBufBbufSetFull <= reqOpToBufBbufSetFull_next;
 		end if;
 	end process;
-	-- IP impl.op.falling --- END
+-- IP impl.op.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: other 
@@ -1197,5 +1170,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Lwiracq;
+
 
 

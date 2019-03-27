@@ -1,8 +1,8 @@
 -- file Vgaacq.vhd
 -- Vgaacq easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -145,12 +145,12 @@ architecture Vgaacq of Vgaacq is
 		stateBufIdle,
 		stateBufAck
 	);
-	signal stateBuf, stateBuf_next: stateBuf_t := stateBufInit;
+	signal stateBuf: stateBuf_t := stateBufInit;
 
-	signal abufFull, abufFull_next: std_logic;
-	signal bbufFull, bbufFull_next: std_logic;
+	signal abufFull: std_logic;
+	signal bbufFull: std_logic;
 
-	signal infoTixVBufstate, infoTixVBufstate_next: std_logic_vector(7 downto 0);
+	signal infoTixVBufstate: std_logic_vector(7 downto 0);
 
 	-- IP sigs.buf.cust --- INSERT
 
@@ -161,20 +161,20 @@ architecture Vgaacq of Vgaacq is
 		stateBufBReadA, stateBufBReadB,
 		stateBufBDone
 	);
-	signal stateBufB, stateBufB_next: stateBufB_t := stateBufBInit;
+	signal stateBufB: stateBufB_t := stateBufBInit;
 
 	signal enAbufB: std_logic;
 
 	signal aAbufB_vec: std_logic_vector(15 downto 0);
-	signal aAbufB, aAbufB_next: natural range 0 to 38911;
+	signal aAbufB: natural range 0 to 38911;
 
-	signal ackAbufToHostif_sig, ackAbufToHostif_sig_next: std_logic;
+	signal ackAbufToHostif_sig: std_logic;
 	signal enBbufB: std_logic;
 
 	signal aBbufB_vec: std_logic_vector(15 downto 0);
-	signal aBbufB, aBbufB_next: natural range 0 to 38911;
+	signal aBbufB: natural range 0 to 38911;
 
-	signal ackBbufToHostif_sig, ackBbufToHostif_sig_next: std_logic;
+	signal ackBbufToHostif_sig: std_logic;
 
 	-- IP sigs.bufB.cust --- INSERT
 
@@ -187,20 +187,20 @@ architecture Vgaacq of Vgaacq is
 		stateOpStoreA, stateOpStoreB,
 		stateOpSetFull
 	);
-	signal stateOp, stateOp_next: stateOp_t := stateOpInit;
+	signal stateOp: stateOp_t := stateOpInit;
 
 	signal bufrun: std_logic;
 
 	signal infoTkstA: std_logic_vector(31 downto 0);
 	signal infoTkstB: std_logic_vector(31 downto 0);
 
-	signal bNotA, bNotA_next: std_logic;
+	signal bNotA: std_logic;
 
 	signal enAbuf: std_logic;
 	signal enBbuf: std_logic;
 
 	signal weBuf: std_logic;
-	signal aBuf, aBuf_next: std_logic_vector(15 downto 0);
+	signal aBuf: std_logic_vector(15 downto 0);
 
 	signal drdBuf: std_logic_vector(7 downto 0);
 	signal dwrBuf: std_logic_vector(7 downto 0);
@@ -230,16 +230,16 @@ architecture Vgaacq of Vgaacq is
 	signal dneUtx: std_logic;
 
 	-- op to buf
-	signal reqOpToBufAbufSetFull, reqOpToBufAbufSetFull_next: std_logic;
-	signal ackOpToBufAbufSetFull, ackOpToBufAbufSetFull_next: std_logic;
+	signal reqOpToBufAbufSetFull: std_logic;
+	signal ackOpToBufAbufSetFull: std_logic;
 
 	-- op to buf
-	signal reqOpToBufBbufSetFull, reqOpToBufBbufSetFull_next: std_logic;
-	signal ackOpToBufBbufSetFull, ackOpToBufBbufSetFull_next: std_logic;
+	signal reqOpToBufBbufSetFull: std_logic;
+	signal ackOpToBufBbufSetFull: std_logic;
 
 	-- bufB to buf
 	signal reqBufBToBufClear: std_logic;
-	signal ackBufBToBufClear, ackBufBToBufClear_next: std_logic;
+	signal ackBufBToBufClear: std_logic;
 
 	---- other
 	signal urxd: std_logic_vector(7 downto 0);
@@ -360,13 +360,13 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.buf.rising.asyncrst --- BEGIN
-			stateBuf_next <= stateBufInit;
-			abufFull_next <= '0';
-			bbufFull_next <= '0';
-			infoTixVBufstate_next <= x"00";
-			ackOpToBufAbufSetFull_next <= '0';
-			ackOpToBufBbufSetFull_next <= '0';
-			ackBufBToBufClear_next <= '0';
+			stateBuf <= stateBufInit;
+			abufFull <= '0';
+			bbufFull <= '0';
+			infoTixVBufstate <= x"00";
+			ackOpToBufAbufSetFull <= '0';
+			ackOpToBufBbufSetFull <= '0';
+			ackBufBToBufClear <= '0';
 			-- IP impl.buf.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
@@ -374,12 +374,12 @@ begin
 				if bufrun='0' then
 					infoTixVBufstate_next <= tixVBufstateIdle; -- IP impl.buf.rising.init.stop --- ILINE
 
-					stateBuf_next <= stateBufInit;
+					stateBuf <= stateBufInit;
 
 				else
 					infoTixVBufstate_next <= tixVBufstateEmpty; -- IP impl.buf.rising.init.run --- ILINE
 
-					stateBuf_next <= stateBufIdle;
+					stateBuf <= stateBufIdle;
 				end if;
 
 			elsif stateBuf=stateBufIdle then
@@ -389,7 +389,7 @@ begin
 					ackOpToBufAbufSetFull_next <= '1';
 					-- IP impl.buf.rising.idle.afull --- IEND
 
-					stateBuf_next <= stateBufAck;
+					stateBuf <= stateBufAck;
 
 				elsif reqOpToBufBbufSetFull='1' then
 					-- IP impl.buf.rising.idle.bfull --- IBEGIN
@@ -397,7 +397,7 @@ begin
 					ackOpToBufBbufSetFull_next <= '1';
 					-- IP impl.buf.rising.idle.bfull --- IEND
 
-					stateBuf_next <= stateBufAck;
+					stateBuf <= stateBufAck;
 
 				elsif reqBufBToBufClear='1' then
 					-- IP impl.buf.rising.idle.clear --- IBEGIN
@@ -410,7 +410,7 @@ begin
 					ackBufBToBufClear_next <= '1';
 					-- IP impl.buf.rising.idle.clear --- IEND
 
-					stateBuf_next <= stateBufAck;
+					stateBuf <= stateBufAck;
 				end if;
 
 			elsif stateBuf=stateBufAck then
@@ -423,7 +423,7 @@ begin
 					ackOpToBufAbufSetFull_next <= '0';
 					-- IP impl.buf.rising.ack.afull --- IEND
 
-					stateBuf_next <= stateBufIdle;
+					stateBuf <= stateBufIdle;
 
 				elsif (reqOpToBufBbufSetFull='0' and ackOpToBufBbufSetFull='1') then
 					-- IP impl.buf.rising.ack.bfull --- IBEGIN
@@ -434,7 +434,7 @@ begin
 					ackOpToBufBbufSetFull_next <= '0';
 					-- IP impl.buf.rising.ack.bfull --- IEND
 
-					stateBuf_next <= stateBufIdle;
+					stateBuf <= stateBufIdle;
 
 				elsif (reqBufBToBufClear='0' and ackBufBToBufClear='1') then
 					-- IP impl.buf.rising.ack.clear --- IBEGIN
@@ -449,29 +449,22 @@ begin
 					ackBufBToBufClear_next <= '0';
 					-- IP impl.buf.rising.ack.clear --- IEND
 
-					stateBuf_next <= stateBufIdle;
+					stateBuf <= stateBufIdle;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.buf.rising --- END
 
-	-- IP impl.buf.falling --- BEGIN
+-- IP impl.buf.falling --- BEGIN
 	process (mclk)
 		-- IP impl.buf.falling.vars --- BEGIN
 		-- IP impl.buf.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateBuf <= stateBuf_next;
-			abufFull <= abufFull_next;
-			bbufFull <= bbufFull_next;
-			infoTixVBufstate <= infoTixVBufstate_next;
-			ackOpToBufAbufSetFull <= ackOpToBufAbufSetFull_next;
-			ackOpToBufBbufSetFull <= ackOpToBufBbufSetFull_next;
-			ackBufBToBufClear <= ackBufBToBufClear_next;
 		end if;
 	end process;
-	-- IP impl.buf.falling --- END
+-- IP impl.buf.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: {a/b}buf B/hostif-facing operation (bufB)
@@ -499,32 +492,34 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.bufB.rising.asyncrst --- BEGIN
-			stateBufB_next <= stateBufBInit;
-			aAbufB_next <= 0;
-			ackAbufToHostif_sig_next <= '0';
-			aBbufB_next <= 0;
-			ackBbufToHostif_sig_next <= '0';
+			stateBufB <= stateBufBInit;
+			aAbufB_vec <= x"0000";
+			aAbufB <= 0;
+			ackAbufToHostif_sig <= '0';
+			aBbufB_vec <= x"0000";
+			aBbufB <= 0;
+			ackBbufToHostif_sig <= '0';
 			-- IP impl.bufB.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
 			if (stateBufB=stateBufBInit or (infoTixVBufstate/=tixVBufstateAbuf and infoTixVBufstate/=tixVBufstateBbuf)) then
 				if (infoTixVBufstate/=tixVBufstateAbuf and infoTixVBufstate/=tixVBufstateBbuf) then
-					stateBufB_next <= stateBufBInit;
+					stateBufB <= stateBufBInit;
 
 				else
-					stateBufB_next <= stateBufBReady;
+					stateBufB <= stateBufBReady;
 				end if;
 
 			elsif stateBufB=stateBufBReady then
 				if (infoTixVBufstate=tixVBufstateAbuf and reqAbufToHostif='1') then
 					aAbufB_next <= 0; -- IP impl.bufB.rising.ready.aprep --- ILINE
 
-					stateBufB_next <= stateBufBReadA;
+					stateBufB <= stateBufBReadA;
 
 				elsif (infoTixVBufstate=tixVBufstateBbuf and reqBbufToHostif='1') then
 					aBbufB_next <= 0; -- IP impl.bufB.rising.ready.bprep --- ILINE
 
-					stateBufB_next <= stateBufBReadA;
+					stateBufB <= stateBufBReadA;
 				end if;
 
 			elsif stateBufB=stateBufBReadA then
@@ -532,34 +527,34 @@ begin
 					if dneAbufToHostif='1' then
 						ackAbufToHostif_sig_next <= '0'; -- IP impl.bufB.rising.readA.adne --- ILINE
 
-						stateBufB_next <= stateBufBDone;
+						stateBufB <= stateBufBDone;
 
 					elsif reqAbufToHostif='0' then
 						ackAbufToHostif_sig_next <= '0'; -- IP impl.bufB.rising.readA.acnc --- ILINE
 
-						stateBufB_next <= stateBufBReady;
+						stateBufB <= stateBufBReady;
 
 					elsif strbDAbufToHostif='0' then
 						ackAbufToHostif_sig_next <= '1'; -- IP impl.bufB.rising.readA.astep --- ILINE
 
-						stateBufB_next <= stateBufBReadB;
+						stateBufB <= stateBufBReadB;
 					end if;
 
 				elsif infoTixVBufstate=tixVBufstateBbuf then
 					if dneBbufToHostif='1' then
 						ackBbufToHostif_sig_next <= '0'; -- IP impl.bufB.rising.readA.bdne --- ILINE
 
-						stateBufB_next <= stateBufBDone;
+						stateBufB <= stateBufBDone;
 
 					elsif reqBbufToHostif='0' then
 						ackBbufToHostif_sig_next <= '0'; -- IP impl.bufB.rising.readA.bcnc --- ILINE
 
-						stateBufB_next <= stateBufBReady;
+						stateBufB <= stateBufBReady;
 
 					elsif strbDBbufToHostif='0' then
 						ackBbufToHostif_sig_next <= '1'; -- IP impl.bufB.rising.readA.bstep --- ILINE
 
-						stateBufB_next <= stateBufBReadB;
+						stateBufB <= stateBufBReadB;
 					end if;
 				end if;
 
@@ -567,37 +562,32 @@ begin
 				if (infoTixVBufstate=tixVBufstateAbuf and strbDAbufToHostif='1') then
 					-- IP impl.bufB.rising.readB.ainc --- INSERT
 
-					stateBufB_next <= stateBufBReadA;
+					stateBufB <= stateBufBReadA;
 
 				elsif (infoTixVBufstate=tixVBufstateBbuf and strbDBbufToHostif='1') then
 					-- IP impl.bufB.rising.readB.binc --- INSERT
 
-					stateBufB_next <= stateBufBReadA;
+					stateBufB <= stateBufBReadA;
 				end if;
 
 			elsif stateBufB=stateBufBDone then
 				if ackBufBToBufClear='1' then
-					stateBufB_next <= stateBufBInit;
+					stateBufB <= stateBufBInit;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.bufB.rising --- END
 
-	-- IP impl.bufB.falling --- BEGIN
+-- IP impl.bufB.falling --- BEGIN
 	process (mclk)
 		-- IP impl.bufB.falling.vars --- BEGIN
 		-- IP impl.bufB.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateBufB <= stateBufB_next;
-			aAbufB <= aAbufB_next;
-			ackAbufToHostif_sig <= ackAbufToHostif_sig_next;
-			aBbufB <= aBbufB_next;
-			ackBbufToHostif_sig <= ackBbufToHostif_sig_next;
 		end if;
 	end process;
-	-- IP impl.bufB.falling --- END
+-- IP impl.bufB.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: main operation (op)
@@ -635,20 +625,20 @@ begin
 		elsif rising_edge(mclk) then
 			if (stateOp=stateOpInit or (stateOp/=stateOpInv and reqInvSetRng='1')) then
 				if reqInvSetRng='1' then
-					stateOp_next <= stateOpInv;
+					stateOp <= stateOpInv;
 
 				elsif setRngRng=fls8 then
-					stateOp_next <= stateOpInit;
+					stateOp <= stateOpInit;
 
 				else
-					stateOp_next <= stateOpReady;
+					stateOp <= stateOpReady;
 				end if;
 
 			elsif stateOp=stateOpInv then
 				if reqInvSetRng='0' then
 					-- IP impl.op.rising.inv --- INSERT
 
-					stateOp_next <= stateOpInit;
+					stateOp <= stateOpInit;
 				end if;
 
 			elsif stateOp=stateOpReady then
@@ -670,37 +660,32 @@ begin
 				if reqOpToBufAbufSetFull='1' then
 					-- IP impl.op.rising.setFull.afull --- INSERT
 
-					stateOp_next <= stateOpSetFull;
+					stateOp <= stateOpSetFull;
 
 				elsif reqOpToBufBbufSetFull='1' then
 					-- IP impl.op.rising.setFull.bfull --- INSERT
 
-					stateOp_next <= stateOpSetFull;
+					stateOp <= stateOpSetFull;
 
 				else
 					-- IP impl.op.rising.setFull.toggle --- INSERT
 
-					stateOp_next <= stateOpReady;
+					stateOp <= stateOpReady;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.op.rising --- END
 
-	-- IP impl.op.falling --- BEGIN
+-- IP impl.op.falling --- BEGIN
 	process (mclk)
 		-- IP impl.op.falling.vars --- BEGIN
 		-- IP impl.op.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateOp <= stateOp_next;
-			bNotA <= bNotA_next;
-			aBuf <= aBuf_next;
-			reqOpToBufAbufSetFull <= reqOpToBufAbufSetFull_next;
-			reqOpToBufBbufSetFull <= reqOpToBufBbufSetFull_next;
 		end if;
 	end process;
-	-- IP impl.op.falling --- END
+-- IP impl.op.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: other 
@@ -710,5 +695,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Vgaacq;
+
 
 

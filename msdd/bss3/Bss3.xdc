@@ -1,8 +1,8 @@
 # file Bss3.xdc
 # Digilent Basys3 pin mapping and constraints
 # author Alexander Wirthmueller
-# date created: 26 Aug 2018
-# modified: 26 Aug 2018
+# date created: 18 Oct 2018
+# modified: 18 Oct 2018
 
 # bank14 3.3V
 set_property PACKAGE_PIN U18 [get_ports btnC];

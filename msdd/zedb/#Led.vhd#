@@ -9,7 +9,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.Dbecore.all;
-use work.Bss3.all;
+use work.Zedb.all;
 
 entity Led is
 	port (
@@ -104,10 +104,12 @@ begin
 
 		elsif rising_edge(mclk) then
 			if (state15=state15Init or (state15/=state15Inv and reqInvSetTon15='1')) then
-				-- IP impl.15.rising.syncrst --- BEGIN
+				-- IP impl.15.rising.syncrst --- RBEGIN
 				d15pwm_sig <= '0';
 
-				-- IP impl.15.rising.syncrst --- END
+				something else
+
+				-- IP impl.15.rising.syncrst --- REND
 
 				if reqInvSetTon15='1' then
 					state15 <= state15Inv;
@@ -126,9 +128,9 @@ begin
 				i := 0;
 
 				if to_integer(unsigned(setTon15Ton15))=0 then
-					d15pwm_sig_next <= '0';
+					d15pwm_sig <= '0';
 				else
-					d15pwm_sig_next <= '1';
+					d15pwm_sig <= '1';
 				end if;
 				-- IP impl.15.rising.start.ext --- IEND
 
@@ -147,7 +149,7 @@ begin
 					else
 						-- IP impl.15.rising.runA --- IBEGIN
 						if i=to_integer(unsigned(setTon15Ton15)) then
-							d15pwm_sig_next <= '0';
+							d15pwm_sig <= '0';
 						end if;
 						-- IP impl.15.rising.runA --- IEND
 
@@ -223,9 +225,9 @@ begin
 				i := 0;
 
 				if to_integer(unsigned(setTon60Ton60))=0 then
-					d60pwm_sig_next <= '0';
+					d60pwm_sig <= '0';
 				else
-					d60pwm_sig_next <= '1';
+					d60pwm_sig <= '1';
 				end if;
 				-- IP impl.60.rising.start.ext --- IEND
 
@@ -244,7 +246,7 @@ begin
 					else
 						-- IP impl.60.rising.runA --- IBEGIN
 						if i=to_integer(unsigned(setTon60Ton60)) then
-							d60pwm_sig_next <= '0';
+							d60pwm_sig <= '0';
 						end if;
 						-- IP impl.60.rising.runA --- IEND
 

@@ -1,8 +1,8 @@
 -- file Trigger.vhd
 -- Trigger easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 9 Aug 2018
--- date modified: 10 Sep 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -210,6 +210,16 @@ begin
 	end process;
 	-- IP impl.lwir.rising --- END
 
+-- IP impl.lwir.falling --- BEGIN
+	process (mclk)
+		-- IP impl.lwir.falling.vars --- BEGIN
+		-- IP impl.lwir.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.lwir.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: frame clock (tfrm)
 	------------------------------------------------------------------------
@@ -332,6 +342,16 @@ begin
 	end process;
 	-- IP impl.tfrm.rising --- END
 
+-- IP impl.tfrm.falling --- BEGIN
+	process (mclk)
+		-- IP impl.tfrm.falling.vars --- BEGIN
+		-- IP impl.tfrm.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.tfrm.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: VIS-L trigger (visl)
 	------------------------------------------------------------------------
@@ -382,6 +402,16 @@ begin
 		end if;
 	end process;
 	-- IP impl.visl.rising --- END
+
+-- IP impl.visl.falling --- BEGIN
+	process (mclk)
+		-- IP impl.visl.falling.vars --- BEGIN
+		-- IP impl.visl.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.visl.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: VIS-R trigger (visr)
@@ -482,6 +512,16 @@ begin
 	end process;
 	-- IP impl.visr.rising --- END
 
+-- IP impl.visr.falling --- BEGIN
+	process (mclk)
+		-- IP impl.visr.falling.vars --- BEGIN
+		-- IP impl.visr.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.visr.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: other 
 	------------------------------------------------------------------------
@@ -490,3 +530,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Trigger;
+
+
+

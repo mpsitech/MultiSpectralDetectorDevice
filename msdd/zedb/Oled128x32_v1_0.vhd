@@ -2,7 +2,7 @@
 -- Oled128x32_v1_0 module implementation
 -- author Alexander Wirthmueller
 -- date created: 27 Feb 2017
--- date modified: 10 Sep 2018
+-- date modified: 3 Mar 2017
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -691,3 +691,4 @@ begin
 	end process;
 
 end Oled128x32_v1_0;
+

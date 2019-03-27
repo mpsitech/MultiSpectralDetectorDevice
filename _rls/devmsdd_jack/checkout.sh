@@ -1,8 +1,8 @@
 # file checkout.sh
 # checkout script for Msdd device access library sources, release devmsdd_jack
 # author Alexander Wirthmueller
-# date created: 26 Aug 2018
-# modified: 26 Aug 2018
+# date created: 18 Oct 2018
+# modified: 18 Oct 2018
 
 export set SRCROOT=/home/mpsitech/src
 

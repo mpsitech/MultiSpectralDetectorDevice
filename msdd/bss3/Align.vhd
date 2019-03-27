@@ -1,8 +1,8 @@
 -- file Align.vhd
 -- Align easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -86,10 +86,10 @@ architecture Align of Align is
 		stateOpReady,
 		stateOpSetA, stateOpSetB, stateOpSetC, stateOpSetD
 	);
-	signal stateOp, stateOp_next: stateOp_t := stateOpInit;
+	signal stateOp: stateOp_t := stateOpInit;
 
 	signal spilen: std_logic_vector(16 downto 0);
-	signal spisend, spisend_next: std_logic_vector(7 downto 0);
+	signal spisend: std_logic_vector(7 downto 0);
 	signal ackInvSetSeq_sig: std_logic;
 
 	-- IP sigs.op.cust --- INSERT
@@ -99,7 +99,7 @@ architecture Align of Align is
 
 	---- handshake
 	-- op to mySpi
-	signal reqSpi, reqSpi_next: std_logic;
+	signal reqSpi: std_logic;
 	signal dneSpi: std_logic;
 
 	---- other
@@ -190,15 +190,15 @@ begin
 				-- IP impl.op.rising.syncrst --- REND
 
 				if reqInvSetSeq='1' then
-					stateOp_next <= stateOpInv;
+					stateOp <= stateOpInv;
 
 				else
-					stateOp_next <= stateOpReady;
+					stateOp <= stateOpReady;
 				end if;
 
 			elsif stateOp=stateOpInv then
 				if reqInvSetSeq='0' then
-					stateOp_next <= stateOpInit;
+					stateOp <= stateOpInit;
 				end if;
 
 			elsif stateOp=stateOpReady then
@@ -226,7 +226,7 @@ begin
 					zero := '0';
 					-- IP impl.op.rising.ready --- IEND
 
-					stateOp_next <= stateOpSetC;
+					stateOp <= stateOpSetC;
 				end if;
 
 			elsif stateOp=stateOpSetA then
@@ -240,16 +240,16 @@ begin
 					end if;
 					-- IP impl.op.rising.setA.done --- IEND
 
-					stateOp_next <= stateOpReady;
+					stateOp <= stateOpReady;
 
 				else
-					stateOp_next <= stateOpSetB;
+					stateOp <= stateOpSetB;
 				end if;
 
 			elsif stateOp=stateOpSetB then
 				bytecnt := bytecnt + 1; -- IP impl.op.rising.setB --- ILINE
 
-				stateOp_next <= stateOpSetC;
+				stateOp <= stateOpSetC;
 
 			elsif stateOp=stateOpSetC then
 				-- IP impl.op.rising.setC --- IBEGIN
@@ -258,29 +258,26 @@ begin
 				spisend_next <= txbuf(bytecnt); -- reason for reqSpi_next
 				-- IP impl.op.rising.setC --- IEND
 
-				stateOp_next <= stateOpSetD;
+				stateOp <= stateOpSetD;
 
 			elsif stateOp=stateOpSetD then
 				if strbSpisend='1' then
-					stateOp_next <= stateOpSetA;
+					stateOp <= stateOpSetA;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.op.rising --- END
 
-	-- IP impl.op.falling --- BEGIN
+-- IP impl.op.falling --- BEGIN
 	process (mclk)
 		-- IP impl.op.falling.vars --- BEGIN
 		-- IP impl.op.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateOp <= stateOp_next;
-			spisend <= spisend_next;
-			reqSpi <= reqSpi_next;
 		end if;
 	end process;
-	-- IP impl.op.falling --- END
+-- IP impl.op.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: other 
@@ -290,5 +287,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Align;
+
 
 

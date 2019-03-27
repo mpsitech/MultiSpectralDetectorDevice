@@ -2,7 +2,7 @@
 -- Spimaster_v1_0 module implementation
 -- author Alexander Wirthmueller
 -- date created: 17 May 2016
--- date modified: 10 Sep 2018
+-- date modified: 28 Jan 2017
 
 library ieee;
 use ieee.std_logic_1164.all;

@@ -2,8 +2,8 @@
   * \file CtrMsddBss3Align.h
   * align controller (declarations)
   * \author Alexander Wirthmueller
-  * \date created: 26 Aug 2018
-  * \date modified: 26 Aug 2018
+  * \date created: 18 Oct 2018
+  * \date modified: 18 Oct 2018
   */
 
 #ifndef CTRMSDDBSS3ALIGN_H

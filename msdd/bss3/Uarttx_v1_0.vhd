@@ -49,13 +49,13 @@ architecture Uarttx_v1_0 of Uarttx_v1_0 is
 		stateSendStop,
 		stateSendDone
 	);
-	signal stateSend, stateSend_next: stateSend_t := stateSendInit;
+	signal stateSend: stateSend_t := stateSendInit;
 
 	constant tbit: natural := ((1000*fMclk)/fSclk);
 
-	signal strbD_sig, strbD_sig_next: std_logic;
+	signal strbD_sig: std_logic;
 
-	signal txd_sig, txd_sig_next: std_logic;
+	signal txd_sig: std_logic;
 
 begin
 
@@ -82,53 +82,53 @@ begin
 
 	begin
 		if reset='1' then
-			stateSend_next <= stateSendInit;
-			strbD_sig_next <= '1';
-			txd_sig_next <= '1';
+			stateSend <= stateSendInit;
+			strbD_sig <= '1';
+			txd_sig <= '1';
 
 		elsif rising_edge(mclk) then
 			if (stateSend=stateSendInit or req='0') then
-				strbD_sig_next <= '1';
-				txd_sig_next <= '1';
+				strbD_sig <= '1';
+				txd_sig <= '1';
 	
 				bytecnt := 0;
 
 				if req='0' then
-					stateSend_next <= stateSendInit;
+					stateSend <= stateSendInit;
 				else
-					stateSend_next <= stateSendPrep;
+					stateSend <= stateSendPrep;
 				end if;
 
 			elsif stateSend=stateSendPrep then
 				if to_integer(unsigned(len))=0 then
-					stateSend_next <= stateSendDone;
+					stateSend <= stateSendDone;
 				else
-					stateSend_next <= stateSendLoad;
+					stateSend <= stateSendLoad;
 				end if;
 
 			elsif stateSend=stateSendLoad then
-				txd_sig_next <= '0';
+				txd_sig <= '0';
 
 				d_var := d;
 
 				bytecnt := bytecnt + 1; -- byte count put out for send
 				if bytecnt/=to_integer(unsigned(len)) then
-					strbD_sig_next <= '0';
+					strbD_sig <= '0';
 				end if;
 
 				i := 0;
 
-				stateSend_next <= stateSendStart;
+				stateSend <= stateSendStart;
 
 			elsif stateSend=stateSendStart then
 				i := i + 1;
 				if i=tbit then
-					txd_sig_next <= d_var(0);
+					txd_sig <= d_var(0);
 
 					bitcnt := 0;
 					i := 0;
 
-					stateSend_next <= stateSendData;
+					stateSend <= stateSendData;
 				end if;
 
 			elsif stateSend=stateSendData then
@@ -137,14 +137,14 @@ begin
 					i := 0;
 					
 					if bitcnt=7 then
-						txd_sig_next <= '1';
+						txd_sig <= '1';
 
 						j := 0;
 						
-						stateSend_next <= stateSendStop;
+						stateSend <= stateSendStop;
 					else
 						bitcnt := bitcnt + 1;
-						txd_sig_next <= d_var(bitcnt);
+						txd_sig <= d_var(bitcnt);
 					end if;
 				end if;
 			
@@ -157,28 +157,19 @@ begin
 
 					if j=Nstop then
 						if bytecnt=to_integer(unsigned(len)) then
-							stateSend_next <= stateSendDone;
+							stateSend <= stateSendDone;
 						else
-							strbD_sig_next <= '1';
-							stateSend_next <= stateSendLoad;
+							strbD_sig <= '1';
+							stateSend <= stateSendLoad;
 						end if;
 					end if;
 				end if;
 
 			elsif stateSend=stateSendDone then
 				-- if req='0' then
-				-- 	stateSend_next <= stateSendInit;
+				-- 	stateSend <= stateSendInit;
 				-- end if;
 			end if;
-		end if;
-	end process;
-
-	process (mclk)
-	begin
-		if falling_edge(mclk) then
-			stateSend <= stateSend_next;
-			strbD_sig <= strbD_sig_next;
-			txd_sig <= txd_sig_next;
 		end if;
 	end process;
 

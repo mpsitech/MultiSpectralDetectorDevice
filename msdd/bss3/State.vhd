@@ -1,8 +1,8 @@
 -- file State.vhd
 -- State easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -45,7 +45,7 @@ architecture State of State is
 		stateLedOn,
 		stateLedOff
 	);
-	signal stateLed, stateLed_next: stateLed_t := stateLedOn;
+	signal stateLed: stateLed_t := stateLedOn;
 
 	signal ledg_sig: std_logic;
 	signal ledr_sig: std_logic;
@@ -97,7 +97,7 @@ begin
 				if i=1000 then
 					i := 0; -- IP impl.led.rising.on.prepOff --- ILINE
 
-					stateLed_next <= stateLedOff;
+					stateLed <= stateLedOff;
 				end if;
 
 			elsif stateLed=stateLedOff then
@@ -106,23 +106,22 @@ begin
 				if i=4000 then
 					i := 0; -- IP impl.led.rising.off.prepOn --- ILINE
 
-					stateLed_next <= stateLedOn;
+					stateLed <= stateLedOn;
 				end if;
 			end if;
 		end if;
 	end process;
 	-- IP impl.led.rising --- END
 
-	-- IP impl.led.falling --- BEGIN
+-- IP impl.led.falling --- BEGIN
 	process (tkclk)
 		-- IP impl.led.falling.vars --- BEGIN
 		-- IP impl.led.falling.vars --- END
 	begin
 		if falling_edge(tkclk) then
-			stateLed <= stateLed_next;
 		end if;
 	end process;
-	-- IP impl.led.falling --- END
+-- IP impl.led.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: other 
@@ -132,5 +131,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end State;
+
 
 

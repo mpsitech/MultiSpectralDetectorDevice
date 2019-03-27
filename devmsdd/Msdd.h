@@ -2,8 +2,8 @@
   * \file Msdd.h
   * Msdd global functionality and unit/controller exchange (declarations)
   * \author Alexander Wirthmueller
-  * \date created: 26 Aug 2018
-  * \date modified: 26 Aug 2018
+  * \date created: 18 Oct 2018
+  * \date modified: 18 Oct 2018
   */
 
 #ifndef MSDD_H

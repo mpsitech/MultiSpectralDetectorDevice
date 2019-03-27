@@ -2,7 +2,7 @@
 -- Tkclksrc_Easy_v1_0 module implementation
 -- author Alexander Wirthmueller
 -- date created: 15 Dec 2017
--- date modified: 10 Sep 2018
+-- date modified: 11 Apr 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -98,3 +98,4 @@ begin
 	end process;
 
 end Tkclksrc;
+

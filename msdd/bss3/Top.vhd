@@ -1,8 +1,8 @@
 -- file Top.vhd
 -- Top top_v1_0 top implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -226,48 +226,47 @@ architecture Top of Top is
 			vgaacqGetInfoTkst: in std_logic_vector(31 downto 0);
 
 			reqBbufFromLwiracq: out std_logic;
-
-			reqAbufFromLwiracq: out std_logic;
-
 			ackBbufFromLwiracq: in std_logic;
-
-			ackAbufFromLwiracq: in std_logic;
-
 			dneBbufFromLwiracq: out std_logic;
 
-			dneAbufFromLwiracq: out std_logic;
-
 			avllenBbufFromLwiracq: in std_logic_vector(15 downto 0);
-			avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
 
 			dBbufFromLwiracq: in std_logic_vector(7 downto 0);
-
-			dAbufFromLwiracq: in std_logic_vector(7 downto 0);
-
 			strbDBbufFromLwiracq: out std_logic;
-
-			strbDAbufFromLwiracq: out std_logic;
 
 			reqAbufFromVgaacq: out std_logic;
 			ackAbufFromVgaacq: in std_logic;
-			dneAbufFromVgaacq: out std_logic;
-
-			avllenAbufFromVgaacq: in std_logic_vector(15 downto 0);
 
 			reqBbufFromVgaacq: out std_logic;
 
-			dAbufFromVgaacq: in std_logic_vector(7 downto 0);
+			reqAbufFromLwiracq: out std_logic;
+
+			dneAbufFromVgaacq: out std_logic;
 
 			ackBbufFromVgaacq: in std_logic;
 
-			strbDAbufFromVgaacq: out std_logic;
+			ackAbufFromLwiracq: in std_logic;
+
+			avllenAbufFromVgaacq: in std_logic_vector(15 downto 0);
 
 			dneBbufFromVgaacq: out std_logic;
 
+			dneAbufFromLwiracq: out std_logic;
+
+			dAbufFromVgaacq: in std_logic_vector(7 downto 0);
+
 			avllenBbufFromVgaacq: in std_logic_vector(15 downto 0);
+			avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
+
+			strbDAbufFromVgaacq: out std_logic;
 
 			dBbufFromVgaacq: in std_logic_vector(7 downto 0);
+
+			dAbufFromLwiracq: in std_logic_vector(7 downto 0);
+
 			strbDBbufFromVgaacq: out std_logic;
+
+			strbDAbufFromLwiracq: out std_logic;
 
 			rxd: in std_logic;
 			txd: out std_logic
@@ -305,6 +304,7 @@ architecture Top of Top is
 			tkclk: in std_logic;
 			lwirrng: in std_logic;
 			strbLwir: in std_logic;
+			tkclksrcGetTkstTkst: in std_logic_vector(31 downto 0);
 
 			reqInvSetRng: in std_logic;
 			ackInvSetRng: out std_logic;
@@ -535,7 +535,7 @@ architecture Top of Top is
 		stateRstReset,
 		stateRstRun
 	);
-	signal stateRst, stateRst_next: stateRst_t := stateRstReset;
+	signal stateRst: stateRst_t := stateRstReset;
 
 	signal reset: std_logic;
 
@@ -588,11 +588,11 @@ architecture Top of Top is
 
 	signal strbDBbufLwiracqToHostif: std_logic;
 
-	signal strbDAbufLwiracqToHostif: std_logic;
-
 	signal strbDAbufVgaacqToHostif: std_logic;
 
 	signal strbDBbufVgaacqToHostif: std_logic;
+
+	signal strbDAbufLwiracqToHostif: std_logic;
 
 	---- myLwiracq
 	signal lwiracqGetInfoTixVBufstate: std_logic_vector(7 downto 0);
@@ -631,10 +631,9 @@ architecture Top of Top is
 	signal vgaacqGetInfoTkst: std_logic_vector(31 downto 0);
 
 	signal avllenAbufVgaacqToHostif: std_logic_vector(15 downto 0);
+	signal avllenBbufVgaacqToHostif: std_logic_vector(15 downto 0);
 
 	signal dAbufVgaacqToHostif: std_logic_vector(7 downto 0);
-
-	signal avllenBbufVgaacqToHostif: std_logic_vector(15 downto 0);
 
 	signal dBbufVgaacqToHostif: std_logic_vector(7 downto 0);
 
@@ -696,11 +695,6 @@ architecture Top of Top is
 	signal ackBbufLwiracqToHostif: std_logic;
 	signal dneBbufLwiracqToHostif: std_logic;
 
-	-- myHostif to myLwiracq
-	signal reqAbufLwiracqToHostif: std_logic;
-	signal ackAbufLwiracqToHostif: std_logic;
-	signal dneAbufLwiracqToHostif: std_logic;
-
 	-- myHostif to myVgaacq
 	signal reqAbufVgaacqToHostif: std_logic;
 	signal ackAbufVgaacqToHostif: std_logic;
@@ -710,6 +704,11 @@ architecture Top of Top is
 	signal reqBbufVgaacqToHostif: std_logic;
 	signal ackBbufVgaacqToHostif: std_logic;
 	signal dneBbufVgaacqToHostif: std_logic;
+
+	-- myHostif to myLwiracq
+	signal reqAbufLwiracqToHostif: std_logic;
+	signal ackAbufLwiracqToHostif: std_logic;
+	signal dneAbufLwiracqToHostif: std_logic;
 
 	---- other
 	signal reqReset: std_logic := '0';
@@ -908,48 +907,47 @@ begin
 			vgaacqGetInfoTkst => vgaacqGetInfoTkst,
 
 			reqBbufFromLwiracq => reqBbufLwiracqToHostif,
-
-			reqAbufFromLwiracq => reqAbufLwiracqToHostif,
-
 			ackBbufFromLwiracq => ackBbufLwiracqToHostif,
-
-			ackAbufFromLwiracq => ackAbufLwiracqToHostif,
-
 			dneBbufFromLwiracq => dneBbufLwiracqToHostif,
 
-			dneAbufFromLwiracq => dneAbufLwiracqToHostif,
-
 			avllenBbufFromLwiracq => avllenBbufLwiracqToHostif,
-			avllenAbufFromLwiracq => avllenAbufLwiracqToHostif,
 
 			dBbufFromLwiracq => dBbufLwiracqToHostif,
-
-			dAbufFromLwiracq => dAbufLwiracqToHostif,
-
 			strbDBbufFromLwiracq => strbDBbufLwiracqToHostif,
-
-			strbDAbufFromLwiracq => strbDAbufLwiracqToHostif,
 
 			reqAbufFromVgaacq => reqAbufVgaacqToHostif,
 			ackAbufFromVgaacq => ackAbufVgaacqToHostif,
-			dneAbufFromVgaacq => dneAbufVgaacqToHostif,
-
-			avllenAbufFromVgaacq => avllenAbufVgaacqToHostif,
 
 			reqBbufFromVgaacq => reqBbufVgaacqToHostif,
 
-			dAbufFromVgaacq => dAbufVgaacqToHostif,
+			reqAbufFromLwiracq => reqAbufLwiracqToHostif,
+
+			dneAbufFromVgaacq => dneAbufVgaacqToHostif,
 
 			ackBbufFromVgaacq => ackBbufVgaacqToHostif,
 
-			strbDAbufFromVgaacq => strbDAbufVgaacqToHostif,
+			ackAbufFromLwiracq => ackAbufLwiracqToHostif,
+
+			avllenAbufFromVgaacq => avllenAbufVgaacqToHostif,
 
 			dneBbufFromVgaacq => dneBbufVgaacqToHostif,
 
+			dneAbufFromLwiracq => dneAbufLwiracqToHostif,
+
+			dAbufFromVgaacq => dAbufVgaacqToHostif,
+
 			avllenBbufFromVgaacq => avllenBbufVgaacqToHostif,
+			avllenAbufFromLwiracq => avllenAbufLwiracqToHostif,
+
+			strbDAbufFromVgaacq => strbDAbufVgaacqToHostif,
 
 			dBbufFromVgaacq => dBbufVgaacqToHostif,
+
+			dAbufFromLwiracq => dAbufLwiracqToHostif,
+
 			strbDBbufFromVgaacq => strbDBbufVgaacqToHostif,
+
+			strbDAbufFromLwiracq => strbDAbufLwiracqToHostif,
 
 			rxd => RsRx,
 			txd => RsTx
@@ -985,6 +983,7 @@ begin
 			tkclk => tkclk,
 			lwirrng => lwirrng,
 			strbLwir => strbLwir,
+			tkclksrcGetTkstTkst => tkclksrcGetTkstTkst,
 
 			reqInvSetRng => reqInvLwiracqSetRng,
 			ackInvSetRng => ackInvLwiracqSetRng,
@@ -1232,5 +1231,6 @@ begin
 	-- IP impl.oth.cust --- IEND
 
 end Top;
+
 
 

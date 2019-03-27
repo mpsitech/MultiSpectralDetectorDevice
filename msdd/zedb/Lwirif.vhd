@@ -1,8 +1,8 @@
 -- file Lwirif.vhd
 -- Lwirif easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 9 Aug 2018
--- date modified: 10 Sep 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -13,7 +13,7 @@ use work.Zedb.all;
 
 entity Lwirif is
 	generic (
-		fMclk: natural range 0 to 1000000 := 50000 -- in kHz
+		fMclk: natural range 1 to 1000000 := 50000 -- in kHz
 	);
 	port (
 		reset: in std_logic;
@@ -29,8 +29,8 @@ entity Lwirif is
 		nirst: out std_logic;
 		imclk: out std_logic;
 
-		iscl: out std_logic;
-		isda: inout std_logic
+		scl: out std_logic;
+		sda: inout std_logic
 	);
 end Lwirif;
 
@@ -42,12 +42,12 @@ architecture Lwirif of Lwirif is
 
 	component I2c is
 		generic (
-			fMclk: natural range 1 to 1000000 := 50000;
+			fMclk: natural range 1 to 1000000;
 
-			clkFastNotStd: std_logic := '0';
+			clkFastNotStd: std_logic := '1';
 			clkFastplusNotFast: std_logic := '0';
 
-			devaddr: std_logic_vector(7 downto 0)
+			devaddr: std_logic_vector(7 downto 0) := x"55"
 		);
 		port (
 			reset: in std_logic;
@@ -134,11 +134,11 @@ begin
 
 	myI2c : I2c
 		generic map (
-			fMclk => 50000, -- in kHz
+			fMclk => fMclk, -- in kHz
 
 			clkFastNotStd => '1', -- 1Mbps/400kbps vs. 100kbps
 			clkFastplusNotFast => '0', -- 1Mbps vs. 400kbps
-			
+
 			devaddr => x"55"
 		)
 		port map (
@@ -154,8 +154,8 @@ begin
 			send => i2csend,
 			recv => i2crecv,
 
-			scl => iscl,
-			sda => isda
+			scl => scl,
+			sda => sda
 		);
 
 	------------------------------------------------------------------------
@@ -249,6 +249,16 @@ begin
 	end process;
 	-- IP impl.get.rising --- END
 
+-- IP impl.get.falling --- BEGIN
+	process (mclk)
+		-- IP impl.get.falling.vars --- BEGIN
+		-- IP impl.get.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.get.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: main operation (op)
 	------------------------------------------------------------------------
@@ -315,6 +325,10 @@ begin
 				else
 					if setRngRng=fls8 then
 						-- IP impl.op.rising.syncrst --- BEGIN
+						i2creadNotWrite <= '0';
+						i2cregaddr <= x"0000";
+						i2csend <= x"0000";
+
 						-- IP impl.op.rising.syncrst --- END
 
 						stateOp <= stateOpInit;
@@ -523,6 +537,16 @@ begin
 	end process;
 	-- IP impl.op.rising --- END
 
+-- IP impl.op.falling --- BEGIN
+	process (mclk)
+		-- IP impl.op.falling.vars --- BEGIN
+		-- IP impl.op.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.op.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: other 
 	------------------------------------------------------------------------
@@ -531,5 +555,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Lwirif;
+
 
 

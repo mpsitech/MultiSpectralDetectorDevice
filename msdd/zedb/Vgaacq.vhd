@@ -1,8 +1,8 @@
 -- file Vgaacq.vhd
 -- Vgaacq easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 9 Aug 2018
--- date modified: 10 Sep 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -456,6 +456,16 @@ begin
 	end process;
 	-- IP impl.buf.rising --- END
 
+-- IP impl.buf.falling --- BEGIN
+	process (mclk)
+		-- IP impl.buf.falling.vars --- BEGIN
+		-- IP impl.buf.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.buf.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: {a/b}buf B/hostif-facing operation (bufB)
 	------------------------------------------------------------------------
@@ -483,8 +493,10 @@ begin
 		if reset='1' then
 			-- IP impl.bufB.rising.asyncrst --- BEGIN
 			stateBufB <= stateBufBInit;
+			aAbufB_vec <= x"0000";
 			aAbufB <= 0;
 			ackAbufToHostif_sig <= '0';
+			aBbufB_vec <= x"0000";
 			aBbufB <= 0;
 			ackBbufToHostif_sig <= '0';
 			-- IP impl.bufB.rising.asyncrst --- END
@@ -566,6 +578,16 @@ begin
 		end if;
 	end process;
 	-- IP impl.bufB.rising --- END
+
+-- IP impl.bufB.falling --- BEGIN
+	process (mclk)
+		-- IP impl.bufB.falling.vars --- BEGIN
+		-- IP impl.bufB.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.bufB.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: main operation (op)
@@ -655,6 +677,16 @@ begin
 	end process;
 	-- IP impl.op.rising --- END
 
+-- IP impl.op.falling --- BEGIN
+	process (mclk)
+		-- IP impl.op.falling.vars --- BEGIN
+		-- IP impl.op.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.op.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: other 
 	------------------------------------------------------------------------
@@ -663,3 +695,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Vgaacq;
+
+
+

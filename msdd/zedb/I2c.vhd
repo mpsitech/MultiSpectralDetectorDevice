@@ -1,8 +1,8 @@
 -- file I2c.vhd
 -- I2c other module implementation
 -- author Alexander Wirthmueller
--- date created: 9 Aug 2018
--- date modified: 10 Sep 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -16,12 +16,12 @@ use work.Zedb.all;
 
 entity I2c is
 	generic (
-		fMclk: natural range 1 to 1000000 := 50000; -- in kHz
+		fMclk: natural range 1 to 1000000; -- in kHz
 
-		clkFastNotStd: std_logic := '0'; -- 1Mbps/400kbps vs. 100kbps
+		clkFastNotStd: std_logic := '1'; -- 1Mbps/400kbps vs. 100kbps
 		clkFastplusNotFast: std_logic := '0'; -- 1Mbps vs. 400kbps
 
-		devaddr: std_logic_vector(7 downto 0)
+		devaddr: std_logic_vector(7 downto 0) := x"55"
 	);
 	port (
 		reset: in std_logic;
@@ -349,6 +349,16 @@ begin
 	end process;
 	-- IP impl.xfer.rising --- END
 
+-- IP impl.xfer.falling --- BEGIN
+	process (mclk)
+		-- IP impl.xfer.falling.vars --- BEGIN
+		-- IP impl.xfer.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.xfer.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: other 
 	------------------------------------------------------------------------
@@ -357,4 +367,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end I2c;
+
+
 

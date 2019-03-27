@@ -1,8 +1,8 @@
 -- file Adxl.vhd
 -- Adxl easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -91,16 +91,16 @@ architecture Adxl of Adxl is
 		stateOpReady,
 		stateOpGetA, stateOpGetB, stateOpGetC
 	);
-	signal stateOp, stateOp_next: stateOp_t := stateOpSetRes;
+	signal stateOp: stateOp_t := stateOpSetRes;
 
 	signal Tsmprun: std_logic;
 
-	signal ax, ax_next: std_logic_vector(15 downto 0);
-	signal ay, ay_next: std_logic_vector(15 downto 0);
-	signal az, az_next: std_logic_vector(15 downto 0);
+	signal ax: std_logic_vector(15 downto 0);
+	signal ay: std_logic_vector(15 downto 0);
+	signal az: std_logic_vector(15 downto 0);
 
 	signal spilen: std_logic_vector(16 downto 0);
-	signal spisend, spisend_next: std_logic_vector(7 downto 0);
+	signal spisend: std_logic_vector(7 downto 0);
 
 	-- IP sigs.op.cust --- INSERT
 
@@ -110,7 +110,7 @@ architecture Adxl of Adxl is
 		stateTsmpReady,
 		stateTsmpRunA, stateTsmpRunB, stateTsmpRunC
 	);
-	signal stateTsmp, stateTsmp_next: stateTsmp_t := stateTsmpInit;
+	signal stateTsmp: stateTsmp_t := stateTsmpInit;
 
 	signal strbTsmp: std_logic;
 
@@ -124,7 +124,7 @@ architecture Adxl of Adxl is
 
 	---- handshake
 	-- op to mySpi
-	signal reqSpi, reqSpi_next: std_logic;
+	signal reqSpi: std_logic;
 	signal dneSpi: std_logic;
 
 	---- other
@@ -230,12 +230,13 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.op.rising.asyncrst --- BEGIN
-			stateOp_next <= stateOpSetRes;
-			ax_next <= x"0000";
-			ay_next <= x"0000";
-			az_next <= x"0000";
-			reqSpi_next <= '0';
-			spisend_next <= x"00";
+			stateOp <= stateOpSetRes;
+			ax <= x"0000";
+			ay <= x"0000";
+			az <= x"0000";
+			reqSpi <= '0';
+			spilen <= "00000000000000000";
+			spisend <= x"00";
 			-- IP impl.op.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
@@ -249,7 +250,7 @@ begin
 				bytecnt := 0;
 				-- IP impl.op.rising.setRes --- IEND
 
-				stateOp_next <= stateOpSetC;
+				stateOp <= stateOpSetC;
 
 			elsif stateOp=stateOpSetRate then
 				-- IP impl.op.rising.setRate --- IBEGIN
@@ -261,7 +262,7 @@ begin
 				bytecnt := 0;
 				-- IP impl.op.rising.setRate --- IEND
 
-				stateOp_next <= stateOpSetC;
+				stateOp <= stateOpSetC;
 
 			elsif stateOp=stateOpSetPwr then
 				-- IP impl.op.rising.setPwr --- IBEGIN
@@ -273,30 +274,30 @@ begin
 				bytecnt := 0;
 				-- IP impl.op.rising.setPwr --- IEND
 
-				stateOp_next <= stateOpSetC;
+				stateOp <= stateOpSetC;
 
 			elsif stateOp=stateOpSetA then
 				if dneSpi='1' then
 					reqSpi_next <= '0'; -- IP impl.op.rising.setA --- ILINE
 
 					if txbuf(ixTxbufCmd)=cmdSetRes then
-						stateOp_next <= stateOpSetRate;
+						stateOp <= stateOpSetRate;
 
 					elsif txbuf(ixTxbufCmd)=cmdSetRate then
-						stateOp_next <= stateOpSetPwr;
+						stateOp <= stateOpSetPwr;
 
 					else
-						stateOp_next <= stateOpReady;
+						stateOp <= stateOpReady;
 					end if;
 
 				else
-					stateOp_next <= stateOpSetB;
+					stateOp <= stateOpSetB;
 				end if;
 
 			elsif stateOp=stateOpSetB then
 				bytecnt := bytecnt + 1; -- IP impl.op.rising.setB --- ILINE
 
-				stateOp_next <= stateOpSetC;
+				stateOp <= stateOpSetC;
 
 			elsif stateOp=stateOpSetC then
 				-- IP impl.op.rising.setC --- IBEGIN
@@ -305,11 +306,11 @@ begin
 				spisend_next <= txbuf(bytecnt); -- reason for reqSpi_next
 				-- IP impl.op.rising.setC --- IEND
 
-				stateOp_next <= stateOpSetD;
+				stateOp <= stateOpSetD;
 
 			elsif stateOp=stateOpSetD then
 				if strbSpisend='1' then
-					stateOp_next <= stateOpSetA;
+					stateOp <= stateOpSetA;
 				end if;
 
 			elsif stateOp=stateOpReady then
@@ -324,7 +325,7 @@ begin
 					bytecnt := 0;
 					-- IP impl.op.rising.ready --- IEND
 
-					stateOp_next <= stateOpGetA;
+					stateOp <= stateOpGetA;
 				end if;
 
 			elsif stateOp=stateOpGetA then
@@ -342,43 +343,37 @@ begin
 					az_next <= z;
 					-- IP impl.op.rising.getA.done --- IEND
 
-					stateOp_next <= stateOpReady;
+					stateOp <= stateOpReady;
 
 				elsif strbSpirecv='0' then
-					stateOp_next <= stateOpGetB;
+					stateOp <= stateOpGetB;
 				end if;
 
 			elsif stateOp=stateOpGetB then
 				if strbSpirecv='1' then
 					rxbuf(bytecnt) := spirecv; -- IP impl.op.rising.getB.copy --- ILINE
 
-					stateOp_next <= stateOpGetC;
+					stateOp <= stateOpGetC;
 				end if;
 
 			elsif stateOp=stateOpGetC then
 				bytecnt := bytecnt + 1; -- IP impl.op.rising.getC --- ILINE
 
-				stateOp_next <= stateOpGetA;
+				stateOp <= stateOpGetA;
 			end if;
 		end if;
 	end process;
 	-- IP impl.op.rising --- END
 
-	-- IP impl.op.falling --- BEGIN
+-- IP impl.op.falling --- BEGIN
 	process (mclk)
 		-- IP impl.op.falling.vars --- BEGIN
 		-- IP impl.op.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateOp <= stateOp_next;
-			ax <= ax_next;
-			ay <= ay_next;
-			az <= az_next;
-			reqSpi <= reqSpi_next;
-			spisend <= spisend_next;
 		end if;
 	end process;
-	-- IP impl.op.falling --- END
+-- IP impl.op.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: sample clock (tsmp)
@@ -397,33 +392,33 @@ begin
 	begin
 		if reset='1' then
 			-- IP impl.tsmp.rising.asyncrst --- BEGIN
-			stateTsmp_next <= stateTsmpInit;
+			stateTsmp <= stateTsmpInit;
 			-- IP impl.tsmp.rising.asyncrst --- END
 
 		elsif rising_edge(mclk) then
 			if (stateTsmp=stateTsmpInit or Tsmprun='0') then
 				if Tsmprun='0' then
-					stateTsmp_next <= stateTsmpInit;
+					stateTsmp <= stateTsmpInit;
 
 				else
-					stateTsmp_next <= stateTsmpReady;
+					stateTsmp <= stateTsmpReady;
 				end if;
 
 			elsif stateTsmp=stateTsmpReady then
 				if tkclk='0' then
 					i := 0; -- IP impl.tsmp.rising.ready.prepRun --- ILINE
 
-					stateTsmp_next <= stateTsmpRunA;
+					stateTsmp <= stateTsmpRunA;
 				end if;
 
 			elsif stateTsmp=stateTsmpRunA then
 				if tkclk='1' then
-					stateTsmp_next <= stateTsmpRunC;
+					stateTsmp <= stateTsmpRunC;
 				end if;
 
 			elsif stateTsmp=stateTsmpRunB then
 				if tkclk='1' then
-					stateTsmp_next <= stateTsmpRunC;
+					stateTsmp <= stateTsmpRunC;
 				end if;
 
 			elsif stateTsmp=stateTsmpRunC then
@@ -433,10 +428,10 @@ begin
 					if i=Tsmp then
 						i := 0; -- IP impl.tsmp.rising.runC.prepRun --- ILINE
 
-						stateTsmp_next <= stateTsmpRunA;
+						stateTsmp <= stateTsmpRunA;
 
 					else
-						stateTsmp_next <= stateTsmpRunB;
+						stateTsmp <= stateTsmpRunB;
 					end if;
 				end if;
 			end if;
@@ -444,16 +439,15 @@ begin
 	end process;
 	-- IP impl.tsmp.rising --- END
 
-	-- IP impl.tsmp.falling --- BEGIN
+-- IP impl.tsmp.falling --- BEGIN
 	process (mclk)
 		-- IP impl.tsmp.falling.vars --- BEGIN
 		-- IP impl.tsmp.falling.vars --- END
 	begin
 		if falling_edge(mclk) then
-			stateTsmp <= stateTsmp_next;
 		end if;
 	end process;
-	-- IP impl.tsmp.falling --- END
+-- IP impl.tsmp.falling --- END
 
 	------------------------------------------------------------------------
 	-- implementation: other 
@@ -463,5 +457,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Adxl;
+
 
 

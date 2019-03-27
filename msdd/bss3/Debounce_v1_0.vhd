@@ -35,7 +35,7 @@ architecture Debounce_v1_0 of Debounce_v1_0 is
 		stateOpIdle,
 		stateOpDeadA, stateOpDeadB
 	);
-	signal stateOp, stateOp_next: stateOp_t := stateOpIdle;
+	signal stateOp: stateOp_t := stateOpIdle;
 
 	signal clean_sig: std_logic;
 
@@ -54,7 +54,7 @@ begin
 		if reset='1' then
 			i := 0;
 			clean_sig <= '0';
-			stateOp_next <= stateOpIdle;
+			stateOp <= stateOpIdle;
 
 		elsif rising_edge(mclk) then
 			if stateOp=stateOpIdle then
@@ -62,27 +62,20 @@ begin
 					clean_sig <= noisy;
 
 					i := 0;
-					stateOp_next <= stateOpDeadA;
+					stateOp <= stateOpDeadA;
 				end if;
 
 			elsif stateOp=stateOpDeadA then
 				if i=tdead then
-					stateOp_next <= stateOpIdle;
+					stateOp <= stateOpIdle;
 				elsif tkclk='1' then
-					stateOp_next <= stateOpDeadB;
+					stateOp <= stateOpDeadB;
 				end if;
 		
 			elsif (stateOp=stateOpDeadB and tkclk='0') then
 				i := i + 1;
-				stateOp_next <= stateOpDeadA;
+				stateOp <= stateOpDeadA;
 			end if;
-		end if;
-	end process;
-
-	process (mclk)
-	begin
-		if falling_edge(mclk) then
-			stateOp <= stateOp_next;
 		end if;
 	end process;
 

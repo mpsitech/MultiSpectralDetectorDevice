@@ -1,8 +1,8 @@
 # file Makefile
 # make file for Msdd device access library, release devmsdd_ungenio
 # author Alexander Wirthmueller
-# date created: 26 Aug 2018
-# modified: 26 Aug 2018
+# date created: 18 Oct 2018
+# modified: 18 Oct 2018
 
 SRCROOT = /Users/mpsitech/src
 LIBROOT = /Users/mpsitech/lib

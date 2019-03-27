@@ -1,8 +1,8 @@
 -- file Hostif.vhd
 -- Hostif uarthostif_Easy_v1_0 easy model host interface implementation
 -- author Alexander Wirthmueller
--- date created: 26 Aug 2018
--- date modified: 26 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -111,48 +111,47 @@ entity Hostif is
 		vgaacqGetInfoTkst: in std_logic_vector(31 downto 0);
 
 		reqBbufFromLwiracq: out std_logic;
-
-		reqAbufFromLwiracq: out std_logic;
-
 		ackBbufFromLwiracq: in std_logic;
-
-		ackAbufFromLwiracq: in std_logic;
-
 		dneBbufFromLwiracq: out std_logic;
 
-		dneAbufFromLwiracq: out std_logic;
-
 		avllenBbufFromLwiracq: in std_logic_vector(15 downto 0);
-		avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
 
 		dBbufFromLwiracq: in std_logic_vector(7 downto 0);
-
-		dAbufFromLwiracq: in std_logic_vector(7 downto 0);
-
 		strbDBbufFromLwiracq: out std_logic;
-
-		strbDAbufFromLwiracq: out std_logic;
 
 		reqAbufFromVgaacq: out std_logic;
 		ackAbufFromVgaacq: in std_logic;
-		dneAbufFromVgaacq: out std_logic;
-
-		avllenAbufFromVgaacq: in std_logic_vector(15 downto 0);
 
 		reqBbufFromVgaacq: out std_logic;
 
-		dAbufFromVgaacq: in std_logic_vector(7 downto 0);
+		reqAbufFromLwiracq: out std_logic;
+
+		dneAbufFromVgaacq: out std_logic;
 
 		ackBbufFromVgaacq: in std_logic;
 
-		strbDAbufFromVgaacq: out std_logic;
+		ackAbufFromLwiracq: in std_logic;
+
+		avllenAbufFromVgaacq: in std_logic_vector(15 downto 0);
 
 		dneBbufFromVgaacq: out std_logic;
 
+		dneAbufFromLwiracq: out std_logic;
+
+		dAbufFromVgaacq: in std_logic_vector(7 downto 0);
+
 		avllenBbufFromVgaacq: in std_logic_vector(15 downto 0);
+		avllenAbufFromLwiracq: in std_logic_vector(15 downto 0);
+
+		strbDAbufFromVgaacq: out std_logic;
 
 		dBbufFromVgaacq: in std_logic_vector(7 downto 0);
+
+		dAbufFromLwiracq: in std_logic_vector(7 downto 0);
+
 		strbDBbufFromVgaacq: out std_logic;
+
+		strbDAbufFromLwiracq: out std_logic;
 
 		rxd: in std_logic;
 		txd: out std_logic
@@ -264,7 +263,7 @@ architecture Hostif of Hostif is
 		stateOpRxbufA, stateOpRxbufB, stateOpRxbufC, stateOpRxbufD, stateOpRxbufE,
 		stateOpTxackA, stateOpTxackB
 	);
-	signal stateOp, stateOp_next: stateOp_t := stateOpIdle;
+	signal stateOp: stateOp_t := stateOpIdle;
 
 	constant sizeOpbuf: natural := 7;
 	type opbuf_t is array (0 to sizeOpbuf-1) of std_logic_vector(7 downto 0);
@@ -278,41 +277,41 @@ architecture Hostif of Hostif is
 	type txbuf_t is array (0 to sizeTxbuf-1) of std_logic_vector(7 downto 0);
 	signal txbuf: txbuf_t;
 
-	signal commok_sig, commok_sig_next: std_logic;
+	signal commok_sig: std_logic;
 	
-	signal reqReset_sig, reqReset_sig_next: std_logic;
+	signal reqReset_sig: std_logic;
 
 	signal ackInv: std_logic;
 
-	signal reqTxbuf, reqTxbuf_next: std_logic;
+	signal reqTxbuf: std_logic;
 	signal ackTxbuf: std_logic;
-	signal dneTxbuf, dneTxbuf_next: std_logic;
+	signal dneTxbuf: std_logic;
 
 	signal avllenTxbuf: natural range 0 to 65534;
 
 	signal dTxbuf: std_logic_vector(7 downto 0);
-	signal strbDTxbuf, strbDTxbuf_next: std_logic;
+	signal strbDTxbuf: std_logic;
 
-	signal reqRxbuf, reqRxbuf_next: std_logic;
+	signal reqRxbuf: std_logic;
 	signal ackRxbuf: std_logic;
-	signal dneRxbuf, dneRxbuf_next: std_logic;
+	signal dneRxbuf: std_logic;
 
 	signal avllenRxbuf: natural range 0 to 65534;
 
-	signal dRxbuf, dRxbuf_next: std_logic_vector(7 downto 0);
-	signal strbDRxbuf, strbDRxbuf_next: std_logic;
+	signal dRxbuf: std_logic_vector(7 downto 0);
+	signal strbDRxbuf: std_logic;
 
 	signal crccaptNotFin: std_logic;
 
-	signal crcd, crcd_next: std_logic_vector(7 downto 0);
+	signal crcd: std_logic_vector(7 downto 0);
 	signal strbCrcd: std_logic;
 
-	signal torestart, torestart_next: std_logic;
+	signal torestart: std_logic;
 	signal urxlen: std_logic_vector(16 downto 0);
 	signal urxburst: std_logic;
 	signal utxlen: std_logic_vector(16 downto 0);
 
-	signal utxd, utxd_next: std_logic_vector(7 downto 0);
+	signal utxd: std_logic_vector(7 downto 0);
 
 	signal alignSetSeqLenSeq_sig: std_logic_vector(7 downto 0);
 	signal alignSetSeqSeq_sig: std_logic_vector(255 downto 0);
@@ -609,105 +608,121 @@ begin
 
 	begin
 		if reset='1' then
-			stateOp_next <= stateOpIdle;
-			torestart_next <= '0';
-			crcd_next <= (others => '0');
-			utxd_next <= (others => '0');
-			commok_sig_next <= '0';
-			reqReset_sig_next <= '0';
-			reqTxbuf_next <= '0';
-			dneTxbuf_next <= '0';
-			strbDTxbuf_next <= '0';
-			reqRxbuf_next <= '0';
-			dneRxbuf_next <= '0';
-			dRxbuf_next <= x"00";
-			strbDRxbuf_next <= '0';
+			stateOp <= stateOpIdle;
+			torestart <= '0';
+			crcd <= (others => '0');
+			utxd <= (others => '0');
+			commok_sig <= '0';
+			reqReset_sig <= '0';
+			reqTxbuf <= '0';
+			dneTxbuf <= '0';
+			strbDTxbuf <= '0';
+			reqRxbuf <= '0';
+			dneRxbuf <= '0';
+			dRxbuf <= x"00";
+			strbDRxbuf <= '0';
+
+			alignSetSeqLenSeq_sig <= x"20";
+			alignSetSeqSeq_sig <= x"00102030405060708090A0B0C0D0E0F0F0E0D0C0B0A090807060504030201000";
+			ledSetTon15Ton15_sig <= x"14";
+			ledSetTon60Ton60_sig <= x"14";
+			lwiracqSetRngRng_sig <= fls8;
+			lwirifSetRngRng_sig <= tru8;
+			servoSetThetaTheta_sig <= x"0000";
+			servoSetPhiPhi_sig <= x"0000";
+			tkclksrcSetTkstTkst_sig <= x"00000000";
+			triggerSetRngRng_sig <= fls8;
+			triggerSetRngBtnNotTfrm_sig <= fls8;
+			triggerSetTdlyLwirTdlyLwir_sig <= x"0000";
+			triggerSetTdlyVisrTdlyVisr_sig <= x"0000";
+			triggerSetTfrmTfrm_sig <= x"000A";
+			vgaacqSetRngRng_sig <= fls8;
 
 		elsif rising_edge(mclk) then
 			if stateOp=stateOpIdle then
 				urxlen <= std_logic_vector(to_unsigned(sizeOpbuf, 17));
 				urxburst <= '0';
-				crcd_next <= (others => '0');
-				utxd_next <= (others => '0');
-				reqTxbuf_next <= '0';
-				dneTxbuf_next <= '0';
-				strbDTxbuf_next <= '0';
-				reqRxbuf_next <= '0';
-				dneRxbuf_next <= '0';
-				dRxbuf_next <= x"00";
-				strbDRxbuf_next <= '0';
+				crcd <= (others => '0');
+				utxd <= (others => '0');
+				reqTxbuf <= '0';
+				dneTxbuf <= '0';
+				strbDTxbuf <= '0';
+				reqRxbuf <= '0';
+				dneRxbuf <= '0';
+				dRxbuf <= x"00";
+				strbDRxbuf <= '0';
 
 				i := 0;
 
-				torestart_next <= '1';
+				torestart <= '1';
 
 				if ackUrx='0' then
-					stateOp_next <= stateOpRxopA;
+					stateOp <= stateOpRxopA;
 				end if;
 
 -- RX OP BEGIN
 			elsif stateOp=stateOpRxopA then
 				if (ackCrc='1' and ackUrx='1') then
-					stateOp_next <= stateOpRxopB;
+					stateOp <= stateOpRxopB;
 
 				elsif timeout='1' then
-					stateOp_next <= stateOpIdle;
+					stateOp <= stateOpIdle;
 
 				else
-					torestart_next <= '0';
+					torestart <= '0';
 				end if;
 
 			elsif stateOp=stateOpRxopB then
 				if strbUrxd='1' then
 					opbuf(i) <= urxd;
 
-					crcd_next <= urxd;
+					crcd <= urxd;
 
 					if (i=0 and urxd=x"FF") then
-						reqReset_sig_next <= '1';
+						reqReset_sig <= '1';
 					else
-						torestart_next <= '1';
+						torestart <= '1';
 
-						stateOp_next <= stateOpRxopC;
+						stateOp <= stateOpRxopC;
 					end if;
 
 				elsif ackUrx='0' then
-					stateOp_next <= stateOpIdle;
+					stateOp <= stateOpIdle;
 				end if;
 
 			elsif stateOp=stateOpRxopC then -- strbCrcd='1'
 				if strbUrxd='0' then
 					i := i + 1;
 
-					stateOp_next <= stateOpRxopB;
+					stateOp <= stateOpRxopB;
 
 				elsif dneUrx='1' then
-					stateOp_next <= stateOpRxopD;
+					stateOp <= stateOpRxopD;
 
 				elsif timeout='1' then
-					commok_sig_next <= '0';
-					stateOp_next <= stateOpIdle;
+					commok_sig <= '0';
+					stateOp <= stateOpIdle;
 
 				else
-					torestart_next <= '0';
+					torestart <= '0';
 				end if;
 
 			elsif stateOp=stateOpRxopD then
 				if dneCrc='1' then
 					if crc=x"0000" then
-						commok_sig_next <= '1';
+						commok_sig <= '1';
 						urxburst <= '1';
-						stateOp_next <= stateOpRxopE;
+						stateOp <= stateOpRxopE;
 					else
-						commok_sig_next <= '0';
-						stateOp_next <= stateOpIdle;
+						commok_sig <= '0';
+						stateOp <= stateOpIdle;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpRxopE then
 				if opbuf(ixOpbufBuffer)=tixWBufferCmdretToHostif then
 					urxburst <= '0';
-					stateOp_next <= stateOpPrepTxA;
+					stateOp <= stateOpPrepTxA;
 
 				elsif opbuf(ixOpbufBuffer)=tixWBufferHostifToCmdinv then
 					if ( (opbuf(ixOpbufController)=tixVControllerAlign and (opbuf(ixOpbufCommand)=tixVAlignCommandSetSeq))
@@ -723,10 +738,10 @@ begin
 
 						i := 0;
 
-						stateOp_next <= stateOpPrepRx;
+						stateOp <= stateOpPrepRx;
 
 					else
-						stateOp_next <= stateOpIdle;
+						stateOp <= stateOpIdle;
 					end if;
 
 				elsif avllenTxbuf/=0 then
@@ -740,12 +755,12 @@ begin
 					if (opbuf(ixOpbufLength)=x(15 downto 8) and opbuf(ixOpbufLength+1)=x(7 downto 0)) then
 						utxlen <= x;
 
-						reqTxbuf_next <= '1';
+						reqTxbuf <= '1';
 
-						stateOp_next <= stateOpTxbufA;
+						stateOp <= stateOpTxbufA;
 
 					else
-						stateOp_next <= stateOpIdle;
+						stateOp <= stateOpIdle;
 					end if;
 
 				elsif avllenRxbuf/=0 then
@@ -757,17 +772,17 @@ begin
 					if (opbuf(ixOpbufLength)=x(15 downto 8) and opbuf(ixOpbufLength+1)=x(7 downto 0)) then
 						urxlen <= x;
 
-						reqRxbuf_next <= '1';
-						strbDRxbuf_next <= '0';
+						reqRxbuf <= '1';
+						strbDRxbuf <= '0';
 
-						stateOp_next <= stateOpPrepRxbuf;
+						stateOp <= stateOpPrepRxbuf;
 
 					else
-						stateOp_next <= stateOpIdle;
+						stateOp <= stateOpIdle;
 					end if;
 
 				else
-					stateOp_next <= stateOpIdle;
+					stateOp <= stateOpIdle;
 				end if;
 -- RX OP END
 
@@ -827,19 +842,19 @@ begin
 				x := "0" & opbuf(ixOpbufLength) & opbuf(ixOpbufLength+1);
 				icrc := to_integer(unsigned(x)) - 2;
 
-				stateOp_next <= stateOpPrepTxB;
+				stateOp <= stateOpPrepTxB;
 
 			elsif stateOp=stateOpPrepTxB then
 				i := 0;
 
-				utxd_next <= txbuf(0);
-				crcd_next <= txbuf(0);
+				utxd <= txbuf(0);
+				crcd <= txbuf(0);
 
-				stateOp_next <= stateOpTxA;
+				stateOp <= stateOpTxA;
 
 			elsif stateOp=stateOpTxA then -- reqCrc='1', captNotFin='1'
 				if (ackCrc='1' and ackUtx='1') then
-					stateOp_next <= stateOpTxB;
+					stateOp <= stateOpTxB;
 				end if;
 
 			elsif stateOp=stateOpTxB then -- strbCrcd='1'
@@ -847,47 +862,47 @@ begin
 					i := i + 1;
 
 					if i=icrc then
-						stateOp_next <= stateOpTxD;
+						stateOp <= stateOpTxD;
 					else
-						utxd_next <= txbuf(i);
-						crcd_next <= txbuf(i);
+						utxd <= txbuf(i);
+						crcd <= txbuf(i);
 
-						stateOp_next <= stateOpTxC;
+						stateOp <= stateOpTxC;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpTxC then
 				if strbUtxd='1' then
-					stateOp_next <= stateOpTxB;
+					stateOp <= stateOpTxB;
 
 				elsif ackUtx='0' then
-					commok_sig_next <= '0';
-					stateOp_next <= stateOpIdle;
+					commok_sig <= '0';
+					stateOp <= stateOpIdle;
 				end if;
 
 			elsif stateOp=stateOpTxD then -- captNotFin='0'
 				if dneCrc='1' then
-					utxd_next <= crc(15 downto 8);
-					stateOp_next <= stateOpTxF;
+					utxd <= not crc(15 downto 8);
+					stateOp <= stateOpTxF;
 				end if;
 
 			elsif stateOp=stateOpTxE then
 				if dneUtx='1' then
-					stateOp_next <= stateOpIdle;
+					stateOp <= stateOpIdle;
 
 				elsif strbUtxd='0' then
-					utxd_next <= crc(7 downto 0); -- i increment not required, only one byte left
+					utxd <= not crc(7 downto 0); -- i increment not required, only one byte left
 
-					stateOp_next <= stateOpTxF;
+					stateOp <= stateOpTxF;
 				end if;
 
 			elsif stateOp=stateOpTxF then
 				if strbUtxd='1' then
-					stateOp_next <= stateOpTxE;
+					stateOp <= stateOpTxE;
 
 				elsif ackUtx='0' then
-					commok_sig_next <= '0';
-					stateOp_next <= stateOpIdle;
+					commok_sig <= '0';
+					stateOp <= stateOpIdle;
 				end if;
 -- TX END
 
@@ -896,287 +911,151 @@ begin
 				if ackTxbuf='1' then
 					i := 0;
 
-					utxd_next <= dTxbuf;
-					crcd_next <= dTxbuf;
+					utxd <= dTxbuf;
 
-					stateOp_next <= stateOpTxbufB;
+					stateOp <= stateOpTxbufB;
 				end if;
 
 			elsif stateOp=stateOpTxbufB then -- reqCrc='1', captNotFin='1'
+				crcd <= dTxbuf;
+
 				if (ackCrc='1' and ackUtx='1') then
-					stateOp_next <= stateOpTxbufC;
+					stateOp <= stateOpTxbufC;
 				end if;
 
 			elsif stateOp=stateOpTxbufC then -- strbCrcd='1'
 				if strbUtxd='0' then
-					strbDTxbuf_next <= '1';
+					strbDTxbuf <= '1';
 
 					i := i + 1;
 
 					if i=icrc then
-						stateOp_next <= stateOpTxbufH;
+						stateOp <= stateOpTxbufH;
 					else
-						stateOp_next <= stateOpTxbufD;
+						stateOp <= stateOpTxbufD;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpTxbufD then
-				strbDTxbuf_next <= '0';
+				strbDTxbuf <= '0';
 
-				stateOp_next <= stateOpTxbufF;
+				stateOp <= stateOpTxbufF;
 
 			elsif stateOp=stateOpTxbufE then
-				utxd_next <= dTxbuf;
-				crcd_next <= dTxbuf;
+				utxd <= dTxbuf;
 
-				stateOp_next <= stateOpTxbufG;
+				stateOp <= stateOpTxbufG;
 
 			elsif stateOp=stateOpTxbufF then
-				stateOp_next <= stateOpTxbufE;
+				stateOp <= stateOpTxbufE;
 
 			elsif stateOp=stateOpTxbufG then
+				crcd <= utxd;
+
 				if strbUtxd='1' then
-					stateOp_next <= stateOpTxbufC;
+					stateOp <= stateOpTxbufC;
 
 				elsif ackUtx='0' then
-					commok_sig_next <= '0';
-					stateOp_next <= stateOpIdle;
+					commok_sig <= '0';
+					stateOp <= stateOpIdle;
 				end if;
 
 			elsif stateOp=stateOpTxbufH then -- captNotFin='0'
 				if dneCrc='1' then
-					utxd_next <= crc(15 downto 8);
-					stateOp_next <= stateOpTxbufJ;
+					utxd <= not crc(15 downto 8);
+					stateOp <= stateOpTxbufJ;
 				end if;
 
 			elsif stateOp=stateOpTxbufI then
 				if dneUtx='1' then
-					dneTxbuf_next <= '1';
+					dneTxbuf <= '1';
 
-					stateOp_next <= stateOpTxbufK;
+					stateOp <= stateOpTxbufK;
 
 				elsif strbUtxd='0' then
-					utxd_next <= crc(7 downto 0); -- i increment not required, only one byte left
+					utxd <= not crc(7 downto 0); -- i increment not required, only one byte left
 
-					stateOp_next <= stateOpTxbufJ;
+					stateOp <= stateOpTxbufJ;
 				end if;
 
 			elsif stateOp=stateOpTxbufJ then
 				if strbUtxd='1' then
-					stateOp_next <= stateOpTxbufI;
+					stateOp <= stateOpTxbufI;
 
 				elsif ackUtx='0' then
-					commok_sig_next <= '0';
-					stateOp_next <= stateOpIdle;
+					commok_sig <= '0';
+					stateOp <= stateOpIdle;
 				end if;
 
 			elsif stateOp=stateOpTxbufK then
 				if ackTxbuf='0' then
-					stateOp_next <= stateOpIdle;
+					stateOp <= stateOpIdle;
 				end if;
 -- TX BUFFER END
 
 -- RX BEGIN
 			elsif stateOp=stateOpPrepRx then -- arrive here if buffer=hostifToCmdinv
 				if (ackCrc='0' and ackUrx='0') then
-					torestart_next <= '1';
+					torestart <= '1';
 
-					stateOp_next <= stateOpRxA;
+					stateOp <= stateOpRxA;
 				end if;
 
 			elsif stateOp=stateOpRxA then
 				if (ackCrc='1' and ackUrx='1') then
-					stateOp_next <= stateOpRxB;
+					stateOp <= stateOpRxB;
 
 				elsif timeout2='1' then
-					commok_sig_next <= '0';
-					stateOp_next <= stateOpIdle;
+					commok_sig <= '0';
+					stateOp <= stateOpIdle;
 
 				else
-					torestart_next <= '0';
+					torestart <= '0';
 				end if;
 
 			elsif stateOp=stateOpRxB then
 				if strbUrxd='1' then
 					rxbuf(i) <= urxd;
 
-					crcd_next <= urxd;
+					crcd <= urxd;
 
-					torestart_next <= '1';
+					torestart <= '1';
 
-					stateOp_next <= stateOpRxC;
+					stateOp <= stateOpRxC;
 
 				elsif ackUrx='0' then
-					stateOp_next <= stateOpIdle;
+					stateOp <= stateOpIdle;
 				end if;
 
 			elsif stateOp=stateOpRxC then -- strbCrcd='1'
 				if strbUrxd='0' then
 					i := i + 1;
 
-					stateOp_next <= stateOpRxB;
+					stateOp <= stateOpRxB;
 
 				elsif dneUrx='1' then
-					stateOp_next <= stateOpRxD;
+					stateOp <= stateOpRxD;
 
 				elsif timeout='1' then
-					commok_sig_next <= '0';
-					stateOp_next <= stateOpIdle;
+					commok_sig <= '0';
+					stateOp <= stateOpIdle;
 
 				else
-					torestart_next <= '0';
+					torestart <= '0';
 				end if;
 
 			elsif stateOp=stateOpRxD then
 				if dneCrc='1' then
 					if crc=x"0000" then
-						commok_sig_next <= '1';
-						stateOp_next <= stateOpCopyRxA;
+						commok_sig <= '1';
+						stateOp <= stateOpCopyRxA;
 					else
-						commok_sig_next <= '0';
-						stateOp_next <= stateOpIdle;
+						commok_sig <= '0';
+						stateOp <= stateOpIdle;
 					end if;
 				end if;
 
 			elsif stateOp=stateOpCopyRxA then
-				stateOp_next <= stateOpCopyRxB;
-
-				-- copy takes place on falling edge
-
-			elsif stateOp=stateOpCopyRxB then
-				if ackInv='1' then
-					utxlen <= "0" & x"0002"; -- tx 2x 0x00 (CRC of empty set)
-					utxd_next <= x"00";
-					stateOp_next <= stateOpTxackA;
-				end if;
--- RX END
-
--- RX BUFFER BEGIN
-			elsif stateOp=stateOpPrepRxbuf then
-				if (ackCrc='0' and ackUrx='0' and ackRxbuf='1') then
-					torestart_next <= '1';
-
-					stateOp_next <= stateOpRxbufA;
-				end if;
-
-			elsif stateOp=stateOpRxbufA then
-				if (ackCrc='1' and ackUrx='1') then
-					stateOp_next <= stateOpRxbufB;
-
-				elsif timeout2='1' then
-					commok_sig_next <= '0';
-					stateOp_next <= stateOpIdle;
-
-				else
-					torestart_next <= '0';
-				end if;
-
-			elsif stateOp=stateOpRxbufB then
-				if strbUrxd='1' then
-					dRxbuf_next <= urxd;
-					strbDRxbuf_next <= '1';
-
-					crcd_next <= urxd;
-
-					torestart_next <= '1';
-
-					stateOp_next <= stateOpRxbufC;
-
-				elsif ackUrx='0' then
-					stateOp_next <= stateOpIdle;
-				end if;
-
-			elsif stateOp=stateOpRxbufC then -- strbCrcd='1'
-				if strbUrxd='0' then
-					i := i + 1;
-
-					if i<icrc then
-						strbDRxbuf_next <= '0';
-					end if;
-
-					stateOp_next <= stateOpRxbufB;
-
-				elsif dneUrx='1' then
-					stateOp_next <= stateOpRxbufD;
-
-				elsif timeout='1' then
-					commok_sig_next <= '0';
-					stateOp_next <= stateOpIdle;
-
-				else
-					torestart_next <= '0';
-				end if;
-
-			elsif stateOp=stateOpRxbufD then
-				if dneCrc='1' then
-					if crc=x"0000" then
-						dneRxbuf_next <= '1';
-						commok_sig_next <= '1';
-						stateOp_next <= stateOpRxbufE;
-					else
-						commok_sig_next <= '0';
-						stateOp_next <= stateOpIdle;
-					end if;
-				end if;
-
-			elsif stateOp=stateOpRxbufE then
-				if ackRxbuf='0' then
-					reqRxbuf_next <= '0';
-
-					utxlen <= "0" & x"0002"; -- tx 2x 0x00 (CRC of empty set)
-					utxd_next <= x"00";
-					stateOp_next <= stateOpTxackA;
-				end if;
--- RX BUFFER END
-
-			elsif stateOp=stateOpTxackA then
-				if ackUtx='1' then
-					stateOp_next <= stateOpTxackB;
-				end if;
-
-			elsif stateOp=stateOpTxackB then
-				if dneUtx='1' then
-					stateOp_next <= stateOpIdle;
-				end if;
-			end if;
-		end if;
-	end process;
-
-	process (reset, mclk, stateOp)
-	begin
-		if falling_edge(mclk) then
-			if reset='1' then
-			alignSetSeqLenSeq_sig <= x"20";
-			alignSetSeqSeq_sig <= x"00102030405060708090A0B0C0D0E0F0F0E0D0C0B0A090807060504030201000";
-			ledSetTon15Ton15_sig <= x"14";
-			ledSetTon60Ton60_sig <= x"14";
-			lwiracqSetRngRng_sig <= fls8;
-			lwirifSetRngRng_sig <= tru8;
-			servoSetThetaTheta_sig <= x"0000";
-			servoSetPhiPhi_sig <= x"0000";
-			tkclksrcSetTkstTkst_sig <= x"00000000";
-			triggerSetRngRng_sig <= fls8;
-			triggerSetRngBtnNotTfrm_sig <= fls8;
-			triggerSetTdlyLwirTdlyLwir_sig <= x"0000";
-			triggerSetTdlyVisrTdlyVisr_sig <= x"0000";
-			triggerSetTfrmTfrm_sig <= x"000A";
-			vgaacqSetRngRng_sig <= fls8;
-			else
-				stateOp <= stateOp_next;
-				torestart <= torestart_next;
-				crcd <= crcd_next;
-				utxd <= utxd_next;
-				commok_sig <= commok_sig_next;
-				reqReset_sig <= reqReset_sig_next;
-				reqTxbuf <= reqTxbuf_next;
-				dneTxbuf <= dneTxbuf_next;
-				strbDTxbuf <= strbDTxbuf_next;
-				reqRxbuf <= reqRxbuf_next;
-				dneRxbuf <= dneRxbuf_next;
-				dRxbuf <= dRxbuf_next;
-				strbDRxbuf <= strbDRxbuf_next;
-
-				if stateOp_next=stateOpCopyRxB then
 				if opbuf(ixOpbufController)=tixVControllerAlign then
 					if opbuf(ixOpbufCommand)=tixVAlignCommandSetSeq then
 						alignSetSeqLenSeq_sig <= rxbuf(0);
@@ -1270,6 +1149,102 @@ begin
 
 				end if;
 
+				stateOp <= stateOpCopyRxB;
+
+			elsif stateOp=stateOpCopyRxB then
+				if ackInv='1' then
+					utxlen <= "0" & x"0002"; -- tx 2x (not 0x00) (CRC of empty set)
+					utxd <= x"FF";
+					stateOp <= stateOpTxackA;
+				end if;
+-- RX END
+
+-- RX BUFFER BEGIN
+			elsif stateOp=stateOpPrepRxbuf then
+				if (ackCrc='0' and ackUrx='0' and ackRxbuf='1') then
+					torestart <= '1';
+
+					stateOp <= stateOpRxbufA;
+				end if;
+
+			elsif stateOp=stateOpRxbufA then
+				if (ackCrc='1' and ackUrx='1') then
+					stateOp <= stateOpRxbufB;
+
+				elsif timeout2='1' then
+					commok_sig <= '0';
+					stateOp <= stateOpIdle;
+
+				else
+					torestart <= '0';
+				end if;
+
+			elsif stateOp=stateOpRxbufB then
+				if strbUrxd='1' then
+					dRxbuf <= urxd;
+					strbDRxbuf <= '1';
+
+					crcd <= urxd;
+
+					torestart <= '1';
+
+					stateOp <= stateOpRxbufC;
+
+				elsif ackUrx='0' then
+					stateOp <= stateOpIdle;
+				end if;
+
+			elsif stateOp=stateOpRxbufC then -- strbCrcd='1'
+				if strbUrxd='0' then
+					i := i + 1;
+
+					if i<icrc then
+						strbDRxbuf <= '0';
+					end if;
+
+					stateOp <= stateOpRxbufB;
+
+				elsif dneUrx='1' then
+					stateOp <= stateOpRxbufD;
+
+				elsif timeout='1' then
+					commok_sig <= '0';
+					stateOp <= stateOpIdle;
+
+				else
+					torestart <= '0';
+				end if;
+
+			elsif stateOp=stateOpRxbufD then
+				if dneCrc='1' then
+					if crc=x"0000" then
+						dneRxbuf <= '1';
+						commok_sig <= '1';
+						stateOp <= stateOpRxbufE;
+					else
+						commok_sig <= '0';
+						stateOp <= stateOpIdle;
+					end if;
+				end if;
+
+			elsif stateOp=stateOpRxbufE then
+				if ackRxbuf='0' then
+					reqRxbuf <= '0';
+
+					utxlen <= "0" & x"0002"; -- tx 2x (not 0x00) (CRC of empty set)
+					utxd <= x"FF";
+					stateOp <= stateOpTxackA;
+				end if;
+-- RX BUFFER END
+
+			elsif stateOp=stateOpTxackA then
+				if ackUtx='1' then
+					stateOp <= stateOpTxackB;
+				end if;
+
+			elsif stateOp=stateOpTxackB then
+				if dneUtx='1' then
+					stateOp <= stateOpIdle;
 				end if;
 			end if;
 		end if;

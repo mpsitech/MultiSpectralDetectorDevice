@@ -38,10 +38,10 @@ architecture Tkclksrc of Tkclksrc is
 		stateOpInv,
 		stateOpRun
 	);
-	signal stateOp, stateOp_next: stateOp_t := stateOpInit;
+	signal stateOp: stateOp_t := stateOpInit;
 
-	signal tkclk_sig, tkclk_sig_next: std_logic;
-	signal tkst, tkst_next: std_logic_vector(31 downto 0);
+	signal tkclk_sig: std_logic;
+	signal tkst: std_logic_vector(31 downto 0);
 
 begin
 
@@ -60,28 +60,28 @@ begin
 
 	begin
 		if reset='1' then
-			stateOp_next <= stateOpInit;
-			tkclk_sig_next <= '0';
-			tkst_next <= (others => '0');
+			stateOp <= stateOpInit;
+			tkclk_sig <= '0';
+			tkst <= (others => '0');
 
 			i := 0;
 
 		elsif rising_edge(mclk) then
 			if (stateOp=stateOpInit or (stateOp/=stateOpInv and reqInvSetTkst='1')) then
-				tkclk_sig_next <= '0';
+				tkclk_sig <= '0';
 
 				i := 0;
 
 				if reqInvSetTkst='1' then
-					tkst_next <= setTkstTkst;
-					stateOp_next <= stateOpInv;
+					tkst <= setTkstTkst;
+					stateOp <= stateOpInv;
 				else
-					stateOp_next <= stateOpRun;
+					stateOp <= stateOpRun;
 				end if;
 
 			elsif stateOp=stateOpInv then
 				if reqInvSetTkst='0' then
-					stateOp_next <= stateOpRun;
+					stateOp <= stateOpRun;
 				end if;
 
 			elsif stateOp=stateOpRun then
@@ -89,20 +89,11 @@ begin
 				if i=(fMclk/10)/2 then
 					i := 0;
 					if tkclk_sig='1' then
-						tkst_next <= std_logic_vector(unsigned(tkst) + 1);
+						tkst <= std_logic_vector(unsigned(tkst) + 1);
 					end if;
-					tkclk_sig_next <= not tkclk_sig;
+					tkclk_sig <= not tkclk_sig;
 				end if;
 			end if;
-		end if;
-	end process;
-
-	process (mclk)
-	begin
-		if falling_edge(mclk) then
-			stateOp <= stateOp_next;
-			tkclk_sig <= tkclk_sig_next;
-			tkst <= tkst_next;
 		end if;
 	end process;
 

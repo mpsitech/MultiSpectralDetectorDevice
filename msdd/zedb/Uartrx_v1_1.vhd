@@ -2,7 +2,7 @@
 -- Uartrx_v1_1 module implementation
 -- author Alexander Wirthmueller
 -- date created: 6 Aug 2016
--- date modified: 10 Sep 2018
+-- date modified: 6 Apr 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -261,3 +261,4 @@ begin
 	end process;
 
 end Uartrx_v1_1;
+

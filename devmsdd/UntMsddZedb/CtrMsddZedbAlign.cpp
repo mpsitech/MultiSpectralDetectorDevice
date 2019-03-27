@@ -2,8 +2,8 @@
   * \file CtrMsddZedbAlign.cpp
   * align controller (implementation)
   * \author Alexander Wirthmueller
-  * \date created: 26 Aug 2018
-  * \date modified: 26 Aug 2018
+  * \date created: 18 Oct 2018
+  * \date modified: 18 Oct 2018
   */
 
 #include "CtrMsddZedbAlign.h"

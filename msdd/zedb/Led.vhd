@@ -1,8 +1,8 @@
 -- file Led.vhd
 -- Led easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 9 Aug 2018
--- date modified: 10 Sep 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -166,6 +166,16 @@ begin
 	end process;
 	-- IP impl.15.rising --- END
 
+-- IP impl.15.falling --- BEGIN
+	process (mclk)
+		-- IP impl.15.falling.vars --- BEGIN
+		-- IP impl.15.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.15.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: 60deg LED PWM (60)
 	------------------------------------------------------------------------
@@ -253,6 +263,16 @@ begin
 	end process;
 	-- IP impl.60.rising --- END
 
+-- IP impl.60.falling --- BEGIN
+	process (mclk)
+		-- IP impl.60.falling.vars --- BEGIN
+		-- IP impl.60.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.60.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: other 
 	------------------------------------------------------------------------
@@ -261,5 +281,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Led;
+
 
 

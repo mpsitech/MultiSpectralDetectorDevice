@@ -2,8 +2,8 @@
   * \file UntMsddZedb_vecs.cpp
   * ZedBoard unit vectors (implementation)
   * \author Alexander Wirthmueller
-  * \date created: 26 Aug 2018
-  * \date modified: 26 Aug 2018
+  * \date created: 18 Oct 2018
+  * \date modified: 18 Oct 2018
   */
 
 #include "UntMsddZedb_vecs.h"

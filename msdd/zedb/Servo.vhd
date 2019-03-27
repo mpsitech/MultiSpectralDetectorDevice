@@ -1,8 +1,8 @@
 -- file Servo.vhd
 -- Servo easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 9 Aug 2018
--- date modified: 10 Sep 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -162,6 +162,16 @@ begin
 	end process;
 	-- IP impl.phi.rising --- END
 
+-- IP impl.phi.falling --- BEGIN
+	process (mclk)
+		-- IP impl.phi.falling.vars --- BEGIN
+		-- IP impl.phi.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.phi.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: theta axis servo PWM (theta)
 	------------------------------------------------------------------------
@@ -231,6 +241,16 @@ begin
 	end process;
 	-- IP impl.theta.rising --- END
 
+-- IP impl.theta.falling --- BEGIN
+	process (mclk)
+		-- IP impl.theta.falling.vars --- BEGIN
+		-- IP impl.theta.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.theta.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: microsecond clock (tus)
 	------------------------------------------------------------------------
@@ -272,6 +292,16 @@ begin
 	end process;
 	-- IP impl.tus.rising --- END
 
+-- IP impl.tus.falling --- BEGIN
+	process (mclk)
+		-- IP impl.tus.falling.vars --- BEGIN
+		-- IP impl.tus.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.tus.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: other 
 	------------------------------------------------------------------------
@@ -280,3 +310,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Servo;
+
+
+

@@ -1,8 +1,8 @@
 -- file Adxl.vhd
 -- Adxl easy model controller implementation
 -- author Alexander Wirthmueller
--- date created: 9 Aug 2018
--- date modified: 10 Sep 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -185,47 +185,47 @@ begin
 	-- IP impl.op.rising --- BEGIN
 	process (reset, mclk, stateOp)
 		-- IP impl.op.rising.vars --- RBEGIN
-	constant lenRxbuf: natural := 7;
-	type rxbuf_t is array(0 to lenRxbuf-1) of std_logic_vector(7 downto 0);
-	variable rxbuf: rxbuf_t;
+		constant lenRxbuf: natural := 7;
+		type rxbuf_t is array(0 to lenRxbuf-1) of std_logic_vector(7 downto 0);
+		variable rxbuf: rxbuf_t;
 
-	constant lenTxbuf: natural := 2;
-	type txbuf_t is array(0 to lenTxbuf-1) of std_logic_vector(7 downto 0);
-	variable txbuf: txbuf_t;
+		constant lenTxbuf: natural := 2;
+		type txbuf_t is array(0 to lenTxbuf-1) of std_logic_vector(7 downto 0);
+		variable txbuf: txbuf_t;
 
-	constant ixTxbufCmd: natural := 0;
+		constant ixTxbufCmd: natural := 0;
 
-	constant cmdSetRes: std_logic_vector(7 downto 0) := x"31";
-	constant ixTxbufSetResRes: natural := 1;
+		constant cmdSetRes: std_logic_vector(7 downto 0) := x"31";
+		constant ixTxbufSetResRes: natural := 1;
 
-	constant cmdSetRate: std_logic_vector(7 downto 0) := x"2C";
-	constant ixTxbufSetRateRate: natural := 1;
+		constant cmdSetRate: std_logic_vector(7 downto 0) := x"2C";
+		constant ixTxbufSetRateRate: natural := 1;
 
-	constant cmdSetPwr: std_logic_vector(7 downto 0) := x"2D";
-	constant ixTxbufSetPwrPwr: natural := 1;
+		constant cmdSetPwr: std_logic_vector(7 downto 0) := x"2D";
+		constant ixTxbufSetPwrPwr: natural := 1;
 
-	constant cmdGetData: std_logic_vector(7 downto 0) := x"F2";
-	constant ixRxbufGetDataAx: natural := 1;
-	constant ixRxbufGetDataAy: natural := 3;
-	constant ixRxbufGetDataAz: natural := 5;
-	
-	-- settings (write): DATA_FORMAT/RANGE 0x31 and BW_RATE 0x2C (2 bytes)
-	-- 00-110001 RRRRRRRR and 00-101100 BBBBBBBB
+		constant cmdGetData: std_logic_vector(7 downto 0) := x"F2";
+		constant ixRxbufGetDataAx: natural := 1;
+		constant ixRxbufGetDataAy: natural := 3;
+		constant ixRxbufGetDataAz: natural := 5;
+		
+		-- settings (write): DATA_FORMAT/RANGE 0x31 and BW_RATE 0x2C (2 bytes)
+		-- 00-110001 RRRRRRRR and 00-101100 BBBBBBBB
 
-	-- RRRRRRRR e.g. 0000 0 0 RR (01 for 4g)
-	-- BBBBBBBB e.g. 000 0 BBBB (400Hz/1100 for 100Hz fsmp)
+		-- RRRRRRRR e.g. 0000 0 0 RR (01 for 4g)
+		-- BBBBBBBB e.g. 000 0 BBBB (400Hz/1100 for 100Hz fsmp)
 
-	-- then POWER_CTL 0x2D (2 bytes)
-	
-	-- data: burst read 0x32 (7 bytes)
-	-- 11-110010 6xDDDDDDDD
+		-- then POWER_CTL 0x2D (2 bytes)
+		
+		-- data: burst read 0x32 (7 bytes)
+		-- 11-110010 6xDDDDDDDD
 
-	variable bytecnt: natural range 0 to lenRxbuf;
+		variable bytecnt: natural range 0 to lenRxbuf;
 
-	variable x: std_logic_vector(15 downto 0);
-	variable y: std_logic_vector(15 downto 0);
-	variable z: std_logic_vector(15 downto 0);
-	-- IP impl.op.rising.vars --- REND
+		variable x: std_logic_vector(15 downto 0);
+		variable y: std_logic_vector(15 downto 0);
+		variable z: std_logic_vector(15 downto 0);
+		-- IP impl.op.rising.vars --- REND
 
 	begin
 		if reset='1' then
@@ -235,6 +235,7 @@ begin
 			ay <= x"0000";
 			az <= x"0000";
 			reqSpi <= '0';
+			spilen <= "00000000000000000";
 			spisend <= x"00";
 			-- IP impl.op.rising.asyncrst --- END
 
@@ -364,6 +365,16 @@ begin
 	end process;
 	-- IP impl.op.rising --- END
 
+-- IP impl.op.falling --- BEGIN
+	process (mclk)
+		-- IP impl.op.falling.vars --- BEGIN
+		-- IP impl.op.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.op.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: sample clock (tsmp)
 	------------------------------------------------------------------------
@@ -428,6 +439,16 @@ begin
 	end process;
 	-- IP impl.tsmp.rising --- END
 
+-- IP impl.tsmp.falling --- BEGIN
+	process (mclk)
+		-- IP impl.tsmp.falling.vars --- BEGIN
+		-- IP impl.tsmp.falling.vars --- END
+	begin
+		if falling_edge(mclk) then
+		end if;
+	end process;
+-- IP impl.tsmp.falling --- END
+
 	------------------------------------------------------------------------
 	-- implementation: other 
 	------------------------------------------------------------------------
@@ -436,5 +457,6 @@ begin
 	-- IP impl.oth.cust --- INSERT
 
 end Adxl;
+
 
 

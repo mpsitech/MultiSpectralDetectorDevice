@@ -2,8 +2,8 @@
 # file checkin.sh
 # checkin script for Digilent Basys3 unit of Msdd embedded system code, release msdd_jack
 # author Alexander Wirthmueller
-# date created: 26 Aug 2018
-# modified: 26 Aug 2018
+# date created: 18 Oct 2018
+# modified: 18 Oct 2018
 
 export set REPROOT=/home/mpsitech/srcrep
 

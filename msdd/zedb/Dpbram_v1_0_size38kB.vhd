@@ -1,8 +1,8 @@
 -- file Dpbram_v1_0_size38kB.vhd
 -- Dpbram_v1_0_size38kB dpbram_v1_0 implementation
 -- author Alexander Wirthmueller
--- date created: 9 Aug 2018
--- date modified: 9 Aug 2018
+-- date created: 18 Oct 2018
+-- date modified: 18 Oct 2018
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -43,7 +43,6 @@ architecture Dpbram_v1_0_size38kB of Dpbram_v1_0_size38kB is
 	-- signal declarations
 	------------------------------------------------------------------------
 
-	signal enA0: std_logic := '0';
 	signal enA1: std_logic := '0';
 	signal enA2: std_logic := '0';
 	signal enA3: std_logic := '0';
@@ -62,8 +61,8 @@ architecture Dpbram_v1_0_size38kB of Dpbram_v1_0_size38kB is
 	signal enA16: std_logic := '0';
 	signal enA17: std_logic := '0';
 	signal enA18: std_logic := '0';
+	signal enA0: std_logic := '0';
 
-	signal drdA0: std_logic_vector(7 downto 0) := x"00";
 	signal drdA1: std_logic_vector(7 downto 0) := x"00";
 	signal drdA2: std_logic_vector(7 downto 0) := x"00";
 	signal drdA3: std_logic_vector(7 downto 0) := x"00";
@@ -82,8 +81,8 @@ architecture Dpbram_v1_0_size38kB of Dpbram_v1_0_size38kB is
 	signal drdA16: std_logic_vector(7 downto 0) := x"00";
 	signal drdA17: std_logic_vector(7 downto 0) := x"00";
 	signal drdA18: std_logic_vector(7 downto 0) := x"00";
+	signal drdA0: std_logic_vector(7 downto 0) := x"00";
 
-	signal enB0: std_logic := '0';
 	signal enB1: std_logic := '0';
 	signal enB2: std_logic := '0';
 	signal enB3: std_logic := '0';
@@ -102,8 +101,8 @@ architecture Dpbram_v1_0_size38kB of Dpbram_v1_0_size38kB is
 	signal enB16: std_logic := '0';
 	signal enB17: std_logic := '0';
 	signal enB18: std_logic := '0';
+	signal enB0: std_logic := '0';
 
-	signal drdB0: std_logic_vector(7 downto 0) := x"00";
 	signal drdB1: std_logic_vector(7 downto 0) := x"00";
 	signal drdB2: std_logic_vector(7 downto 0) := x"00";
 	signal drdB3: std_logic_vector(7 downto 0) := x"00";
@@ -122,6 +121,7 @@ architecture Dpbram_v1_0_size38kB of Dpbram_v1_0_size38kB is
 	signal drdB16: std_logic_vector(7 downto 0) := x"00";
 	signal drdB17: std_logic_vector(7 downto 0) := x"00";
 	signal drdB18: std_logic_vector(7 downto 0) := x"00";
+	signal drdB0: std_logic_vector(7 downto 0) := x"00";
 	-- IP sigs --- END
 
 begin
